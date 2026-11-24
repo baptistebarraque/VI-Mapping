@@ -1,0 +1,12 @@
+# Base PostGIS prête à l'emploi (alternative à un PostgreSQL local).
+services:
+  db:
+    image: imresamu/postgis:17-3.5   # multi-architecture (amd64 et arm64)
+    environment:
+      POSTGRES_USER: vi
+      POSTGRES_DB: vi_mapping
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports: ["127.0.0.1:55432:5432"]
+    volumes: ["pg:/var/lib/postgresql/data"]
+volumes:
+  pg:

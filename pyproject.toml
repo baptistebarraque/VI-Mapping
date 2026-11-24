@@ -1,0 +1,49 @@
+[project]
+name = "vi-mapping"
+version = "0.1.0"
+description = "Collecte open data et carte des communautés scolaires favorables à l'éducation alimentaire en Île-de-France"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "httpx>=0.28",
+    "psycopg[binary]>=3.2",
+    "pydantic>=2.9",
+    "pyyaml>=6.0",
+    "typer>=0.15",
+    "rich>=13.9",
+    "rapidfuzz>=3.10",
+    "selectolax>=0.3.27",
+    "protego>=0.4",
+    "openpyxl>=3.1",
+    "duckdb>=1.1",
+    "osmium>=4.0",
+    "numpy>=2.0",
+]
+
+[project.optional-dependencies]
+route = ["osrm-bindings>=26.0"]
+
+[project.scripts]
+vi = "vi_mapping.cli:app"
+
+[dependency-groups]
+dev = ["pytest>=8.3", "ruff>=0.8", "respx>=0.22"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/vi_mapping"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["db: nécessite une base PostgreSQL/PostGIS (DATABASE_URL_TEST)"]
+
+[tool.ruff]
+line-length = 120
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+ignore = ["RUF001", "RUF002", "RUF003"]  # typographie française (apostrophes, tirets) volontaire

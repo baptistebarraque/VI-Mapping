@@ -1,0 +1,69 @@
+# Jauges 0-100. Tout est réglable ici ; les poids du score le sont aussi en direct dans la carte.
+#
+# Règle commune : chaque jauge est la moyenne pondérée de ses critères CONNUS.
+# Si la part des sous-poids connus est inférieure à part_min_connue, la jauge vaut
+# « données insuffisantes » et n'entre pas dans le score (elle ne compte jamais 0).
+
+poids:
+  engagement: 25
+  periscolaire: 25
+  parents: 15
+  producteurs: 20
+  familles: 15
+
+donnees_insuffisantes:
+  part_min_connue_jauge: 0.5
+  part_min_connue_score: 0.5
+
+# Rayon par défaut. mode « ou » : un producteur est dans le rayon s'il est à 30 km OU à 45 min.
+rayon:
+  km: 30
+  minutes: 45
+  mode: ou            # ou | km | minutes
+
+engagement:
+  sous_poids: {pat: 35, bio: 25, web: 25, cite_educative: 15}
+  pat: {avec_axe_education: 100, sans_axe_education: 50, aucun: 0}
+  bio:
+    pct_plein: 40      # 40 % de bio = 100 ; 20 % (obligation EGalim) = 50
+  web:
+    fenetre_mois: 24
+    themes_plein: 3    # 3 thèmes alimentaires distincts récents sur le site de la mairie = 100
+    themes: [bio, anti_gaspi, potager, education_gout, alimentation_durable]
+  # Arrondissements de Paris : PAT, cantine et site web sont ceux de la commune mère si absents.
+
+periscolaire:
+  sous_poids: {soir: 50, mercredi: 30, gestionnaire: 20}
+  distance_max_m: 300
+  # Valeurs selon la précision de l'information disponible
+  soir: {oui: 100, accueil_sans_horaire: 50, oui_commune: 70}
+  mercredi: {oui: 100, oui_commune: 70}
+  gestionnaire: {identifie: 100, non_identifie: 0}
+  # Les sources d'accueils ne sont pas exhaustives (monenfant.fr verrouillé) :
+  # l'absence d'accueil trouvé vaut « inconnu », pas 0.
+  source_exhaustive: false
+
+parents:
+  sous_poids: {rattachee: 50, federee: 20, active: 30}
+  confiance_min: 0.35
+  fenetre_activite_mois: 12
+  # Beaucoup de conseils locaux FCPE/PEEP ne sont pas déclarés en propre au RNA :
+  # l'absence d'asso trouvée vaut « inconnu », pas 0.
+  source_exhaustive: false
+
+producteurs:
+  sous_poids: {plus_proche: 60, nombre: 40}
+  minutes_plein: 15    # 100 si le plus proche est à 15 min ou moins, 0 en bord de rayon
+  nombre_plein: 5
+
+familles:
+  sous_poids: {nb_eleves: 30, familles_iris: 30, mixite: 40}
+  nb_eleves_plein: 300
+  familles_iris_plein: 800
+  mixite:
+    # Mixité = IPS proche de la référence (ni très favorisé ni très défavorisé) + QPV à proximité.
+    ips_reference: 104
+    ips_amplitude: 40   # écart à la référence qui donne 0
+    part_ips: 70
+    part_qpv: 30
+    qpv_distance_max_m: 300

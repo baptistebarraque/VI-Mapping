@@ -1,0 +1,367 @@
+# Registre des sources : origine, licence, fréquence, statut juridique vérifié.
+#
+# statut :
+#   ouverte     : open data / API publique, ou site dont robots.txt et CGU permettent la collecte
+#   verrouillee : CGU ou anti-robot l'interdisent ; le moteur refuse de lancer la collecte tant que
+#                 « autorisation » n'est pas renseignée (date, référence de l'accord écrit)
+# frequence : annuelle (open data) ou mensuelle (scraping)
+# confiance : valeur par défaut, affinée ligne par ligne par les connecteurs
+
+sources:
+  # ------------------------------------------------------------------ Open data et API
+  ign_admin_express:
+    libelle: ADMIN EXPRESS COG CARTO (communes, arrondissements, population Insee)
+    producteur: IGN / Insee
+    url: https://data.geopf.fr/wfs/ows
+    licence: Licence Ouverte 2.0
+    methode: api
+    frequence: annuelle
+    statut: ouverte
+    confiance: 1.0
+
+  banatic:
+    libelle: Banatic, groupements de communes (EPCI et EPT)
+    producteur: DGCL
+    url: https://www.banatic.interieur.gouv.fr/consultation/api/export/pregenere/telecharger/11
+    licence: Licence Ouverte 2.0
+    methode: csv
+    frequence: annuelle
+    statut: ouverte
+    confiance: 1.0
+
+  annuaire_administration:
+    libelle: Annuaire de l'administration (sites web des mairies)
+    producteur: DILA
+    url: https://api-lannuaire.service-public.fr/api/explore/v2.1/catalog/datasets/api-lannuaire-administration
+    licence: Licence Ouverte 2.0
+    methode: api
+    frequence: annuelle
+    statut: ouverte
+    confiance: 0.9
+
+  ma_cantine:
+    libelle: ma cantine, registre national et télédéclarations
+    producteur: Ministère de l'Agriculture
+    url: https://www.data.gouv.fr/datasets/registre-national-des-cantines/
+    licence: Licence Ouverte 2.0
+    methode: csv
+    frequence: annuelle
+    statut: ouverte
+    confiance: 0.8       # déclaratif
+
+  annuaire_education:
+    libelle: Annuaire de l'éducation
+    producteur: Ministère de l'Éducation nationale
+    url: https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-annuaire-education
+    licence: Licence Ouverte 2.0
+    methode: api
+    frequence: annuelle
+    statut: ouverte
+    confiance: 1.0
+
+  effectifs_ecoles:
+    libelle: Effectifs d'élèves par école
+    producteur: Ministère de l'Éducation nationale (DEPP)
+    url: https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-ecoles-effectifs-nb_classes
+    licence: Licence Ouverte 2.0
+    methode: api
+    frequence: annuelle
+    statut: ouverte
+    confiance: 1.0
+
+  ips_ecoles:
+    libelle: Indices de position sociale des écoles
+    producteur: Ministère de l'Éducation nationale (DEPP)
+    url: https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-ips-ecoles-ap2022
+    licence: Licence Ouverte 2.0
+    methode: api
+    frequence: annuelle
+    statut: ouverte
+    confiance: 1.0
+
+  cites_educatives_etablissements:
+    libelle: Établissements membres d'une cité éducative
+    producteur: Ministère de l'Éducation nationale
+    url: https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-cites_educatives
+    licence: Licence Ouverte 2.0
+    methode: api
+    frequence: annuelle
+    statut: ouverte
+    confiance: 1.0
+
+  ign_iris:
+    libelle: Contours IRIS
+    producteur: IGN / Insee
+    url: https://data.geopf.fr/wfs/ows
+    licence: Licence Ouverte 2.0
+    methode: api
+    frequence: annuelle
+    statut: ouverte
+    confiance: 1.0
+
+  insee_familles_iris:
+    libelle: Recensement, familles par IRIS (API Melodi)
+    producteur: Insee
+    url: https://api.insee.fr/melodi/catalog/DS_RP_FAMILLE_COMP_IRIS
+    licence: Licence Ouverte 2.0
+    methode: csv
+    frequence: annuelle
+    statut: ouverte
+    confiance: 0.9       # estimation par sondage à l'IRIS
+
+  insee_filosofi_iris:
+    libelle: Filosofi, revenus et pauvreté par IRIS
+    producteur: Insee
+    url: https://www.insee.fr/fr/statistiques/8229323
+    licence: Licence Ouverte 2.0
+    methode: csv
+    frequence: annuelle
+    statut: ouverte
+    confiance: 0.8       # millésime 2021, dernier publié à l'IRIS
+
+  anct_qpv:
+    libelle: Quartiers prioritaires de la politique de la ville 2024
+    producteur: ANCT
+    url: https://data.iledefrance.fr/api/explore/v2.1/catalog/datasets/qp-politiquedelaville-shp
+    licence: Licence Ouverte 2.0
+    methode: api
+    frequence: annuelle
+    statut: ouverte
+    confiance: 1.0
+
+  anct_cites_educatives:
+    libelle: Programme Cités éducatives (communes et QPV couverts)
+    producteur: ANCT
+    url: https://www.data.gouv.fr/datasets/programme-cites-educatives/
+    licence: Licence Ouverte 2.0
+    methode: csv
+    frequence: annuelle
+    statut: ouverte
+    confiance: 1.0
+
+  france_pat:
+    libelle: Projets alimentaires territoriaux (PAT) et lauréats PNA
+    producteur: France PAT
+    url: https://www.data.gouv.fr/datasets/pat-projets-alimentaires-territoriaux-description/
+    licence: Licence Ouverte 2.0
+    methode: csv
+    frequence: annuelle
+    statut: ouverte
+    confiance: 0.95
+
+  rne:
+    libelle: Répertoire national des élus
+    producteur: Ministère de l'Intérieur
+    url: https://www.data.gouv.fr/datasets/repertoire-national-des-elus-1/
+    licence: Licence Ouverte 2.0
+    methode: csv
+    frequence: annuelle
+    statut: ouverte
+    confiance: 1.0
+
+  rna:
+    libelle: Répertoire national des associations
+    producteur: Ministère de l'Intérieur
+    url: https://www.data.gouv.fr/datasets/repertoire-national-des-associations/
+    licence: Licence Ouverte 2.0
+    methode: csv
+    frequence: annuelle
+    statut: ouverte
+    confiance: 0.7       # une asso inactive reste inscrite tant qu'elle n'est pas dissoute
+
+  sirene:
+    libelle: Base Sirene, stock des établissements
+    producteur: Insee
+    url: https://www.data.gouv.fr/datasets/base-sirene-des-entreprises-et-de-leurs-etablissements-siren-siret/
+    licence: Licence Ouverte 2.0
+    methode: csv
+    frequence: annuelle
+    statut: ouverte
+    confiance: 0.75
+
+  recherche_entreprises:
+    libelle: API Recherche d'entreprises
+    producteur: DINUM
+    url: https://recherche-entreprises.api.gouv.fr
+    licence: Licence Ouverte 2.0
+    methode: api
+    frequence: annuelle
+    statut: ouverte
+    confiance: 0.95
+
+  osm:
+    libelle: OpenStreetMap (extrait Île-de-France de Geofabrik)
+    producteur: Contributeurs OpenStreetMap
+    url: https://download.geofabrik.de/europe/france/ile-de-france-latest.osm.pbf
+    licence: ODbL 1.0
+    methode: csv
+    frequence: annuelle
+    statut: ouverte
+    confiance: 0.65
+
+  agence_bio:
+    libelle: API Professionnels Bio
+    producteur: Agence Bio
+    url: https://opendata.agencebio.org/api/gouv/operateurs/
+    licence: Licence Ouverte 2.0
+    methode: api
+    frequence: annuelle
+    statut: ouverte
+    confiance: 0.95
+
+  ban:
+    libelle: Base adresse nationale (géocodage)
+    producteur: IGN / DINUM
+    url: https://data.geopf.fr/geocodage/search/csv
+    licence: Licence Ouverte 2.0
+    methode: api
+    frequence: annuelle
+    statut: ouverte
+    confiance: 0.9
+
+  # ------------------------------------------------------------------ Calculs
+  rattachements:
+    libelle: Rattachements automatiques (accueils, associations)
+    producteur: Calcul
+    url: config/idf.yaml
+    licence: Sans objet
+    methode: calcul
+    frequence: mensuelle
+    statut: ouverte
+    confiance: 0.7
+
+  osrm:
+    libelle: Distances et temps par la route (OSRM sur OpenStreetMap)
+    producteur: Calcul
+    url: https://download.geofabrik.de/europe/france/ile-de-france-latest.osm.pbf
+    licence: ODbL 1.0
+    methode: calcul
+    frequence: annuelle
+    statut: ouverte
+    confiance: 0.9
+
+  # ------------------------------------------------------------------ Scraping autorisé
+  sites_mairies:
+    libelle: Sites web des mairies (signaux, délégations, périscolaire)
+    producteur: Communes
+    url: https://www.service-public.fr
+    licence: Faits extraits (URL, date, thème) ; aucun contenu reproduit
+    methode: scraping
+    frequence: mensuelle
+    statut: ouverte
+    confiance: 0.6
+    verification:
+      le: 2026-11-25
+      constat: >
+        robots.txt vérifié site par site à chaque passage, réserve TDM (en-tête et balise tdm-reservation)
+        respectée. Seuls sont conservés l'URL, le titre, la date et le thème.
+
+  fcpe_departements:
+    libelle: FCPE 93 et 95, conseils locaux
+    producteur: FCPE 93 / FCPE 95
+    url: https://fcpe93.fr
+    licence: Faits extraits (nom, commune, site) ; aucun contenu reproduit
+    methode: scraping
+    frequence: mensuelle
+    statut: ouverte
+    confiance: 0.6
+    verification:
+      le: 2026-11-25
+      robots: "autorisé (seul /wp-admin/ est exclu)"
+      cgu_url: https://www.fcpe95.com/mentions-legales/
+      constat: >
+        FCPE 95 : mentions légales sans clause de réutilisation. FCPE 93 : pas de mentions légales publiées.
+        FCPE 92 : aucun annuaire de conseils locaux. FCPE 77, 78, 91 et 94 : pas de site joignable.
+
+  sites_assos:
+    libelle: Sites des associations de parents (date de dernière activité)
+    producteur: Associations
+    url: https://www.data.gouv.fr/datasets/repertoire-national-des-associations/
+    licence: Faits extraits (date) ; aucun contenu reproduit
+    methode: scraping
+    frequence: mensuelle
+    statut: ouverte
+    confiance: 0.6
+    verification:
+      le: 2026-11-25
+      constat: robots.txt vérifié site par site. Réseaux sociaux exclus (CGU).
+
+  # ------------------------------------------------------------------ Scraping verrouillé
+  monenfant:
+    libelle: monenfant.fr (accueils périscolaires)
+    producteur: Cnaf
+    url: https://monenfant.fr
+    licence: Usage personnel et non commercial
+    methode: scraping
+    frequence: mensuelle
+    statut: verrouillee
+    confiance: 0.9
+    verification:
+      le: 2026-11-25
+      robots: "autorisé (Disallow vide)"
+      cgu_url: https://monenfant.fr/mentions-legales
+      constat: >
+        Les conditions limitent l'usage à des fins personnelles et non commerciales, interdisent toute
+        exploitation commerciale et annoncent des poursuites pénales pour toute autre utilisation que la mise
+        en relation des familles avec les structures d'accueil.
+      anti_robot: Radware Bot Manager (redirection vers validate.perfdrive.com)
+      remplacement: [sirene, osm, sites_mairies]
+      demarche: Demander à la Cnaf (Direction des politiques familiale et sociale) un accès ou un export.
+    autorisation: null
+
+  amap_idf:
+    libelle: Carte du Réseau AMAP Île-de-France
+    producteur: Réseau AMAP IdF
+    url: https://amap-idf.org/les-amap/trouver-une-amap-en-idf
+    licence: Reproduction interdite
+    methode: scraping
+    frequence: mensuelle
+    statut: verrouillee
+    confiance: 0.95
+    verification:
+      le: 2026-11-25
+      robots: "autorisé (Disallow vide)"
+      cgu_url: https://amap-idf.org/infos-legales
+      constat: >
+        Reproduction totale ou partielle prohibée ; transfert d'informations vers un site tiers interdit.
+      remplacement: [rna, osm]
+      demarche: Demander un export au Réseau AMAP IdF (partenaire naturel du projet).
+    autorisation: null
+
+  fcpe_paris:
+    libelle: FCPE Paris, conseils locaux
+    producteur: FCPE 75
+    url: https://www.fcpe75.org/sites-des-conseils-locaux/
+    licence: Reproduction interdite sans accord écrit
+    methode: scraping
+    frequence: mensuelle
+    statut: verrouillee
+    confiance: 0.8
+    verification:
+      le: 2026-11-25
+      robots: autorisé
+      cgu_url: https://www.fcpe75.org/mentions-legales/
+      constat: Toute reproduction, même partielle, interdite sans accord exprès par écrit.
+      remplacement: [rna]
+      demarche: Demander l'accord écrit de la FCPE Paris.
+    autorisation: null
+
+  peep_national:
+    libelle: PEEP, associations locales
+    producteur: PEEP
+    url: https://peep.asso.fr
+    licence: Usage personnel et privé
+    methode: scraping
+    frequence: mensuelle
+    statut: verrouillee
+    confiance: 0.8
+    verification:
+      le: 2026-11-25
+      robots: "autorisé (Disallow vide)"
+      cgu_url: https://peep.asso.fr/mentions-legales/
+      constat: >
+        Reproduction autorisée pour un usage personnel et privé uniquement ; toute autre utilisation
+        expressément interdite. Aucun site départemental francilien joignable.
+      remplacement: [rna]
+      demarche: Demander l'accord écrit de la PEEP.
+    autorisation: null
