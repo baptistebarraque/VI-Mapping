@@ -1,0 +1,23 @@
+# Environnement
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.env
+.env.local
+
+# Données téléchargées, base locale, graphe routier : jamais versionnés
+/data/
+/.pg/
+
+# Front
+node_modules/
+web/dist/
+web/public/donnees/
+
+# Divers
+.DS_Store
+*.log
+.claude/settings.local.json
