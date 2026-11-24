@@ -47,6 +47,7 @@ def collecter(
     tout: Annotated[bool, typer.Option("--tout", help="Toutes les sources")] = False,
     dus: Annotated[bool, typer.Option("--dus", help="Seulement celles arrivées à échéance")] = False,
     limite: Annotated[int | None, typer.Option(help="Nombre maximal de sites (scrapers)")] = None,
+    forcer: Annotated[bool, typer.Option("--forcer", help="Accepter une forte baisse du nombre de lignes")] = False,
 ) -> None:
     """Collecte une ou plusieurs sources (idempotent)."""
     charger()
@@ -60,7 +61,8 @@ def collecter(
         if inconnus or not codes:
             raise typer.BadParameter(f"sources inconnues : {inconnus}" if inconnus else "aucune source demandée")
         choix = ordre([c for c in codes if c in REGISTRE]) + [c for c in codes if c not in REGISTRE]
-    echecs = [c for c in choix if executer(c, limite=limite) == "echec"]
+    options = {"forcer": True} if forcer else {}
+    echecs = [c for c in choix if executer(c, limite=limite, options=options) == "echec"]
     if echecs:
         console.print(f"[red]Échecs : {', '.join(echecs)}[/red]")
         raise typer.Exit(1)

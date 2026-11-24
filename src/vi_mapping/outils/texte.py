@@ -25,16 +25,24 @@ def normaliser(texte: str | None) -> str:
     """Minuscules, sans accents ni ponctuation, espaces simples."""
     if not texte:
         return ""
-    t = sans_accents(texte).lower()
+    t = sans_accents(reparer(texte)).lower()
     t = re.sub(r"[^a-z0-9]+", " ", t)
     return _ESPACES.sub(" ", t).strip()
 
 
+_CONTROLES_C1 = re.compile(r"[\x80-\x9f]")
+
+
+def reparer(texte: str) -> str:
+    """Rend leur valeur windows-1252 aux caractères de contrôle C1 (« d\x92élèves », « \x9cuvre »)."""
+    return _CONTROLES_C1.sub(lambda m: m.group().encode("latin-1").decode("cp1252", "replace"), texte)
+
+
 def propre(texte: str | None) -> str | None:
-    """Espaces réduits ; None si vide."""
+    """Espaces réduits, caractères réparés ; None si vide."""
     if texte is None:
         return None
-    t = _ESPACES.sub(" ", str(texte)).strip()
+    t = _ESPACES.sub(" ", reparer(str(texte))).strip()
     return t or None
 
 
@@ -57,19 +65,64 @@ def adresse_sans_personne(texte: str | None) -> str | None:
     return propre(t.strip(" ,;-")) if t else None
 
 
-_PETITS_MOTS = {"de", "du", "des", "la", "le", "les", "et", "en", "sur", "sous", "aux", "au", "a", "d", "l", "lès"}
+_PETITS_MOTS = {
+    "de", "du", "des", "la", "le", "les", "et", "en", "sur", "sous", "aux", "au", "a", "à", "pour", "lès", "ou",
+}
+_ELISIONS = {"d'", "l'", "qu'", "n'", "s'", "jusqu'"}
 
 
 def titre(texte: str | None) -> str | None:
-    """« ECOLE JULES FERRY » -> « Ecole Jules Ferry » (laisse intacts les textes déjà en casse mixte)."""
+    """« ECOLE D'APPLICATION » -> « Ecole d'Application » (laisse intacts les textes déjà en casse mixte)."""
     t = propre(texte)
     if t is None or t != t.upper():
         return t
     mots = []
-    for i, mot in enumerate(t.lower().split(" ")):
-        morceaux = [
-            m if (i > 0 and m in _PETITS_MOTS) else m[:1].upper() + m[1:]
-            for m in re.split(r"(?<=[-'’])", mot)
-        ]
+    for i, mot in enumerate(t.lower().replace("’", "'").split(" ")):
+        morceaux = []
+        for j, m in enumerate(re.split(r"(?<=[-'])", mot)):
+            nu = m.strip("-")
+            petit = (nu in _PETITS_MOTS or nu in _ELISIONS) and (i > 0 or j > 0)
+            # première lettre, même précédée de « ( » ou de guillemets
+            morceaux.append(m if petit else re.sub(r"[^\W\d_]", lambda x: x.group().upper(), m, count=1))
         mots.append("".join(morceaux))
     return " ".join(mots)
+
+
+_TYPES_VOIE = {
+    "all": "allée", "av": "avenue", "bd": "boulevard", "bld": "boulevard", "car": "carrefour", "che": "chemin",
+    "chs": "chaussée", "cite": "cité", "cor": "corniche", "crs": "cours", "dom": "domaine", "esp": "esplanade",
+    "fg": "faubourg", "gr": "grande rue", "ham": "hameau", "hle": "halle", "imp": "impasse", "ld": "lieu-dit",
+    "lot": "lotissement", "mar": "marché", "mte": "montée", "pas": "passage", "pl": "place", "pln": "plaine",
+    "plt": "plateau", "prom": "promenade", "prv": "parvis", "qua": "quartier", "quai": "quai", "res": "résidence",
+    "rle": "ruelle", "roc": "rocade", "rpt": "rond-point", "rte": "route", "rue": "rue", "sen": "sentier",
+    "sq": "square", "tpl": "terre-plein", "tra": "traverse", "vla": "villa", "vlge": "village", "za": "ZA",
+    "zac": "ZAC", "zi": "ZI", "zup": "ZUP", "parc": "parc", "pte": "porte", "cour": "cour", "ave": "avenue",
+}
+
+
+def type_voie(abrege: str | None) -> str | None:
+    """« AV » -> « avenue » ; mot inconnu rendu en minuscules."""
+    t = propre(abrege)
+    return _TYPES_VOIE.get(t.lower(), t.lower()) if t else None
+
+
+_HOTE = re.compile(r"^(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}$")
+_RESEAUX_SOCIAUX = re.compile(
+    r"(^|\.)(facebook|fb|instagram|twitter|x|linkedin|youtube|tiktok|threads|whatsapp|linktr|helloasso)\.(com|fr|ee|me)$"
+)
+
+
+def site_web(brut: str | None, *, reseaux_sociaux: bool = False) -> str | None:
+    """Adresse http(s) valable tirée d'un champ libre ; None pour un e-mail, un texte ou un réseau social."""
+    t = (propre(brut) or "").strip(" .;,")
+    if not t or "@" in t or " " in t:
+        return None
+    if "://" not in t:
+        t = f"https://{t}"
+    schema, _, reste = t.partition("://")
+    hote = re.split(r"[/?#:]", reste, maxsplit=1)[0].lower()
+    if schema.lower() not in ("http", "https") or not _HOTE.match(hote):
+        return None
+    if not reseaux_sociaux and _RESEAUX_SOCIAUX.search(hote):
+        return None
+    return f"{schema.lower()}://{hote}{reste[len(hote):]}"

@@ -147,6 +147,64 @@ def purger_absents(
     return cur.rowcount
 
 
+def enrichir(
+    conn: psycopg.Connection[Any],
+    table: str,
+    lignes: Iterable[Ligne],
+    cle: str,
+    groupe: str,
+    *,
+    chute_max: float = 0.5,
+) -> int:
+    """Met à jour des colonnes de lignes existantes et trace leur origine dans `provenances[groupe]`.
+
+    Chaque ligne porte la clé, les colonnes à écrire et `provenance` (dict). Les lignes enrichies lors d'une
+    collecte précédente mais absentes de celle-ci sont remises à NULL. Retourne le nombre de lignes touchées.
+    """
+    uniques = {ligne[cle]: ligne for ligne in lignes}
+    avant = conn.execute(
+        sql.SQL("SELECT count(*) AS n FROM {} WHERE provenances ? %s").format(sql.Identifier(table)), (groupe,)
+    ).fetchone()
+    assert avant is not None
+    if avant["n"] >= 20 and len(uniques) < (1 - chute_max) * avant["n"]:
+        raise ChuteAnormale(f"{table}/{groupe} : {len(uniques)} lignes au lieu de {avant['n']}")
+    if not uniques:
+        return 0
+    colonnes = [c for c in next(iter(uniques.values())) if c not in (cle, "provenance")]
+    temp = sql.Identifier(f"_enrichir_{table}")
+    liste = sql.SQL(", ").join(map(sql.Identifier, [cle, *colonnes]))
+    conn.execute(sql.SQL("DROP TABLE IF EXISTS {}").format(temp))
+    conn.execute(
+        sql.SQL("CREATE TEMP TABLE {} ON COMMIT DROP AS SELECT {}, '{{}}'::jsonb AS _prov FROM {} WITH NO DATA").format(
+            temp, liste, sql.Identifier(table)
+        )
+    )
+    with conn.cursor() as cur, cur.copy(
+        sql.SQL("COPY {} ({}, _prov) FROM STDIN").format(temp, liste)
+    ) as copie:
+        for ligne in uniques.values():
+            copie.write_row([ligne[cle], *(_adapter(ligne[c]) for c in colonnes), Jsonb(ligne["provenance"])])
+    conn.execute(
+        sql.SQL("UPDATE {} SET {}, provenances = provenances - %s WHERE provenances ? %s").format(
+            sql.Identifier(table),
+            sql.SQL(", ").join(sql.SQL("{} = DEFAULT").format(sql.Identifier(c)) for c in colonnes),
+        ),
+        (groupe, groupe),
+    )
+    n = conn.execute(
+        sql.SQL("UPDATE {0} AS t SET {1}, provenances = t.provenances || jsonb_build_object(%s::text, l._prov) "
+                "FROM {2} AS l WHERE t.{3} = l.{3}").format(
+            sql.Identifier(table),
+            sql.SQL(", ").join(sql.SQL("{0} = l.{0}").format(sql.Identifier(c)) for c in colonnes),
+            temp,
+            sql.Identifier(cle),
+        ),
+        (groupe,),
+    ).rowcount
+    conn.execute(sql.SQL("DROP TABLE {}").format(temp))
+    return n
+
+
 def point(lon: float, lat: float) -> str:
     """EWKT accepté par COPY dans une colonne geometry(Point, 4326)."""
     return f"SRID=4326;POINT({lon:.7f} {lat:.7f})"

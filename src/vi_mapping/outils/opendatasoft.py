@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from typing import Any
+from urllib.parse import quote
 
 from .http import ClientHttp
 
@@ -18,3 +19,20 @@ def exporter(
     if select:
         params["select"] = select
     return json.loads(http.get(f"{base}/exports/json", params=params).content)
+
+
+def url_fiche(base: str, champ: str, valeur: str) -> str:
+    """URL de consultation d'un enregistrement précis (traçabilité)."""
+    clause = quote(f'{champ}="{valeur}"')
+    return f"{base}/records?where={clause}"
+
+
+def grouper(http: ClientHttp, base: str, select: str, *, where: str | None = None, par: str | None = None
+            ) -> list[dict[str, Any]]:
+    """Petite requête d'agrégat (au plus 100 lignes)."""
+    params = {"select": select, "limit": "100"}
+    if where:
+        params["where"] = where
+    if par:
+        params["group_by"] = par
+    return http.json(f"{base}/records", params=params)["results"]

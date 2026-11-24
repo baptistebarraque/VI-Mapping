@@ -13,7 +13,8 @@ from psycopg.types.json import Jsonb
 from rich.console import Console
 
 from ..config import ConfigIdf, SourceConfig, config_idf, config_sources
-from ..db import connexion
+from ..db import Ligne, connexion, purger_absents
+from ..db import enrichir as enrichir_table
 from ..outils.http import ClientHttp
 
 console = Console()
@@ -52,6 +53,19 @@ class Contexte:
         """Même information pour la colonne `provenances` des tables enrichies par plusieurs sources."""
         p = self.provenance(url, confiance=confiance)
         return {**p, "collecte_le": self.debut.isoformat(timespec="seconds")}
+
+    @property
+    def chute_max(self) -> float:
+        """Baisse tolérée avant de refuser la mise à jour ; levée par --forcer (élections, refonte d'un jeu)."""
+        return 1.0 if self.options.get("forcer") else 0.5
+
+    def purger(self, table: str, filtre: str = "TRUE") -> int:
+        """Supprime les lignes de cette source non revues pendant la collecte."""
+        return purger_absents(self.conn, table, self.code, self.debut, filtre=filtre, chute_max=self.chute_max)
+
+    def enrichir(self, table: str, lignes: Iterable[Ligne], cle: str, groupe: str) -> int:
+        """Met à jour des lignes existantes d'une table (voir db.enrichir)."""
+        return enrichir_table(self.conn, table, lignes, cle, groupe, chute_max=self.chute_max)
 
     def note(self, message: str) -> None:
         console.print(f"  [dim]{self.code}[/dim] {message}")

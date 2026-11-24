@@ -119,10 +119,30 @@ sources:
     statut: ouverte
     confiance: 0.8       # millésime 2021, dernier publié à l'IRIS
 
+  insee_filosofi_communes:
+    libelle: Filosofi, revenus par commune (communes non découpées en IRIS)
+    producteur: Insee
+    url: https://api.insee.fr/melodi/catalog/DS_FILOSOFI_CC
+    licence: Licence Ouverte 2.0
+    methode: csv
+    frequence: annuelle
+    statut: ouverte
+    confiance: 0.9
+
   anct_qpv:
     libelle: Quartiers prioritaires de la politique de la ville 2024
     producteur: ANCT
     url: https://data.iledefrance.fr/api/explore/v2.1/catalog/datasets/qp-politiquedelaville-shp
+    licence: Licence Ouverte 2.0
+    methode: api
+    frequence: annuelle
+    statut: ouverte
+    confiance: 1.0
+
+  cdc_qpv:
+    libelle: Quartiers prioritaires 2024, complément des contours manquants
+    producteur: ANCT / Caisse des Dépôts
+    url: https://opendata.caissedesdepots.fr/api/explore/v2.1/catalog/datasets/quartiers-prioritaires-de-la-politique-de-la-ville-au-1er-janvier-2024
     licence: Licence Ouverte 2.0
     methode: api
     frequence: annuelle
@@ -178,6 +198,16 @@ sources:
     frequence: annuelle
     statut: ouverte
     confiance: 0.75
+
+  sirene_unites:
+    libelle: Base Sirene, stock des unités légales (Siren des associations)
+    producteur: Insee
+    url: https://www.data.gouv.fr/datasets/base-sirene-des-entreprises-et-de-leurs-etablissements-siren-siret/
+    licence: Licence Ouverte 2.0
+    methode: csv
+    frequence: annuelle
+    statut: ouverte
+    confiance: 1.0
 
   recherche_entreprises:
     libelle: API Recherche d'entreprises
