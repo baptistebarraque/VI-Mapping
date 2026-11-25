@@ -111,7 +111,12 @@ button {
   flex: none;
   white-space: nowrap;
 }
-button:hover {
+button:disabled {
+  color: var(--inconnu);
+  cursor: default;
+  opacity: 0.6;
+}
+button:hover:enabled {
   border-color: var(--inconnu);
 }
 button.discret {
@@ -472,6 +477,23 @@ summary {
   padding: 6px 16px;
   border-bottom: 1px solid var(--grille);
   background: var(--surface);
+}
+.parcours {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.parcours .place {
+  min-width: 84px;
+  text-align: center;
+  color: var(--encre-2);
+  font-variant-numeric: tabular-nums;
+}
+.parcours .fleche {
+  width: 34px;
+  padding: 0 0 2px;
+  font-size: 20px;
+  line-height: 1;
 }
 .corps-fiche {
   padding: 14px 16px 32px;

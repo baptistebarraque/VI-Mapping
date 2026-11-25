@@ -15,6 +15,7 @@ import { ficheCommune } from './ui/fiche-commune';
 import { ficheEcole, type ContexteFiche } from './ui/fiche-ecole';
 import { date, pluriel } from './ui/format';
 import { majLegende } from './ui/legende';
+import { Parcours } from './ui/parcours';
 import { panneauReglages } from './ui/reglages';
 
 import './style.css'; // après la feuille de MapLibre, pour la surcharger
@@ -39,11 +40,14 @@ async function demarrer(app: HTMLElement): Promise<void> {
   // ---------------------------------------------------------------- mise en page
   const zoneCarte = h('div', { classe: 'fond-carte' });
   const legende = h('details', { classe: 'legende', open: !matchMedia('(max-width: 900px)').matches });
+  // Une flèche remplace la fiche sans l'empiler dans l'historique : « précédent » ramène à l'écran d'avant.
+  const parcours = new Parcours(modele, (i) => choisir({ type: 'ecole', uai: table.uai[i] }, true, true));
   const corpsFiche = h('div', { classe: 'corps-fiche' });
   const panneauFiche = h(
     'div', { classe: 'panneau-fiche', tabindex: -1, hidden: true, role: 'region', 'aria-label': 'Fiche' },
     h('div', { classe: 'barre collee' },
-      h('button', { type: 'button', classe: 'discret', onclick: () => choisir(null) }, '← Classement')),
+      h('button', { type: 'button', classe: 'discret', onclick: () => choisir(null) }, '← Classement'),
+      parcours.el),
     corpsFiche,
   );
   const classement = new Classement(
@@ -51,6 +55,7 @@ async function demarrer(app: HTMLElement): Promise<void> {
     (i) => choisir({ type: 'ecole', uai: table.uai[i] }, true),
     () => telecharger(classementCsv(modele), `classement-ecoles-${meta.genere_le.slice(0, 10)}.csv`),
   );
+  const droite = h('aside', { classe: 'droite', 'aria-label': 'Classement et fiches' }, classement.el, panneauFiche);
   const reglages = panneauReglages(meta, magasin, (code) => {
     carte.allerCommune(code);
     choisir({ type: 'commune', code });
@@ -68,7 +73,7 @@ async function demarrer(app: HTMLElement): Promise<void> {
       h('button', { type: 'button', onclick: () => ouvrirDialogue(dialogue) }, 'Méthode et sources')),
     h('aside', { classe: 'gauche', 'aria-label': 'Réglages' }, reglages.el),
     h('main', { classe: 'centre', 'aria-label': 'Carte' }, zoneCarte, legende),
-    h('aside', { classe: 'droite', 'aria-label': 'Classement et fiches' }, classement.el, panneauFiche),
+    droite,
     h('nav', { classe: 'onglets', 'aria-label': 'Vues' }, onglets),
     dialogue,
   );
@@ -97,15 +102,18 @@ async function demarrer(app: HTMLElement): Promise<void> {
     },
   };
 
-  function choisir(s: Selection, deplacer = false): void {
+  function choisir(s: Selection, deplacer = false, remplace = false): void {
     const avant = JSON.stringify(etat.selection);
     if (avant === JSON.stringify(s)) return;
     magasin.modifier('selection', s);
-    history.pushState(null, '', adresse());
+    if (!remplace) history.pushState(null, '', adresse());
     if (!deplacer || !s) return;
     if (s.type === 'commune') carte.allerCommune(s.code);
     else carte.allerEcole(modele.rang.get(s.uai) ?? 0);
   }
+
+  const ecoleChoisie = (): number | null =>
+    etat.selection?.type === 'ecole' ? (modele.rang.get(etat.selection.uai) ?? null) : null;
 
   let fiche: Fiche | null = null;
   let derniere: string | null = null;
@@ -117,6 +125,7 @@ async function demarrer(app: HTMLElement): Promise<void> {
     const i = s?.type === 'ecole' ? modele.rang.get(s.uai) : undefined;
     const code = s?.type === 'commune' ? s.code : i === undefined ? undefined : meta.communes[table.commune[i]].code;
     classement.marquer(i ?? null);
+    parcours.maj(i ?? null);
     if (s === null || code === undefined) {
       fiche = null;
       panneauFiche.hidden = true;
@@ -140,8 +149,9 @@ async function demarrer(app: HTMLElement): Promise<void> {
     }
     if (derniere !== cle) return; // une autre fiche a été demandée entre-temps
     dessinerFiche();
-    panneauFiche.scrollTop = 0;
-    panneauFiche.focus({ preventScroll: true });
+    droite.scrollTop = 0;
+    // Pas depuis une flèche : on doit pouvoir la réactiver aussitôt au clavier.
+    if (!parcours.el.contains(document.activeElement)) panneauFiche.focus({ preventScroll: true });
   }
 
   /** (Re)dessine la fiche ouverte ; à la mise à jour, garde les volets ouverts et le défilement. */
@@ -152,11 +162,11 @@ async function demarrer(app: HTMLElement): Promise<void> {
     const ouverts = new Set(
       [...corpsFiche.querySelectorAll('details')].filter((d) => d.open).map(cleVolet),
     );
-    const defilement = panneauFiche.scrollTop;
+    const defilement = droite.scrollTop;
     const i = s.type === 'ecole' ? modele.rang.get(s.uai) : undefined;
     remplacer(corpsFiche, i === undefined ? ficheCommune(fiche.commune.code, fiche, ctx) : ficheEcole(i, fiche, ctx));
     for (const d of corpsFiche.querySelectorAll('details')) if (ouverts.has(cleVolet(d))) d.open = true;
-    panneauFiche.scrollTop = defilement;
+    droite.scrollTop = defilement;
     if (i !== undefined) void carte.choisirEcole(i, liens(i, fiche));
   }
 
@@ -190,6 +200,7 @@ async function demarrer(app: HTMLElement): Promise<void> {
     if (touche('rayon', 'poids', 'filtres')) {
       modele.filtrer(etat.filtres);
       classement.maj();
+      parcours.maj(ecoleChoisie());
       void carte.majEcoles();
     }
     if (touche('coloration', 'iris')) void carte.majColoration();
