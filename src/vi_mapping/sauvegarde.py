@@ -16,9 +16,9 @@ from .db import migrer
 
 # Ordre des clés étrangères ; source_donnees est rempli par « vi migrer ».
 TABLES = (
-    "collecte_run", "crawl_site", "commune", "dispositif", "territoire_social", "ecole", "gestionnaire_perisco",
-    "accueil_periscolaire", "accueil_ecole", "asso_parents", "asso_ecole", "relais_local", "elu", "signal_web",
-    "producteur", "proximite", "jauge_ecole",
+    "collecte_run", "crawl_site", "commune", "cuisine_centrale", "dispositif", "territoire_social", "ecole",
+    "gestionnaire_perisco", "accueil_periscolaire", "accueil_ecole", "asso_parents", "asso_ecole", "relais_local",
+    "asso_alimentation", "elu", "signal_web", "producteur", "proximite", "jauge_ecole", "jauge_commune",
 )
 EXCLUES = {"collecte_run": {"id", "message"}}
 BLOC = 1 << 20
@@ -60,7 +60,11 @@ def restaurer(conn: Conn, fichier: Path, *, remplacer: bool = False) -> dict[str
             raise RuntimeError("la base contient déjà des données (--remplacer pour les effacer)")
         conn.execute(sql.SQL("TRUNCATE {}").format(_liste(list(TABLES))))
         with zipfile.ZipFile(fichier) as z:
+            presentes = set(z.namelist())
             for table in TABLES:
+                if f"{table}.txt" not in presentes:
+                    compte[table] = 0  # archive antérieure à la table : elle reste vide
+                    continue
                 with z.open(f"{table}.txt") as f, conn.cursor() as cur:
                     colonnes = f.readline().decode().rstrip("\n").split("\t")
                     with cur.copy(sql.SQL("COPY {} ({}) FROM STDIN").format(

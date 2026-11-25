@@ -2,8 +2,10 @@
 
 Produit depuis `config/sources.yaml` par `uv run vi sources --markdown > docs/SOURCES.md`.
 
-Aucune saisie manuelle. Open data et API d'abord, scraping ensuite, et seulement là où robots.txt et les conditions
-d'utilisation le permettent. Chaque ligne en base porte `source`, `url`, `methode`, `collecte_le` et `confiance`.
+Open data et API d'abord, scraping ensuite, et seulement là où robots.txt et les conditions d'utilisation le
+permettent. Seule exception : le référentiel V.i (`config/referentiel/`), faits publics relevés à la main avec leur
+source à chaque ligne, quand aucun jeu ouvert ne les donne. Chaque ligne en base porte `source`, `url`, `methode`,
+`collecte_le` et `confiance`.
 
 ## Règles du robot
 
@@ -27,9 +29,9 @@ d'utilisation le permettent. Chaque ligne en base porte `source`, `url`, `method
 |---|---|---|---|---|---|---|
 | `ign_admin_express` | [ADMIN EXPRESS COG CARTO (communes, arrondissements, population Insee)](https://data.geopf.fr/wfs/ows) | IGN / Insee | commune : contour, population, superficie, densité | api | annuelle | Licence Ouverte 2.0 |
 | `banatic` | [Banatic, groupements de communes (EPCI et EPT)](https://www.banatic.interieur.gouv.fr/consultation/api/export/pregenere/telecharger/11) | DGCL | commune : EPCI, EPT, Siren | csv | annuelle | Licence Ouverte 2.0 |
-| `annuaire_administration` | [Annuaire de l'administration (sites web des mairies)](https://api-lannuaire.service-public.fr/api/explore/v2.1/catalog/datasets/api-lannuaire-administration) | DILA | commune : site web de la mairie | api | annuelle | Licence Ouverte 2.0 |
-| `ma_cantine` | [ma cantine, registre national et télédéclarations](https://www.data.gouv.fr/datasets/registre-national-des-cantines/) | Ministère de l'Agriculture | commune : cantine (régie ou concédée, % bio, % EGalim) | csv | annuelle | Licence Ouverte 2.0 |
-| `annuaire_education` | [Annuaire de l'éducation](https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-annuaire-education) | Ministère de l'Éducation nationale | ecole : identité, adresse, secteur, éducation prioritaire, restauration | api | annuelle | Licence Ouverte 2.0 |
+| `annuaire_administration` | [Annuaire de l'administration (sites web et contacts des mairies)](https://api-lannuaire.service-public.fr/api/explore/v2.1/catalog/datasets/api-lannuaire-administration) | DILA | commune : site web, téléphone et e-mail génériques de la mairie | api | annuelle | Licence Ouverte 2.0 |
+| `ma_cantine` | [ma cantine, registre national et télédéclarations](https://www.data.gouv.fr/datasets/registre-national-des-cantines/) | Ministère de l'Agriculture | commune : cantine (régie ou concédée, % bio, % EGalim, satellites), cuisine_centrale, dispositif : communes rattachées à un PAT | csv | annuelle | Licence Ouverte 2.0 |
+| `annuaire_education` | [Annuaire de l'éducation](https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-annuaire-education) | Ministère de l'Éducation nationale | ecole : identité, adresse, secteur, éducation prioritaire, restauration, téléphone et e-mail fonctionnels | api | annuelle | Licence Ouverte 2.0 |
 | `effectifs_ecoles` | [Effectifs d'élèves par école](https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-ecoles-effectifs-nb_classes) | Ministère de l'Éducation nationale (DEPP) | ecole : élèves, classes | api | annuelle | Licence Ouverte 2.0 |
 | `ips_ecoles` | [Indices de position sociale des écoles](https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-ips-ecoles-ap2022) | Ministère de l'Éducation nationale (DEPP) | ecole : IPS | api | annuelle | Licence Ouverte 2.0 |
 | `cites_educatives_etablissements` | [Établissements membres d'une cité éducative](https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-cites_educatives) | Ministère de l'Éducation nationale | ecole : cité éducative | api | annuelle | Licence Ouverte 2.0 |
@@ -40,14 +42,15 @@ d'utilisation le permettent. Chaque ligne en base porte `source`, `url`, `method
 | `anct_qpv` | [Quartiers prioritaires de la politique de la ville 2024](https://data.iledefrance.fr/api/explore/v2.1/catalog/datasets/qp-politiquedelaville-shp) | ANCT | dispositif : QPV | api | annuelle | Licence Ouverte 2.0 |
 | `cdc_qpv` | [Quartiers prioritaires 2024, complément des contours manquants](https://opendata.caissedesdepots.fr/api/explore/v2.1/catalog/datasets/quartiers-prioritaires-de-la-politique-de-la-ville-au-1er-janvier-2024) | ANCT / Caisse des Dépôts | dispositif : contours de QPV manquants | api | annuelle | Licence Ouverte 2.0 |
 | `anct_cites_educatives` | [Programme Cités éducatives (communes et QPV couverts)](https://www.data.gouv.fr/datasets/programme-cites-educatives/) | ANCT | dispositif : cités éducatives | csv | annuelle | Licence Ouverte 2.0 |
+| `referentiel_vi` | Référentiel V.i (PAT DRIAAF, soutiens territoriaux, lauréats AAP MGP, syndicats de restauration) (`config/referentiel`) | Équipe V.i, d'après DRIAAF, Métropole du Grand Paris et départements (source citée à chaque ligne) | dispositif : niveau et axes des PAT, soutiens territoriaux, lauréats AAP MGP, syndicats de restauration | csv | annuelle | Faits publics relevés avec leur source |
 | `france_pat` | [Projets alimentaires territoriaux (PAT) et lauréats PNA](https://www.data.gouv.fr/datasets/pat-projets-alimentaires-territoriaux-description/) | France PAT | dispositif : PAT, lauréats d'appels à projets | csv | annuelle | Licence Ouverte 2.0 |
 | `rne` | [Répertoire national des élus](https://www.data.gouv.fr/datasets/repertoire-national-des-elus-1/) | Ministère de l'Intérieur | elu : nom, fonction, début de mandat | csv | annuelle | Licence Ouverte 2.0 |
-| `rna` | [Répertoire national des associations](https://www.data.gouv.fr/datasets/repertoire-national-des-associations/) | Ministère de l'Intérieur | asso_parents, relais_local (AMAP, épiceries, centres sociaux) | csv | annuelle | Licence Ouverte 2.0 |
+| `rna` | [Répertoire national des associations](https://www.data.gouv.fr/datasets/repertoire-national-des-associations/) | Ministère de l'Intérieur | asso_parents, relais_local (AMAP, épiceries, centres sociaux), asso_alimentation | csv | annuelle | Licence Ouverte 2.0 |
 | `sirene` | [Base Sirene, stock des établissements](https://www.data.gouv.fr/datasets/base-sirene-des-entreprises-et-de-leurs-etablissements-siren-siret/) | Insee | accueil_periscolaire, relais_local | csv | annuelle | Licence Ouverte 2.0 |
-| `sirene_unites` | [Base Sirene, stock des unités légales (Siren des associations)](https://www.data.gouv.fr/datasets/base-sirene-des-entreprises-et-de-leurs-etablissements-siren-siret/) | Insee | asso_parents : Siren | csv | annuelle | Licence Ouverte 2.0 |
+| `sirene_unites` | [Base Sirene, stock des unités légales (Siren des associations)](https://www.data.gouv.fr/datasets/base-sirene-des-entreprises-et-de-leurs-etablissements-siren-siret/) | Insee | asso_parents : Siren ; cuisine_centrale : catégorie juridique | csv | annuelle | Licence Ouverte 2.0 |
 | `recherche_entreprises` | [API Recherche d'entreprises](https://recherche-entreprises.api.gouv.fr) | DINUM | accueil_periscolaire, gestionnaire_perisco | api | annuelle | Licence Ouverte 2.0 |
 | `osm` | [OpenStreetMap (extrait Île-de-France de Geofabrik)](https://download.geofabrik.de/europe/france/ile-de-france-latest.osm.pbf) | Contributeurs OpenStreetMap | accueil_periscolaire, relais_local | csv | annuelle | ODbL 1.0 |
-| `agence_bio` | [API Professionnels Bio](https://opendata.agencebio.org/api/gouv/operateurs/) | Agence Bio | producteur | api | annuelle | Licence Ouverte 2.0 |
+| `agence_bio` | [API Professionnels Bio](https://opendata.agencebio.org/api/gouv/operateurs/) | Agence Bio | producteur (dont vente à la restauration collective) | api | annuelle | Licence Ouverte 2.0 |
 | `ban` | [Base adresse nationale (géocodage)](https://data.geopf.fr/geocodage/search/csv) | IGN / DINUM | positions des adresses sans coordonnées | api | annuelle | Licence Ouverte 2.0 |
 
 ## Scraping
@@ -68,7 +71,7 @@ d'utilisation le permettent. Chaque ligne en base porte `source`, `url`, `method
 |---|---|---|---|---|---|---|
 | `rattachements` | Rattachements automatiques (accueils, associations) (`config/idf.yaml`) | Calcul | accueil_ecole, asso_ecole, IRIS et QPV des écoles, doublons | calcul | mensuelle | Sans objet |
 | `osrm` | [Distances et temps par la route (OSRM sur OpenStreetMap)](https://download.geofabrik.de/europe/france/ile-de-france-latest.osm.pbf) | Calcul | proximite | calcul | annuelle | ODbL 1.0 |
-| `jauges` | Jauges et score global (`config/jauges.yaml`) | Calcul | jauge_ecole | calcul | mensuelle | Sans objet |
+| `jauges` | Jauges et score global (`config/jauges.yaml`) | Calcul | jauge_ecole, jauge_commune | calcul | mensuelle | Sans objet |
 
 ## Sources verrouillées
 

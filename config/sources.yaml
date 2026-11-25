@@ -35,8 +35,8 @@ sources:
     confiance: 1.0
 
   annuaire_administration:
-    libelle: Annuaire de l'administration (sites web des mairies)
-    alimente: "commune : site web de la mairie"
+    libelle: Annuaire de l'administration (sites web et contacts des mairies)
+    alimente: "commune : site web, téléphone et e-mail génériques de la mairie"
     producteur: DILA
     url: https://api-lannuaire.service-public.fr/api/explore/v2.1/catalog/datasets/api-lannuaire-administration
     licence: Licence Ouverte 2.0
@@ -47,7 +47,7 @@ sources:
 
   ma_cantine:
     libelle: ma cantine, registre national et télédéclarations
-    alimente: "commune : cantine (régie ou concédée, % bio, % EGalim)"
+    alimente: "commune : cantine (régie ou concédée, % bio, % EGalim, satellites), cuisine_centrale, dispositif : communes rattachées à un PAT"
     producteur: Ministère de l'Agriculture
     url: https://www.data.gouv.fr/datasets/registre-national-des-cantines/
     licence: Licence Ouverte 2.0
@@ -58,7 +58,7 @@ sources:
 
   annuaire_education:
     libelle: Annuaire de l'éducation
-    alimente: "ecole : identité, adresse, secteur, éducation prioritaire, restauration"
+    alimente: "ecole : identité, adresse, secteur, éducation prioritaire, restauration, téléphone et e-mail fonctionnels"
     producteur: Ministère de l'Éducation nationale
     url: https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-annuaire-education
     licence: Licence Ouverte 2.0
@@ -177,6 +177,17 @@ sources:
     statut: ouverte
     confiance: 1.0
 
+  referentiel_vi:
+    libelle: Référentiel V.i (PAT DRIAAF, soutiens territoriaux, lauréats AAP MGP, syndicats de restauration)
+    alimente: "dispositif : niveau et axes des PAT, soutiens territoriaux, lauréats AAP MGP, syndicats de restauration"
+    producteur: Équipe V.i, d'après DRIAAF, Métropole du Grand Paris et départements (source citée à chaque ligne)
+    url: config/referentiel
+    licence: Faits publics relevés avec leur source
+    methode: csv
+    frequence: annuelle
+    statut: ouverte
+    confiance: 0.8       # relevé à la main sur des pages officielles
+
   france_pat:
     libelle: Projets alimentaires territoriaux (PAT) et lauréats PNA
     alimente: "dispositif : PAT, lauréats d'appels à projets"
@@ -201,7 +212,7 @@ sources:
 
   rna:
     libelle: Répertoire national des associations
-    alimente: "asso_parents, relais_local (AMAP, épiceries, centres sociaux)"
+    alimente: "asso_parents, relais_local (AMAP, épiceries, centres sociaux), asso_alimentation"
     producteur: Ministère de l'Intérieur
     url: https://www.data.gouv.fr/datasets/repertoire-national-des-associations/
     licence: Licence Ouverte 2.0
@@ -223,7 +234,7 @@ sources:
 
   sirene_unites:
     libelle: Base Sirene, stock des unités légales (Siren des associations)
-    alimente: "asso_parents : Siren"
+    alimente: "asso_parents : Siren ; cuisine_centrale : catégorie juridique"
     producteur: Insee
     url: https://www.data.gouv.fr/datasets/base-sirene-des-entreprises-et-de-leurs-etablissements-siren-siret/
     licence: Licence Ouverte 2.0
@@ -256,7 +267,7 @@ sources:
 
   agence_bio:
     libelle: API Professionnels Bio
-    alimente: "producteur"
+    alimente: "producteur (dont vente à la restauration collective)"
     producteur: Agence Bio
     url: https://opendata.agencebio.org/api/gouv/operateurs/
     licence: Licence Ouverte 2.0
@@ -301,7 +312,7 @@ sources:
 
   jauges:
     libelle: Jauges et score global
-    alimente: "jauge_ecole"
+    alimente: "jauge_ecole, jauge_commune"
     producteur: Calcul
     url: config/jauges.yaml
     licence: Sans objet

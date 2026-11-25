@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import csv
 import io
+import re
 import sys
 
 from ..db import upsert
@@ -16,6 +17,12 @@ from .base import Compteurs, Contexte, connecteur
 
 csv.field_size_limit(min(sys.maxsize, 2**31 - 1))
 JEU = "6602f669c57897579c1a37ec"
+
+
+def niveau_num(texte: str | None) -> int | None:
+    """« Labellisation Niveau 2 » -> 2 ; un PAT reconnu sans niveau précisé -> None."""
+    m = re.search(r"niveau\s*([12])", texte or "", re.I)
+    return int(m.group(1)) if m else None
 
 
 @connecteur("france_pat", depend_de=["ign_admin_express"])
@@ -35,6 +42,7 @@ def collecter(ctx: Contexte) -> Compteurs:
             "axe_education_alimentaire": "education alimentaire" in normaliser(p["axes_thematiques"]),
             "annee": int(annee) if annee.isdigit() else None,
             "niveau": propre(p["niveaux_de_labelisation"]),
+            "niveau_num": niveau_num(p["niveaux_de_labelisation"]),
             **ctx.provenance(p["lien_vers_la_fiche_pat"].strip() or ressource.url),
         }
         lignes.append({"id": f"pat:{p['id']}", "type": "pat", **commun})

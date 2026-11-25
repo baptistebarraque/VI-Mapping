@@ -9,8 +9,10 @@ INTRODUCTION = """\
 
 Produit depuis `config/sources.yaml` par `uv run vi sources --markdown > docs/SOURCES.md`.
 
-Aucune saisie manuelle. Open data et API d'abord, scraping ensuite, et seulement là où robots.txt et les conditions
-d'utilisation le permettent. Chaque ligne en base porte `source`, `url`, `methode`, `collecte_le` et `confiance`.
+Open data et API d'abord, scraping ensuite, et seulement là où robots.txt et les conditions d'utilisation le
+permettent. Seule exception : le référentiel V.i (`config/referentiel/`), faits publics relevés à la main avec leur
+source à chaque ligne, quand aucun jeu ouvert ne les donne. Chaque ligne en base porte `source`, `url`, `methode`,
+`collecte_le` et `confiance`.
 
 ## Règles du robot
 
