@@ -5,7 +5,8 @@ associations de parents d'élèves, producteurs bio locaux. Une carte interactiv
 aide à repérer les communautés scolaires les plus favorables.
 
 - **Périmètre** : départements 75, 77, 78, 91, 92, 93, 94, 95. Écoles du premier degré, publiques et privées sous contrat.
-- **Aucune saisie manuelle** : open data, API, puis scraping là où c'est permis.
+- **Open data d'abord** : API, puis scraping là où c'est permis ; un petit référentiel relevé à la main
+  (`config/referentiel/`) quand aucun jeu ouvert n'existe, avec sa source à chaque ligne.
 - **Chaque ligne** porte sa source, son adresse web, sa méthode, sa date de collecte et une confiance de 0 à 1.
 
 | Document | Contenu |
@@ -80,8 +81,11 @@ Lancé chaque semaine, il reprend aussi ce qui a échoué. Si un contrôle écho
 | [config/idf.yaml](config/idf.yaml) | périmètre, filtre des producteurs, rattachements, règles du robot |
 | [config/jauges.yaml](config/jauges.yaml) | poids, sous-poids, seuils et rayon des jauges |
 | [config/sources.yaml](config/sources.yaml) | registre des sources et verrous |
+| [config/referentiel/](config/referentiel/) | référentiel V.i relevé à la main : PAT DRIAAF, soutiens, lauréats MGP, syndicats |
 
 Après un changement dans `config/jauges.yaml` : `uv run vi jauges && uv run vi exporter`.
+
+Après un changement dans `config/referentiel/` : `uv run vi collecter referentiel_vi`.
 
 ## Organisation
 
