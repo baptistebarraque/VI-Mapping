@@ -17,6 +17,7 @@ import { infobulle, popupGroupe, popupPoint, type TypePoint } from '../ui/infobu
 import { imageHachures, imageSymbole, type Symbole } from '../ui/symboles';
 import { ENCRE_2 } from '../couleurs';
 import { couleurEcole, couleurIris, GROUPES, IDENTIFIANT, MARQUES, SOURCES, ZONES, type NomSource } from './couches';
+import { empriseDepartement, type Emprise } from './emprise';
 import type { Fond } from './fond';
 
 setWorkerUrl(urlWorker);
@@ -221,10 +222,18 @@ export class Carte {
 
   allerCommune(code: string): void {
     const c = this.modele.meta.communes.find((x) => x.code === code);
-    if (!c) return;
-    const bord = this.cachee() ? 20 : 48;
-    this.gl.fitBounds(c.bbox, {
-      padding: { top: bord, left: bord, right: bord, bottom: bord + this.cachee() }, maxZoom: 14, duration: 900,
+    if (c) this.cadrer(c.bbox, this.cachee());
+  }
+
+  allerDepartement(dep: string): void {
+    const e = empriseDepartement(this.modele.meta, dep);
+    if (e) this.cadrer(e, this.etat.selection === null ? 0 : this.cachee());
+  }
+
+  private cadrer(emprise: Emprise, cachee: number): void {
+    const bord = cachee ? 20 : 48;
+    this.gl.fitBounds(emprise, {
+      padding: { top: bord, left: bord, right: bord, bottom: bord + cachee }, maxZoom: 14, duration: 900,
     });
   }
 

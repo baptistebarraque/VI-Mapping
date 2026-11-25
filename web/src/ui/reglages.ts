@@ -84,7 +84,12 @@ export interface Reglages {
   maj: () => void;
 }
 
-export function panneauReglages(meta: Meta, m: Magasin, allerCommune: (code: string) => void): Reglages {
+export interface Deplacements {
+  commune: (code: string) => void;
+  departement: (code: string) => void;
+}
+
+export function panneauReglages(meta: Meta, m: Magasin, aller: Deplacements): Reglages {
   const e = (): Etat => m.etat;
   const majs: (() => void)[] = [];
   const suivre = <X extends { maj: () => void }>(x: X): X => {
@@ -102,7 +107,9 @@ export function panneauReglages(meta: Meta, m: Magasin, allerCommune: (code: str
     () => e().filtres.departements,
     (d) => {
       const l = e().filtres.departements;
-      m.filtrer({ departements: l.includes(d) ? l.filter((x) => x !== d) : [...l, d].sort() });
+      const choisis = l.includes(d) ? l.filter((x) => x !== d) : [...l, d].sort();
+      m.filtrer({ departements: choisis });
+      if (choisis.length === 1) aller.departement(choisis[0]);
     },
   ));
 
@@ -119,7 +126,7 @@ export function panneauReglages(meta: Meta, m: Magasin, allerCommune: (code: str
       }
       commune.setCustomValidity('');
       m.filtrer({ commune: code });
-      if (code) allerCommune(code);
+      if (code) aller.commune(code);
     },
     oninput: () => commune.setCustomValidity(''),
   });

@@ -57,9 +57,12 @@ async function demarrer(app: HTMLElement): Promise<void> {
     { lire: () => etat.filtres.premiers, changer: (premiers) => magasin.filtrer({ premiers }) },
   );
   const droite = h('aside', { classe: 'droite', 'aria-label': 'Classement et fiches' }, classement.el, panneauFiche);
-  const reglages = panneauReglages(meta, magasin, (code) => {
-    carte.allerCommune(code);
-    choisir({ type: 'commune', code });
+  const reglages = panneauReglages(meta, magasin, {
+    commune: (code) => {
+      carte.allerCommune(code);
+      choisir({ type: 'commune', code });
+    },
+    departement: (code) => carte.allerDepartement(code),
   });
   const dialogue = dialogueSources(meta, async () => tableauxCouverture(await chargerCouverture()));
   const onglets = (['carte', 'reglages', 'liste'] as const).map((v) => h(
@@ -231,6 +234,7 @@ async function demarrer(app: HTMLElement): Promise<void> {
     else etat.selection = null;
     void montrerSelection();
   } else if (etat.filtres.commune) carte.allerCommune(etat.filtres.commune);
+  else if (etat.filtres.departements.length === 1) carte.allerDepartement(etat.filtres.departements[0]);
   history.replaceState(null, '', adresse());
 }
 
