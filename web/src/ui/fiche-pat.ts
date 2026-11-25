@@ -23,7 +23,7 @@ export function fichePat(p: ProprietesPat, ctx: ContexteFiche): HTMLElement {
     bloc(
       'Projet',
       definition(
-        ['Labellisation', [p.niveau, p.annee].filter(Boolean).join(', ') || 'inconnue'],
+        ['Reconnaissance', [p.niveau, p.annee].filter(Boolean).join(', ') || 'inconnue'],
         ['Axe éducation alimentaire', ouiNonInconnu(p.axe)],
         ['Lauréat de l’appel à projets du PNA', p.laureat ? 'oui' : 'non'],
         lien(p.u, 'x') && ['Fiche du projet', lien(p.u, 'france-pat.fr')],

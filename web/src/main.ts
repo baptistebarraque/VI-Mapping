@@ -30,8 +30,8 @@ type Vue = 'carte' | 'reglages' | 'liste';
 
 async function demarrer(app: HTMLElement): Promise<void> {
   const meta = await chargerMeta();
-  const [table, producteurs, relais, fond] = await Promise.all([
-    chargerEcoles(), chargerProducteurs(), chargerRelais(), chargerFond(),
+  const [table, producteurs, relais, pats, fond] = await Promise.all([
+    chargerEcoles(), chargerProducteurs(), chargerRelais(), chargerPats(), chargerFond(),
   ]);
   const modele = new Modele(meta, table);
   const magasin = new Magasin(depuisAdresse(location.hash, meta));
@@ -60,12 +60,13 @@ async function demarrer(app: HTMLElement): Promise<void> {
     { lire: () => etat.filtres.premiers, changer: (premiers) => magasin.filtrer({ premiers }) },
   );
   const droite = h('aside', { classe: 'droite', 'aria-label': 'Classement et fiches' }, classement.el, panneauFiche);
-  const reglages = panneauReglages(meta, magasin, {
+  const reglages = panneauReglages(meta, magasin, pats.features.map((f) => f.properties), {
     commune: (code) => {
       carte.allerCommune(code);
       choisir({ type: 'commune', code });
     },
     departement: (code) => carte.allerDepartement(code),
+    pat: (id) => choisir({ type: 'pat', id }, true),
   });
   const dialogue = dialogueSources(meta, async () => tableauxCouverture(await chargerCouverture()));
   const onglets = (['carte', 'reglages', 'liste'] as const).map((v) => h(
