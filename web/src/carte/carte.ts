@@ -16,7 +16,9 @@ import type { CollectionPoints, ProprietesProducteur, ProprietesRelais } from '.
 import { infobulle, popupGroupe, popupPoint, type TypePoint } from '../ui/infobulle';
 import { imageHachures, imageSymbole, type Symbole } from '../ui/symboles';
 import { ENCRE_2 } from '../couleurs';
-import { couleurEcole, couleurIris, GROUPES, IDENTIFIANT, MARQUES, SOURCES, ZONES, type NomSource } from './couches';
+import {
+  couleurEcole, couleurIris, GROUPES, IDENTIFIANT, MARQUES, peintureCommunes, SOURCES, ZONES, type NomSource,
+} from './couches';
 import { empriseDepartement, empriseZone, type Emprise } from './emprise';
 import type { Fond } from './fond';
 
@@ -160,6 +162,21 @@ export class Carte {
   private colorer(): void {
     this.gl.setPaintProperty('ecoles', 'circle-color', couleurEcole(this.etat.coloration));
     this.gl.setPaintProperty('iris', 'fill-color', couleurIris(this.etat.iris));
+  }
+
+  /** Étape 1 : score de chaque commune (aligné sur meta.communes) ; étape 2 : communes retenues. */
+  async colorerCommunes(scores: (number | null)[], retenues: string[]): Promise<void> {
+    await this.prete;
+    const gardees = new Set(retenues);
+    this.modele.meta.communes.forEach((c, k) => {
+      this.gl.setFeatureState(
+        { source: 'communes', id: c.code },
+        { score: scores[k] ?? -1, retenue: gardees.has(c.code) || (c.mere !== undefined && gardees.has(c.mere)) },
+      );
+    });
+    const { couleur, opacite } = peintureCommunes(this.etat.etape);
+    this.gl.setPaintProperty('communes', 'fill-color', couleur);
+    this.gl.setPaintProperty('communes', 'fill-opacity', opacite);
   }
 
   async majEcoles(): Promise<void> {

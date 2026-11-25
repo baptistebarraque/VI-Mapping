@@ -1,7 +1,8 @@
 /** Export CSV du classement (séparateur « ; », virgule décimale, BOM : s'ouvre tel quel dans un tableur français). */
 
 import type { Modele } from './modele';
-import { EDUCATION_PRIORITAIRE, JAUGES, SECTEURS, TYPES_ECOLE } from './types';
+import type { ModeleCommunes } from './modele-communes';
+import { CRITERES_COMMUNES, EDUCATION_PRIORITAIRE, JAUGES, SECTEURS, TYPES_ECOLE } from './types';
 
 type Cellule = string | number | null | undefined;
 
@@ -30,6 +31,25 @@ export function classementCsv(m: Modele): string {
     ];
   });
   return `﻿${[ENTETE, ...lignes].map((l) => l.map(cellule).join(';')).join('\r\n')}\r\n`;
+}
+
+const ENTETE_COMMUNES = [
+  'rang', 'code_insee', 'commune', 'departement', 'retenue', 'score', ...CRITERES_COMMUNES, 'criteres_connus', 'pat',
+  'population', 'eleves', 'associations_alimentation',
+];
+
+export function classementCommunesCsv(m: ModeleCommunes, retenues: string[]): string {
+  const { t, meta } = m;
+  const gardees = new Set(retenues);
+  const lignes = m.visibles.map((k, rang) => {
+    const c = meta.communes[k];
+    return [
+      rang + 1, c.code, c.nom, c.dep, gardees.has(c.code) ? 'oui' : '', m.scores[k],
+      ...CRITERES_COMMUNES.map((x) => m.valeur(x, k)), m.connus[k], t.pat_nom[k], t.population[k], t.eleves[k],
+      t.assos[k],
+    ];
+  });
+  return `\ufeff${[ENTETE_COMMUNES, ...lignes].map((l) => l.map(cellule).join(';')).join('\r\n')}\r\n`;
 }
 
 export function telecharger(contenu: string, nom: string): void {

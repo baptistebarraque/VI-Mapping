@@ -1,14 +1,17 @@
 import { Carte, type Lien } from './carte/carte';
 import { chargerFond } from './carte/fond';
-import { classementCsv, telecharger } from './csv';
+import { classementCommunesCsv, classementCsv, telecharger } from './csv';
 import {
-  chargerCouverture, chargerEcoles, chargerFiche, chargerMeta, chargerPats, chargerProducteurs, chargerRelais,
+  chargerCommunes, chargerCouverture, chargerEcoles, chargerFiche, chargerMeta, chargerPats, chargerProducteurs,
+  chargerRelais,
 } from './donnees';
 import { depuisAdresse, Magasin, versAdresse, type Selection, type Sujet } from './etat';
 import { dansRayon } from './jauges';
 import { Modele } from './modele';
+import { ModeleCommunes } from './modele-communes';
 import type { Fiche, ProprietesPat } from './types';
 import { Classement } from './ui/classement';
+import { ClassementCommunes } from './ui/classement-communes';
 import { vide } from './ui/commun';
 import { tableauxCouverture } from './ui/couverture';
 import { dialogueSources, ouvrirDialogue } from './ui/dialogue';
@@ -30,15 +33,19 @@ type Vue = 'carte' | 'reglages' | 'liste';
 
 async function demarrer(app: HTMLElement): Promise<void> {
   const meta = await chargerMeta();
-  const [table, producteurs, relais, pats, fond] = await Promise.all([
-    chargerEcoles(), chargerProducteurs(), chargerRelais(), chargerPats(), chargerFond(),
+  const [table, tableCommunes, producteurs, relais, pats, fond] = await Promise.all([
+    chargerEcoles(), chargerCommunes(), chargerProducteurs(), chargerRelais(), chargerPats(), chargerFond(),
   ]);
   const modele = new Modele(meta, table);
+  const communes = new ModeleCommunes(meta, tableCommunes, modele);
   const magasin = new Magasin(depuisAdresse(location.hash, meta));
   const { etat } = magasin;
   modele.recalculerProducteurs(etat.rayon);
   modele.recalculerScores(etat.poids);
   modele.filtrer(etat.filtres);
+  communes.recalculerProducteurs();
+  communes.recalculerScores(etat.poidsCommunes);
+  communes.filtrer(etat.filtres);
 
   // ---------------------------------------------------------------- mise en page
   const zoneCarte = h('div', { classe: 'fond-carte' });
@@ -59,7 +66,21 @@ async function demarrer(app: HTMLElement): Promise<void> {
     () => telecharger(classementCsv(modele), `classement-ecoles-${meta.genere_le.slice(0, 10)}.csv`),
     { lire: () => etat.filtres.premiers, changer: (premiers) => magasin.filtrer({ premiers }) },
   );
-  const droite = h('aside', { classe: 'droite', 'aria-label': 'Classement et fiches' }, classement.el, panneauFiche);
+  const classementCommunes = new ClassementCommunes(
+    communes,
+    (code) => choisir({ type: 'commune', code }, true),
+    { lire: () => etat.filtres.retenues, changer: (retenues) => magasin.filtrer({ retenues }) },
+    () => magasin.modifier('etape', 'ecoles'),
+    () => telecharger(classementCommunesCsv(communes, etat.filtres.retenues),
+      `classement-communes-${meta.genere_le.slice(0, 10)}.csv`),
+  );
+  const droite = h('aside', { classe: 'droite', 'aria-label': 'Classement et fiches' },
+    classementCommunes.el, classement.el, panneauFiche);
+  /** Sans fiche ouverte : le classement de l'étape en cours. */
+  const montrerClassement = (): void => {
+    classementCommunes.el.hidden = etat.etape !== 'communes';
+    classement.el.hidden = etat.etape !== 'ecoles';
+  };
   const reglages = panneauReglages(meta, magasin, pats.features.map((f) => f.properties), {
     commune: (code) => {
       carte.allerCommune(code);
@@ -98,11 +119,11 @@ async function demarrer(app: HTMLElement): Promise<void> {
     pat: (id) => choisir({ type: 'pat', id }, true),
   });
 
-  if (import.meta.env.DEV) Object.assign(window, { carte, modele, magasin });
+  if (import.meta.env.DEV) Object.assign(window, { carte, modele, communes, magasin });
 
   // ---------------------------------------------------------------- sélection
   const ctx: ContexteFiche = {
-    modele, etat, producteurs, relais,
+    modele, communes, etat, producteurs, relais,
     ouvrirCommune: (code) => choisir({ type: 'commune', code }, true),
     ouvrirEcole: (i) => choisir({ type: 'ecole', uai: table.uai[i] }, true),
     ouvrirPat: (id) => choisir({ type: 'pat', id }, true),
@@ -142,6 +163,7 @@ async function demarrer(app: HTMLElement): Promise<void> {
     const code = s?.type === 'commune' ? s.code : i === undefined ? null : meta.communes[table.commune[i]].code;
     const idPat = s?.type === 'pat' ? s.id : null;
     classement.marquer(i ?? null);
+    classementCommunes.marquer(s?.type === 'commune' ? s.code : null);
     parcours.maj(i ?? null);
     void carte.choisirEcole(i ?? null);
     void carte.choisirCommune(s?.type === 'commune' ? code : null);
@@ -150,11 +172,12 @@ async function demarrer(app: HTMLElement): Promise<void> {
     pat = null;
     if (code === null && idPat === null) {
       panneauFiche.hidden = true;
-      classement.el.hidden = false;
+      montrerClassement();
       return;
     }
     panneauFiche.hidden = false;
     classement.el.hidden = true;
+    classementCommunes.el.hidden = true;
     voir('liste');
     remplacer(corpsFiche, vide('Chargement de la fiche…'));
     try {
@@ -226,19 +249,34 @@ async function demarrer(app: HTMLElement): Promise<void> {
   let minuterie = 0;
   magasin.abonner((sujets) => {
     const touche = (...l: Sujet[]): boolean => l.some((s) => sujets.has(s));
-    if (touche('rayon')) modele.recalculerProducteurs(etat.rayon);
+    if (touche('rayon')) {
+      modele.recalculerProducteurs(etat.rayon);
+      communes.recalculerProducteurs();
+    }
     if (touche('rayon', 'poids')) modele.recalculerScores(etat.poids);
+    if (touche('rayon', 'poidsCommunes')) communes.recalculerScores(etat.poidsCommunes);
     if (touche('rayon', 'poids', 'filtres')) {
       modele.filtrer(etat.filtres);
       classement.maj();
       parcours.maj(ecoleChoisie());
       void carte.majEcoles();
     }
+    if (touche('rayon', 'poidsCommunes', 'filtres')) {
+      communes.filtrer(etat.filtres);
+      classementCommunes.maj();
+    }
+    if (touche('rayon', 'poidsCommunes', 'filtres', 'etape')) {
+      void carte.colorerCommunes(communes.scores, etat.filtres.retenues);
+    }
+    if (touche('etape')) {
+      if (!etat.selection) montrerClassement();
+      majLegende(legende, etat);
+    }
     if (touche('coloration', 'iris')) void carte.majColoration();
     if (touche('couches')) void carte.majCouches();
     if (touche('coloration', 'iris', 'couches')) majLegende(legende, etat);
     if (touche('selection')) void montrerSelection();
-    else if (touche('rayon', 'poids', 'filtres')) {
+    else if (touche('rayon', 'poids', 'poidsCommunes', 'filtres')) {
       window.clearTimeout(minuterie);
       minuterie = window.setTimeout(dessinerFiche, DELAI_FICHE_MS);
     }
@@ -253,6 +291,9 @@ async function demarrer(app: HTMLElement): Promise<void> {
   });
 
   classement.maj();
+  classementCommunes.maj();
+  montrerClassement();
+  void carte.colorerCommunes(communes.scores, etat.filtres.retenues);
   majLegende(legende, etat);
   if (etat.selection) {
     const s = etat.selection;

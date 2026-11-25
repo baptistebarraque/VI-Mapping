@@ -3,12 +3,13 @@
 import type { Etat } from '../etat';
 import { dansRayon, jaugeProducteurs } from '../jauges';
 import type { Modele } from '../modele';
+import type { ModeleCommunes } from '../modele-communes';
 import {
   EDUCATION_PRIORITAIRE, JAUGES, SECTEURS, TYPES_ECOLE,
   type CollectionPoints, type Critere, type Dispositif, type Fiche, type FicheEcole, type NomJauge, type ProprietesProducteur,
   type ProprietesRelais,
 } from '../types';
-import { bloc, definition, etiquette, listeRepliee, metre, provenance, tableSources, vide } from './commun';
+import { bloc, contact, definition, etiquette, listeRepliee, metre, provenance, tableSources, vide } from './commun';
 import { h, lien, type Enfant } from './dom';
 import {
   date, dixieme, euros, km, LIBELLE_ADRESSE, LIBELLE_CRITERE, LIBELLE_GESTIONNAIRE, LIBELLE_JAUGE, LIBELLE_RELAIS,
@@ -19,6 +20,7 @@ import { blocRelance } from './relance';
 
 export interface ContexteFiche {
   modele: Modele;
+  communes: ModeleCommunes;
   etat: Etat;
   producteurs: CollectionPoints<ProprietesProducteur>;
   relais: CollectionPoints<ProprietesRelais>;
@@ -189,6 +191,7 @@ function identite(i: number, f: FicheEcole, ctx: ContexteFiche): HTMLElement {
       ['Éducation prioritaire', EDUCATION_PRIORITAIRE[t.rep[i]] || 'non'],
       ['Cité éducative', f.cite ?? 'non'],
       ['Restauration', ouiNonInconnu(f.restauration)],
+      f.contact ? ['Contact', contact(f.contact)] : null,
       f.qpv ? ['Quartier prioritaire', f.qpv.m === 0 ? `dans ${f.qpv.nom}` : `${f.qpv.nom}, à ${metres(f.qpv.m)}`] : null,
       f.iris && ['Quartier (IRIS)', h('span', {}, f.iris.nom, h('span', { classe: 'sous' }, [
         f.iris.familles !== undefined && pluriel(f.iris.familles, 'famille avec enfants', 'familles avec enfants'),

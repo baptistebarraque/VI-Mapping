@@ -16,12 +16,17 @@ describe('adresse', () => {
 
   test('aller-retour', () => {
     const e: Etat = {
+      etape: 'ecoles',
       poids: { engagement: 0, periscolaire: 10, parents: 20, producteurs: 30, familles: 40 },
+      poidsCommunes: {
+        pat: 30, soutiens: 0, cuisine: 20, cantine_bio: 10, producteurs: 20, associations: 10, communications: 5,
+        ecoles: 5,
+      },
       rayon: { km: 8, minutes: 20, mode: 'minutes' },
       filtres: {
         ...filtresVides(), departements: ['75', '93'], commune: '93048', secteur: 'prive', types: [0, 2],
         elevesMin: 50, elevesMax: null, seuils: { ...filtresVides().seuils, parents: 30 }, garderInconnues: true,
-        connuesMin: 3, premiers: 50,
+        connuesMin: 3, premiers: 50, retenues: ['75112', '93048'], criteresMin: 5,
       },
       couches: { ...etatInitial(meta).couches, qpv: true, communes: false },
       coloration: 'familles',

@@ -1,7 +1,8 @@
 /** Légende : échelle des écoles, symboles des couches affichées, échelle des IRIS. */
 
 import {
-  ALIMENTATION, BORNES_IRIS, bornesDe, ENCRE_2, INCONNU, OPACITE_IRIS, RAMPE_ECOLES, RAMPE_IRIS, VIE_SCOLAIRE,
+  ALIMENTATION, BORNES_IRIS, BORNES_SCORE, bornesDe, ENCRE_2, INCONNU, OPACITE_COMMUNES, OPACITE_IRIS, RAMPE_COMMUNES,
+  RAMPE_ECOLES, RAMPE_IRIS, VIE_SCOLAIRE,
 } from '../couleurs';
 import type { Etat } from '../etat';
 import { h, remplacer, svg, type Enfant } from './dom';
@@ -16,14 +17,22 @@ const tranches = (bornes: readonly number[], f: (x: number) => string): string[]
 
 const ligne = (signe: Node, texte: string): HTMLElement => h('li', {}, signe, h('span', {}, texte));
 
-const carre = (couleur: string): SVGElement => svg(
+const carre = (couleur: string, opacite = OPACITE_IRIS): SVGElement => svg(
   'svg', { width: 16, height: 12, viewBox: '0 0 16 12', 'aria-hidden': 'true', class: 'symbole' },
-  svg('rect', { x: 0, y: 0, width: 16, height: 12, rx: 2, fill: couleur, 'fill-opacity': OPACITE_IRIS }),
+  svg('rect', { x: 0, y: 0, width: 16, height: 12, rx: 2, fill: couleur, 'fill-opacity': opacite }),
 );
 
 export function majLegende(el: HTMLDetailsElement, e: Etat): void {
   const c = e.couches;
   const blocs: Enfant[] = [];
+  if (c.communes && e.etape === 'communes') {
+    blocs.push(
+      h('h2', {}, 'Communes — score de la commune'),
+      h('ul', {}, tranches(BORNES_SCORE, String).map((t, k) => ligne(carre(RAMPE_COMMUNES[k], OPACITE_COMMUNES), t))),
+    );
+  } else if (c.communes && e.filtres.retenues.length) {
+    blocs.push(h('ul', {}, ligne(carre(ALIMENTATION, 0.3), 'Communes retenues à l’étape 1')));
+  }
   if (c.ecoles) {
     blocs.push(
       h('h2', {}, `Écoles — ${LIBELLE_COLORATION[e.coloration].toLowerCase()}`),

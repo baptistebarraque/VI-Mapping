@@ -3,7 +3,9 @@
  * Reprises de src/vi_mapping/calculs/formules.py ; vecteurs de test communs : tests/vecteurs/jauges.json.
  */
 
-import { JAUGES, type ConfigProducteurs, type ParJauge, type Rayon } from './types';
+import {
+  CRITERES_COMMUNES, JAUGES, type ConfigProducteurs, type ParCritere, type ParJauge, type Rayon,
+} from './types';
 
 type Nombre = number | null;
 
@@ -75,4 +77,33 @@ export function score(valeurs: ParJauge<Nombre>, poids: ParJauge<number>, partMi
   }
   if (connu === 0 || connu / total < partMin) return null;
   return dixieme(borne(somme / connu));
+}
+
+/** Score d'une commune : même règle que le score des écoles, sur ses critères (config communes.sous_poids). */
+export function scoreCommune(valeurs: ParCritere<Nombre>, poids: ParCritere<number>, partMin: number): Nombre {
+  let total = 0;
+  let connu = 0;
+  let somme = 0;
+  for (const c of CRITERES_COMMUNES) {
+    const p = poids[c];
+    const v = valeurs[c];
+    total += p;
+    if (v === null) continue;
+    connu += p;
+    somme += p * v;
+  }
+  if (connu === 0 || connu / total < partMin) return null;
+  return dixieme(borne(somme / connu));
+}
+
+/** Critère « producteurs » d'une commune : moyenne de la jauge Producteurs de ses écoles connues. */
+export function producteursCommune(valeurs: Iterable<Nombre>): Nombre {
+  let n = 0;
+  let s = 0;
+  for (const v of valeurs) {
+    if (v === null) continue;
+    n++;
+    s += v;
+  }
+  return n ? dixieme(s / n) : null;
 }

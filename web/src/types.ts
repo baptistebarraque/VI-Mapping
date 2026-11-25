@@ -6,6 +6,13 @@ export const JAUGES = ['engagement', 'periscolaire', 'parents', 'producteurs', '
 export type NomJauge = (typeof JAUGES)[number];
 export type ParJauge<T> = Record<NomJauge, T>;
 
+/** Critères du score propre des communes (étape 1), dans l'ordre de config/jauges.yaml. */
+export const CRITERES_COMMUNES = [
+  'pat', 'soutiens', 'cuisine', 'cantine_bio', 'producteurs', 'associations', 'communications', 'ecoles',
+] as const;
+export type CritereCommune = (typeof CRITERES_COMMUNES)[number];
+export type ParCritere<T> = Record<CritereCommune, T>;
+
 export type Mode = 'ou' | 'km' | 'minutes';
 export interface Rayon {
   km: number;
@@ -71,11 +78,23 @@ export interface Meta {
   };
   communes: Commune[];
   sources: Record<string, Source>;
+  poids_communes: ParCritere<number>;
+  part_min_jauge: number;
 }
 
 export const TYPES_ECOLE = ['Maternelle', 'Élémentaire', 'Primaire'] as const;
 export const SECTEURS = ['Publique', 'Privée sous contrat'] as const;
 export const EDUCATION_PRIORITAIRE = ['', 'REP', 'REP+'] as const;
+
+/** Colonnes parallèles alignées sur meta.communes : la commune k est faite des k-ièmes valeurs. */
+export type TableCommunes = ParCritere<(number | null)[]> & {
+  score: (number | null)[];
+  confiance: (number | null)[];
+  pat_nom: (string | null)[];
+  population: (number | null)[];
+  eleves: (number | null)[];
+  assos: (number | null)[];
+};
 
 /** Colonnes parallèles : l'école i est faite des i-èmes valeurs. */
 export interface TableEcoles {
@@ -138,7 +157,13 @@ export interface FicheAsso {
   pg?: Provenances;
 }
 
+export interface Contact {
+  tel?: string;
+  email?: string;
+}
+
 export interface FicheEcole {
+  contact?: Contact;
   adresse?: string;
   cp?: string;
   classes?: number;
@@ -177,11 +202,39 @@ export interface Elu {
 
 export interface Dispositif {
   id: string;
-  type: 'pat' | 'cite_educative' | 'qpv' | 'laureat_aap';
+  type: 'pat' | 'cite_educative' | 'qpv' | 'laureat_aap' | 'soutien_territorial' | 'laureat_aap_mgp'
+    | 'syndicat_restauration';
   nom: string;
   axe?: boolean;
+  restauration?: boolean;
   annee?: number;
   niveau?: string;
+  echelon?: 'region' | 'departement' | 'interco';
+  score?: number;
+  editions?: string;
+  priorites?: string;
+  p: Provenance;
+}
+
+export interface CuisineCentrale {
+  siret: string;
+  nom: string;
+  type: 'municipale' | 'caisse_des_ecoles' | 'intercommunale' | 'autre_public' | 'privee' | 'inconnu';
+  commune?: string;
+  gestion?: 'regie' | 'concedee';
+  cantines?: number;
+  repas?: number;
+  bio?: number;
+  egalim?: number;
+  p: Provenance;
+}
+
+export interface AssoAlimentation {
+  nom: string;
+  categorie: 'amap_circuits_courts' | 'jardins_agriculture_urbaine' | 'education_alimentaire' | 'solidarite_anti_gaspi';
+  site?: string;
+  declaration?: string;
+  xy?: [number, number];
   p: Provenance;
 }
 
@@ -213,7 +266,15 @@ export interface FicheCommune {
     bio?: number;
     egalim?: number;
     annee?: number;
+    satellites?: number;
+    sur_place?: number;
+    regie?: number;
+    repas?: number;
+    centrale?: CuisineCentrale;
   };
+  contact?: Contact;
+  score?: { valeur: number | null; part: number; criteres: Critere[] };
+  alimentation?: { n: number; categories: Partial<Record<AssoAlimentation['categorie'], number>>; assos: AssoAlimentation[] };
   nb: { accueils: number; assos: number; relais: number; producteurs: number; elus: number };
   gestionnaires?: { siren: string; nom: string; type: string; n: number }[];
   dispositifs?: Dispositif[];

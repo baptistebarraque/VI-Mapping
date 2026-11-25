@@ -38,6 +38,14 @@ export function bloc(titre: string, ...contenu: Enfant[]): HTMLElement {
 }
 
 export const vide = (texte: string): HTMLElement => h('p', { classe: 'vide' }, texte);
+
+/** Standard et adresse générique (mairie, école) : jamais une personne. */
+export function contact(c: { tel?: string; email?: string }): HTMLElement {
+  return h('span', {},
+    c.tel && h('a', { href: `tel:${c.tel.replaceAll(' ', '')}` }, c.tel),
+    c.tel && c.email && ' · ',
+    c.email && h('a', { href: `mailto:${c.email}` }, c.email));
+}
 export const etiquette = (texte: string): HTMLElement => h('span', { classe: 'etiquette' }, texte);
 
 export function definition(...paires: ([string, Enfant] | null | false | undefined)[]): HTMLElement {

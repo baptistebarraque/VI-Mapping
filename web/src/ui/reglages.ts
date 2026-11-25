@@ -1,12 +1,16 @@
 /** Panneau de gauche : filtres, poids du score, rayon des producteurs, couches. */
 
 import {
-  filtresVides, type Coloration, type Couche, type Etat, type Magasin, type Secteur, type VariableIris,
+  filtresVides, type Coloration, type Couche, type Etape, type Etat, type Magasin, type Secteur, type VariableIris,
 } from '../etat';
-import { JAUGES, TYPES_ECOLE, type Meta, type Mode, type NomJauge, type ProprietesPat } from '../types';
+import {
+  CRITERES_COMMUNES, JAUGES, TYPES_ECOLE, type CritereCommune, type Meta, type Mode, type NomJauge, type ProprietesPat,
+} from '../types';
 import { ALIMENTATION, ENCRE_2, INCONNU, RAMPE_ECOLES, RAMPE_IRIS, SURFACE, VIE_SCOLAIRE } from '../couleurs';
 import { h, identifiant, remplacer, type Enfant } from './dom';
-import { COURT_JAUGE, LIBELLE_COLORATION, LIBELLE_COUCHE, LIBELLE_IRIS } from './format';
+import {
+  COURT_CRITERE_COMMUNE, COURT_JAUGE, LIBELLE_COLORATION, LIBELLE_COUCHE, LIBELLE_CRITERE_COMMUNE, LIBELLE_IRIS, pluriel,
+} from './format';
 import { rond, symbole, zone } from './symboles';
 
 interface Curseur {
@@ -174,9 +178,30 @@ export function panneauReglages(meta: Meta, m: Magasin, pats: ProprietesPat[], a
     garder.checked = e().filtres.garderInconnues;
   });
 
-  const filtres = section(
-    'Filtres', true,
-    h('div', { classe: 'champ' }, h('span', { classe: 'libelle' }, 'Départements'), departements.el),
+  // ------------------------------------------------------------ étape : communes, puis écoles
+  const etape = suivre(segments<Etape>(
+    'Étape', [['communes', '1. Communes'], ['ecoles', '2. Écoles']], () => e().etape, (x) => m.modifier('etape', x),
+  ));
+  const criteres = curseur('Critères connus, au moins', {
+    min: 0, max: CRITERES_COMMUNES.length, pas: 1, valeur: e().filtres.criteresMin,
+    format: (x) => `${x} sur ${CRITERES_COMMUNES.length}`, change: (x) => m.filtrer({ criteresMin: x }),
+  });
+  const retenues = h('p', { classe: 'note' });
+  const effacerRetenues = h('button', {
+    type: 'button', classe: 'discret', onclick: () => m.filtrer({ retenues: [] }),
+  }, 'Toutes les communes');
+  const majRetenues = (): void => {
+    const n = e().filtres.retenues.length;
+    retenues.textContent = n
+      ? `Écoles de ${pluriel(n, 'commune retenue', 'communes retenues')} à l’étape 1.`
+      : 'Écoles de toutes les communes (aucune retenue à l’étape 1).';
+    effacerRetenues.hidden = n === 0;
+  };
+  majs.push(majRetenues);
+  const pourCommunes = h('div', { classe: 'pour-communes' }, suivi(criteres, () => e().filtres.criteresMin));
+  const pourEcoles = h(
+    'div', { classe: 'pour-ecoles' },
+    h('div', { classe: 'champ' }, retenues, effacerRetenues),
     h('div', { classe: 'champ' }, h('label', { classe: 'libelle', for: commune.id }, 'Commune'), commune, listeCommunes),
     h('div', { classe: 'champ' }, h('span', { classe: 'libelle' }, 'Secteur'), secteur.el),
     h('div', { classe: 'champ' }, h('span', { classe: 'libelle' }, 'Type'), types.el),
@@ -185,13 +210,57 @@ export function panneauReglages(meta: Meta, m: Magasin, pats: ProprietesPat[], a
     suivi(connues, () => e().filtres.connuesMin),
     h('fieldset', {}, h('legend', {}, 'Seuil minimal par jauge'), seuils,
       h('label', { classe: 'case' }, garder, ' Garder les écoles dont la jauge est inconnue')),
+  );
+
+  const filtres = section(
+    'Filtres', true,
+    h('div', { classe: 'champ' }, h('span', { classe: 'libelle' }, 'Départements'), departements.el),
+    pourCommunes, pourEcoles,
     h('button', {
       type: 'button', classe: 'discret',
       onclick: () => {
-        m.modifier('filtres', filtresVides());
+        // Les communes retenues à l'étape 1 ne sont pas des filtres : elles restent.
+        m.modifier('filtres', { ...filtresVides(), retenues: e().filtres.retenues });
         maj();
       },
     }, 'Effacer les filtres'),
+  );
+
+  // ------------------------------------------------------------ poids des critères communaux
+  const partsCommunes = new Map<CritereCommune, HTMLElement>();
+  const majPartsCommunes = (): void => {
+    const total = CRITERES_COMMUNES.reduce((s, c) => s + e().poidsCommunes[c], 0);
+    for (const [c, el] of partsCommunes) {
+      el.textContent = total ? `${Math.round((100 * e().poidsCommunes[c]) / total)} %` : '–';
+    }
+  };
+  const poidsCommunes = CRITERES_COMMUNES.map((c) => {
+    const part = h('span', { classe: 'part' });
+    partsCommunes.set(c, part);
+    const x = curseur(COURT_CRITERE_COMMUNE[c], {
+      min: 0, max: 100, pas: 5, valeur: e().poidsCommunes[c], format: String,
+      change: (v) => {
+        m.modifier('poidsCommunes', { ...e().poidsCommunes, [c]: v });
+        majPartsCommunes();
+      },
+    });
+    x.el.querySelector('input')?.before(part);
+    x.el.classList.add('avec-part');
+    x.el.title = LIBELLE_CRITERE_COMMUNE[c];
+    return suivi(x, () => e().poidsCommunes[c]);
+  });
+  majs.push(majPartsCommunes);
+  const sectionPoidsCommunes = section(
+    'Poids des critères communaux', true, poidsCommunes,
+    note('Score de la commune = moyenne pondérée de ses critères connus. Un critère inconnu sort de la moyenne. '
+      + 'Le critère « producteurs » suit le rayon choisi plus bas.'),
+    h('button', {
+      type: 'button', classe: 'discret',
+      onclick: () => {
+        m.modifier('poidsCommunes', { ...meta.poids_communes });
+        maj();
+      },
+    }, 'Poids par défaut'),
   );
 
   // ------------------------------------------------------------ poids
@@ -328,8 +397,22 @@ export function panneauReglages(meta: Meta, m: Magasin, pats: ProprietesPat[], a
     ),
   );
 
+  const majEtape = (): void => {
+    const communes = e().etape === 'communes';
+    pourCommunes.hidden = !communes;
+    sectionPoidsCommunes.hidden = !communes;
+    pourEcoles.hidden = communes;
+    sectionPoids.hidden = communes;
+  };
+  majs.push(majEtape);
+  m.abonner((sujets) => {
+    if (sujets.has('etape')) majEtape();
+    if (sujets.has('filtres')) majRetenues();
+  });
+
   const el = h('div', { classe: 'reglages' });
-  remplacer(el, filtres, sectionPoids, sectionRayon, couches);
+  remplacer(el, h('div', { classe: 'etape' }, etape.el), filtres, sectionPoidsCommunes, sectionPoids, sectionRayon,
+    couches);
   const maj = (): void => majs.forEach((f) => f());
   maj();
   return { el, maj };

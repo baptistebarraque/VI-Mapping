@@ -3,10 +3,10 @@
 import type { ExpressionSpecification, LayerSpecification } from '@maplibre/maplibre-gl-style-spec';
 
 import {
-  ALIMENTATION, BORNES_IRIS, bornesDe, ENCRE, ENCRE_2, INCONNU, OPACITE_IRIS, RAMPE_ECOLES, RAMPE_IRIS, SURFACE,
-  VIE_SCOLAIRE,
+  ALIMENTATION, BORNES_IRIS, BORNES_SCORE, bornesDe, ENCRE, ENCRE_2, INCONNU, OPACITE_COMMUNES, OPACITE_IRIS,
+  RAMPE_COMMUNES, RAMPE_ECOLES, RAMPE_IRIS, SURFACE, VIE_SCOLAIRE,
 } from '../couleurs';
-import type { Coloration, Couche, VariableIris } from '../etat';
+import type { Coloration, Couche, Etape, VariableIris } from '../etat';
 import { POLICE } from './fond';
 
 export const SOURCES = [
@@ -28,6 +28,28 @@ export function couleurEcole(coloration: Coloration): ExpressionSpecification {
   return [
     'case', ['<', ['get', 'v'], 0], SURFACE, ['step', ['get', 'v'], RAMPE_ECOLES[0], ...paliers],
   ] as unknown as ExpressionSpecification;
+}
+
+/**
+ * Communes. Étape 1 : couleur selon le score (état « score » de chaque commune, -1 : inconnu, transparent).
+ * Étape 2 : seules les communes retenues sont teintées.
+ */
+export function peintureCommunes(etape: Etape): { couleur: ExpressionSpecification; opacite: ExpressionSpecification } {
+  const score: ExpressionSpecification = ['coalesce', ['feature-state', 'score'], -1];
+  const retenue: ExpressionSpecification = ['boolean', ['feature-state', 'retenue'], false];
+  if (etape === 'communes') {
+    const paliers = BORNES_SCORE.flatMap((b, k) => [b, RAMPE_COMMUNES[k + 1]]);
+    return {
+      couleur: ['case', ['<', score, 0], SURFACE, ['step', score, RAMPE_COMMUNES[0], ...paliers]] as unknown as
+        ExpressionSpecification,
+      opacite: ['case', ['<', score, 0], 0, survol(OPACITE_COMMUNES + 0.2, OPACITE_COMMUNES)] as unknown as
+        ExpressionSpecification,
+    };
+  }
+  return {
+    couleur: ['case', retenue, ALIMENTATION, ENCRE],
+    opacite: ['case', retenue, survol(0.22, 0.14), survol(0.06, 0)] as unknown as ExpressionSpecification,
+  };
 }
 
 export function couleurIris(variable: VariableIris): ExpressionSpecification {

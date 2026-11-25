@@ -2,7 +2,8 @@
 
 import type { FeatureCollection, MultiPolygon, Polygon } from 'geojson';
 import type {
-  CollectionPoints, Couverture, Fiche, Meta, ProprietesPat, ProprietesProducteur, ProprietesRelais, TableEcoles,
+  CollectionPoints, Couverture, Fiche, Meta, ProprietesPat, ProprietesProducteur, ProprietesRelais, TableCommunes,
+  TableEcoles,
 } from './types';
 
 const RACINE = `${import.meta.env.BASE_URL}donnees/`;
@@ -24,6 +25,7 @@ export async function chargerMeta(): Promise<Meta> {
 }
 
 export const chargerEcoles = (): Promise<TableEcoles> => lire('ecoles.json');
+export const chargerCommunes = (): Promise<TableCommunes> => lire('communes.json');
 export const chargerProducteurs = (): Promise<CollectionPoints<ProprietesProducteur>> =>
   lire('points/producteurs.geojson');
 export const chargerRelais = (): Promise<CollectionPoints<ProprietesRelais>> => lire('points/relais.geojson');

@@ -1,7 +1,7 @@
 /** Nombres, dates et libellés en français. */
 
 import type { Coloration, Couche, VariableIris } from '../etat';
-import type { NomJauge, ParJauge } from '../types';
+import type { NomJauge, ParCritere, ParJauge } from '../types';
 
 const entier = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 });
 const decimal = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 });
@@ -106,6 +106,45 @@ export const LIBELLE_DISPOSITIF: Record<string, string> = {
   cite_educative: 'Cité éducative',
   qpv: 'Quartier prioritaire',
   laureat_aap: 'Lauréat de l’appel à projets du PNA',
+  soutien_territorial: 'Soutien territorial',
+  laureat_aap_mgp: 'Lauréat AAP MGP « Restauration collective bio et locale »',
+  syndicat_restauration: 'Syndicat de restauration',
+};
+
+/** Critères du score des communes (étape 1). */
+export const LIBELLE_CRITERE_COMMUNE: ParCritere<string> = {
+  pat: 'Projet alimentaire territorial',
+  soutiens: 'Soutien du département, de l’interco, de la MGP',
+  cuisine: 'Cuisine centrale publique ou régie',
+  cantine_bio: 'Part de bio en cantine',
+  producteurs: 'Producteurs bio à proximité des écoles',
+  associations: 'Associations d’alimentation durable',
+  communications: 'Communications de la mairie',
+  ecoles: 'Élèves (familles touchées)',
+};
+export const COURT_CRITERE_COMMUNE: ParCritere<string> = {
+  pat: 'PAT', soutiens: 'Soutiens', cuisine: 'Cuisine', cantine_bio: 'Bio', producteurs: 'Producteurs',
+  associations: 'Associations', communications: 'Communication', ecoles: 'Élèves',
+};
+export const LIBELLE_CUISINE: Record<string, string> = {
+  municipale: 'municipale',
+  caisse_des_ecoles: 'caisse des écoles',
+  intercommunale: 'intercommunale',
+  autre_public: 'autre organisme public',
+  privee: 'prestataire privé',
+  inconnu: 'gestionnaire inconnu',
+  sur_place_regie: 'cuisines sur place, en régie',
+  sur_place_concedee: 'cuisines sur place, concédées',
+  syndicat: 'syndicat intercommunal de restauration',
+};
+export const LIBELLE_CATEGORIE_ALIMENTATION: Record<string, string> = {
+  amap_circuits_courts: 'AMAP, circuits courts',
+  jardins_agriculture_urbaine: 'Jardins, agriculture urbaine',
+  education_alimentaire: 'Éducation alimentaire, cantine',
+  solidarite_anti_gaspi: 'Solidarité, anti-gaspillage',
+};
+export const LIBELLE_ECHELON: Record<string, string> = {
+  region: 'Région', departement: 'Département', interco: 'Intercommunalité',
 };
 
 export const LIBELLE_BIO: Record<string, string> = {

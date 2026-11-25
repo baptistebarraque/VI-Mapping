@@ -18,6 +18,10 @@ export const ENCRE_2 = '#52514e';
 export const VIE_SCOLAIRE = '#eb6834';
 export const ALIMENTATION = '#1baf7a';
 
+/** Rampe verte (famille alimentation) pour le score des communes, étape 1 : mêmes bornes que le score des écoles. */
+export const RAMPE_COMMUNES = ['#d3f0e2', '#9fdcc0', '#5fc39b', '#26a274', '#147a55'] as const;
+export const OPACITE_COMMUNES = 0.55;
+
 /** Rampe orange (deuxième échelle séquentielle) pour les IRIS. */
 export const RAMPE_IRIS = ['#ffdacd', '#fcb69c', '#f7906b', '#e96632', '#be4b19'] as const;
 export const OPACITE_IRIS = 0.6; // le fond de plan reste lisible dessous
