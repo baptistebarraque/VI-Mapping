@@ -15,6 +15,7 @@ import {
   LIBELLE_THEME, metres, minutes, nombre, ouiNonInconnu, pluriel, pourcent,
 } from './format';
 import { boutonPat, listeDispositifs, listeElus } from './fiche-commune';
+import { blocRelance } from './relance';
 
 export interface ContexteFiche {
   modele: Modele;
@@ -65,6 +66,7 @@ export function ficheEcole(i: number, fiche: Fiche, ctx: ContexteFiche): HTMLEle
           rang >= 0 && s !== null && `${nombre(rang + 1)}${rang === 0 ? 're' : 'e'} sur ${pluriel(modele.visibles.length, 'école filtrée', 'écoles filtrées')} · `,
           `${connues} jauges connues sur 5`),
         h('span', { classe: 'sous' }, `${pourcent(100 * t.confiance[i])} des critères renseignés`))),
+    blocRelance(t.uai[i], s),
     h('div', { classe: 'jauges' }, JAUGES.map((j) => jauge(j, i, f, fiche, ctx))),
     identite(i, f, ctx),
     blocAccueils(f, fiche, ctx),

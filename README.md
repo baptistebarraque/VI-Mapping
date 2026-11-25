@@ -44,6 +44,7 @@ téléchargés à nouveau, les sites vus depuis moins de 25 jours pas visités �
 | `uv run vi collecter CODE…` | une ou plusieurs sources, puis les calculs (`--sans-calcul` pour s'en passer) |
 | `uv run vi collecter --dus` | sources arrivées à échéance |
 | `uv run vi maj` | mise à jour planifiée : échéances, calculs, contrôles, rapport, export |
+| `uv run vi analyser UAI` | une école : site de sa mairie, calculs, export ; c'est le bouton « Relancer l'analyse » de la carte locale |
 | `uv run vi rattacher`, `proximite`, `jauges` | un seul calcul |
 | `uv run vi couverture` | rapport de couverture |
 | `uv run vi exporter` | fichiers JSON de la carte |

@@ -537,6 +537,9 @@ summary {
 .heros b {
   font-weight: 600;
 }
+.relance .note:empty {
+  display: none;
+}
 .jauge {
   border-bottom: 1px solid var(--grille);
 }
