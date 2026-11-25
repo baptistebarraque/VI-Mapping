@@ -1,7 +1,7 @@
 /** Fiche d'un projet alimentaire territorial : labellisation, périmètre, écoles couvertes. */
 
 import type { ProprietesPat } from '../types';
-import { bloc, definition, listeRepliee, provenance, vide } from './commun';
+import { bloc, definition, listeRepliee, provenance, vide, volet } from './commun';
 import { h, lien } from './dom';
 import { blocEcoles, resumeEcoles } from './fiche-commune';
 import type { ContexteFiche } from './fiche-ecole';
@@ -30,11 +30,10 @@ export function fichePat(p: ProprietesPat, ctx: ContexteFiche): HTMLElement {
       ),
       provenance(p, meta),
     ),
-    bloc(
-      'Communes d’Île-de-France couvertes',
+    volet(
+      'Communes d’Île-de-France couvertes', p.communes === undefined ? null : communes.length,
       p.communes === undefined ? vide('Liste absente de cet export : relancez « vi exporter ».') : h(
         'div', {},
-        h('p', { classe: 'note' }, pluriel(communes.length, 'commune')),
         listeRepliee(communes.map((c) => h('li', { classe: 'proche' },
           h('button', { type: 'button', classe: 'lien fort', onclick: () => ctx.ouvrirCommune(c.code) }, c.nom),
           h('span', { classe: 'trajet' }, pluriel(modele.parCommune.get(c.code)?.length ?? 0, 'école')))), 8)),

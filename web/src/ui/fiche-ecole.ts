@@ -8,7 +8,7 @@ import {
   type CollectionPoints, type Critere, type Dispositif, type Fiche, type FicheEcole, type NomJauge, type ProprietesProducteur,
   type ProprietesRelais,
 } from '../types';
-import { bloc, definition, etiquette, listeRepliee, metre, provenance, tableSources, vide } from './commun';
+import { anneau, bloc, definition, etiquette, listeRepliee, metre, provenance, tableSources, vide, volet } from './commun';
 import { h, lien, type Enfant } from './dom';
 import {
   date, dixieme, euros, km, LIBELLE_ADRESSE, LIBELLE_CRITERE, LIBELLE_GESTIONNAIRE, LIBELLE_JAUGE, LIBELLE_RELAIS,
@@ -59,19 +59,18 @@ export function ficheEcole(i: number, fiche: Fiche, ctx: ContexteFiche): HTMLEle
       h('button', { type: 'button', classe: 'lien', onclick: () => ctx.ouvrirCommune(commune.code) }, commune.nom),
       ` (${commune.dep})`, f.adresse && ` · ${f.adresse}`),
     h('div', { classe: 'heros' },
-      h('span', { classe: 'chiffre' }, s === null ? '–' : nombre(s)),
+      anneau(s),
       h('div', {},
         h('b', {}, s === null ? 'Données insuffisantes' : 'Score global sur 100'),
         h('span', { classe: 'sous' },
-          rang >= 0 && s !== null && `${nombre(rang + 1)}${rang === 0 ? 're' : 'e'} sur ${pluriel(modele.visibles.length, 'école filtrée', 'écoles filtrées')} · `,
-          `${connues} jauges connues sur 5`),
-        h('span', { classe: 'sous' }, `${pourcent(100 * t.confiance[i])} des critères renseignés`))),
+          rang >= 0 && s !== null && `${nombre(rang + 1)}${rang === 0 ? 're' : 'e'} sur ${pluriel(modele.visibles.length, 'école filtrée', 'écoles filtrées')}`),
+        h('span', { classe: 'sous' }, `${connues} jauges sur 5 · ${pourcent(100 * t.confiance[i])} des critères renseignés`))),
     blocRelance(t.uai[i], s),
     h('div', { classe: 'jauges' }, JAUGES.map((j) => jauge(j, i, f, fiche, ctx))),
     identite(i, f, ctx),
     blocAccueils(f, fiche, ctx),
     blocAssos(f, fiche, ctx),
-    bloc('Élus et dispositifs', listeElus(fiche.commune, meta, true), listeDispositifs(fiche.commune, ctx, f)),
+    volet('Élus et dispositifs', null, listeElus(fiche.commune, meta, true), listeDispositifs(fiche.commune, ctx, f)),
     blocProducteurs(f, ctx),
     blocRelais(f, ctx),
     tableSources(meta, f, (f.accueils ?? []).map((a) => fiche.accueils?.[a.id]),
@@ -98,7 +97,7 @@ function jauge(j: NomJauge, i: number, f: FicheEcole, fiche: Fiche, ctx: Context
     h('summary', {},
       h('span', { classe: 'nom' }, LIBELLE_JAUGE[j]),
       h('span', { classe: v === null ? 'valeur insuffisant' : 'valeur' }, v === null ? 'données insuffisantes' : nombre(v)),
-      metre(v, LIBELLE_JAUGE[j])),
+      metre(v, LIBELLE_JAUGE[j], j)),
     h('ul', { classe: 'criteres' }, criteres.map((c) => h(
       'li', {},
       h('span', { classe: 'nom' }, LIBELLE_CRITERE[c.code] ?? c.code),
@@ -222,8 +221,8 @@ function blocAccueils(f: FicheEcole, fiche: Fiche, ctx: ContexteFiche): HTMLElem
       provenance(a.p, meta),
     )];
   });
-  return bloc(
-    'Accueils périscolaires',
+  return volet(
+    'Accueils périscolaires', lignes.length,
     lignes.length ? listeRepliee(lignes, 4)
       : vide('Aucun accueil trouvé à proximité. Les sources ouvertes ne sont pas exhaustives : l’école peut en avoir un.'),
   );
@@ -249,8 +248,8 @@ function blocAssos(f: FicheEcole, fiche: Fiche, ctx: ContexteFiche): HTMLElement
       provenance(a.p, meta),
     )];
   });
-  return bloc(
-    'Associations de parents',
+  return volet(
+    'Associations de parents', lignes.length,
     lignes.length ? listeRepliee(lignes, 4)
       : vide('Aucune association rattachée. Beaucoup de conseils locaux ne sont pas déclarés en propre.'),
   );
@@ -279,8 +278,8 @@ function blocProducteurs(f: FicheEcole, ctx: ContexteFiche): HTMLElement {
     )];
   });
   const comptes = dedans.filter((p) => ctx.producteurs.features[p.rang]?.properties.compte).length;
-  return bloc(
-    'Producteurs bio dans le rayon',
+  return volet(
+    'Producteurs bio dans le rayon', lignes.length,
     lignes.length
       ? [h('p', { classe: 'note' }, `${pluriel(comptes, 'producteur compté', 'producteurs comptés')}, du plus proche au plus loin. Trajets par la route.`),
         listeRepliee(lignes, 6)]
@@ -309,8 +308,8 @@ function blocRelais(f: FicheEcole, ctx: ContexteFiche): HTMLElement {
   const contenu: Enfant[] = [...parType].map(([type, l]) => [
     h('h4', {}, LIBELLE_RELAIS[type]), listeRepliee(l, 3),
   ]);
-  return bloc(
-    'Relais locaux dans le rayon',
+  return volet(
+    'Relais locaux dans le rayon', [...parType.values()].reduce((x, l) => x + l.length, 0),
     contenu.length ? [h('p', { classe: 'note' }, 'Les dix plus proches de chaque type.'), contenu]
       : vide('Aucun relais dans ce rayon.'),
   );

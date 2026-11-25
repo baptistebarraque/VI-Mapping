@@ -1,18 +1,42 @@
 :root {
   color-scheme: light;
-  --page: #f9f9f7;
-  --surface: #fcfcfb;
-  --encre: #0b0b0b;
-  --encre-2: #52514e;
-  --encre-3: #6f6d68;
-  --grille: #e1e0d9;
-  --axe: #c3c2b7;
-  --accent: #2a78d6;
-  --accent-fonce: #1c5cab;
-  --piste: #cde2fb;
-  --inconnu: #898781;
-  --bord: rgba(11, 11, 11, 0.1);
-  --ombre: 0 2px 12px rgba(11, 11, 11, 0.12);
+  --page: #fbf8f2;
+  --surface: #ffffff;
+  --encre: #1d1b1a;
+  --encre-2: #5c5650;
+  --encre-3: #77706a;
+  --grille: #ece5da;
+  --axe: #d8cfc2;
+  --accent: #6dc067;
+  --accent-fonce: #2b7a39;
+  --voile: #e6f4e3;
+  --piste: #efe8dd;
+  --inconnu: #8f877d;
+  --bord: rgba(60, 45, 25, 0.1);
+  --ombre: 0 4px 20px rgba(60, 45, 25, 0.12);
+  --rose: #ed1e79;
+  --jaune: #f5c800;
+  --violet: #574f7a;
+  --rouge: #ee2c30;
+  --titres: 'Century Gothic', CenturyGothic, 'URW Gothic', 'Avenir Next', Futura, system-ui, sans-serif;
+  --texte: 'Avenir Next', Calibri, Carlito, 'Segoe UI', system-ui, sans-serif;
+}
+
+/* Couleurs des acteurs dans la brochure V.i, reprises pour les jauges */
+.j-engagement {
+  --jauge: var(--violet);
+}
+.j-periscolaire {
+  --jauge: var(--rose);
+}
+.j-parents {
+  --jauge: var(--accent);
+}
+.j-producteurs {
+  --jauge: var(--rouge);
+}
+.j-familles {
+  --jauge: var(--jaune);
 }
 
 *,
@@ -31,7 +55,7 @@ body {
 body {
   background: var(--page);
   color: var(--encre);
-  font: 14px/1.45 system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font: 14px/1.5 var(--texte);
   -webkit-font-smoothing: antialiased;
 }
 h1,
@@ -48,16 +72,21 @@ fieldset {
   padding: 0;
 }
 h1 {
-  font-size: 16px;
-  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+h1 img {
+  display: block;
+  width: auto;
+  height: 44px;
 }
 h1 span {
-  font-weight: 400;
+  font: 400 16px/1.2 var(--titres);
   color: var(--encre-2);
 }
 h2 {
-  font-size: 15px;
-  font-weight: 600;
+  font: 400 18px/1.3 var(--titres);
 }
 h3 {
   font-size: 14px;
@@ -87,8 +116,23 @@ a {
   color: var(--accent-fonce);
 }
 .attente {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 20px;
   padding: 32px;
+  text-align: center;
   color: var(--encre-2);
+  background:
+  radial-gradient(circle at 0 0, var(--rose) 18vmin, transparent calc(18vmin + 1px)),
+  radial-gradient(circle at 100% 0, var(--jaune) 18vmin, transparent calc(18vmin + 1px)),
+  radial-gradient(circle at 0 100%, var(--violet) 18vmin, transparent calc(18vmin + 1px)),
+  radial-gradient(circle at 100% 100%, var(--rouge) 18vmin, transparent calc(18vmin + 1px)),
+  var(--surface);
+}
+.attente img {
+  max-width: 100%;
+  height: auto;
 }
 
 /* ------------------------------------------------------------ commandes */
@@ -99,10 +143,10 @@ select {
   color: inherit;
 }
 button {
-  min-height: 30px;
-  padding: 3px 12px;
+  min-height: 32px;
+  padding: 3px 14px;
   border: 1px solid var(--axe);
-  border-radius: 6px;
+  border-radius: 16px;
   background: var(--surface);
   cursor: pointer;
 }
@@ -124,10 +168,10 @@ button.discret {
   background: transparent;
   color: var(--accent-fonce);
   padding-inline: 8px;
-  margin-inline-start: -8px;
+  margin-inline: -8px;
 }
 button.discret:hover {
-  background: rgba(11, 11, 11, 0.05);
+  background: var(--voile);
 }
 button.lien {
   min-height: 0;
@@ -146,7 +190,7 @@ button.lien.fort {
   text-decoration-color: var(--axe);
 }
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--accent-fonce);
   outline-offset: 2px;
 }
 .panneau-fiche:focus {
@@ -157,57 +201,54 @@ input[type='number'],
 select {
   width: 100%;
   min-height: 32px;
-  padding: 3px 8px;
+  padding: 3px 10px;
   border: 1px solid var(--axe);
-  border-radius: 6px;
-  background: #fff;
+  border-radius: 10px;
+  background: var(--surface);
 }
 input[type='checkbox'],
 input[type='range'] {
-  accent-color: var(--accent);
+  accent-color: var(--accent-fonce);
 }
 
 /* ------------------------------------------------------------ mise en page */
 #app {
   height: 100dvh;
   display: grid;
-  grid-template: auto minmax(0, 1fr) / 312px minmax(0, 1fr) 392px;
+  grid-template: auto minmax(0, 1fr) / 296px minmax(0, 1fr) 384px;
   grid-template-areas: 'entete entete entete' 'gauche centre droite';
 }
 #app > .attente {
-  grid-area: centre;
+  grid-area: 1 / 1 / -1 / -1;
 }
 .entete {
   grid-area: entete;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 16px;
-  padding: 8px 16px;
-  border-bottom: 1px solid var(--bord);
-  background: var(--surface);
-}
-.entete p {
-  margin-inline-start: auto;
-  color: var(--encre-2);
+  padding: 10px 20px;
 }
 .gauche,
 .droite {
-  background: var(--surface);
   overflow-y: auto;
   scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: var(--axe) transparent;
 }
 .gauche {
   grid-area: gauche;
-  border-inline-end: 1px solid var(--bord);
 }
 .droite {
   grid-area: droite;
-  border-inline-start: 1px solid var(--bord);
 }
 .centre {
   grid-area: centre;
   position: relative;
   isolation: isolate; /* les commandes de la carte restent sous les panneaux */
+  margin: 0 4px 16px;
+  border-radius: 20px;
+  overflow: hidden;
 }
 .fond-carte {
   width: 100%;
@@ -219,8 +260,7 @@ input[type='range'] {
 
 /* ------------------------------------------------------------ réglages */
 .section {
-  padding: 0 16px;
-  border-bottom: 1px solid var(--grille);
+  padding: 0 20px;
 }
 .section[open] {
   padding-bottom: 14px;
@@ -253,7 +293,7 @@ summary {
   transform: rotate(-135deg) translate(-2px, -2px);
 }
 .champ {
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 .libelle {
   display: block;
@@ -261,15 +301,29 @@ summary {
   font-size: 13px;
   color: var(--encre-2);
 }
+.avance {
+  margin-bottom: 8px;
+}
+.pastille {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-inline-end: 7px;
+  border-radius: 50%;
+  background: var(--jauge);
+}
 .puces {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
 }
 .puce {
-  padding: 2px 9px;
-  border-radius: 15px;
+  padding: 2px 11px;
   font-variant-numeric: tabular-nums;
+}
+.puces[aria-label='Départements'] {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
 }
 .segments {
   display: flex;
@@ -281,15 +335,15 @@ summary {
   padding-inline: 6px;
 }
 .segments button:first-child {
-  border-radius: 6px 0 0 6px;
+  border-radius: 16px 0 0 16px;
   margin: 0;
 }
 .segments button:last-child {
-  border-radius: 0 6px 6px 0;
+  border-radius: 0 16px 16px 0;
 }
 [aria-pressed='true'] {
   position: relative;
-  background: var(--piste);
+  background: var(--voile);
   border-color: var(--accent);
   font-weight: 600;
 }
@@ -361,8 +415,7 @@ summary {
   max-height: calc(100% - 24px);
   overflow-y: auto;
   padding: 10px 12px;
-  border: 1px solid var(--bord);
-  border-radius: 8px;
+  border-radius: 14px;
   background: var(--surface);
   box-shadow: var(--ombre);
   font-size: 12.5px;
@@ -373,8 +426,33 @@ summary {
   color: var(--encre-2);
 }
 .legende h2 {
-  font-size: 12.5px;
+  font: 600 12.5px/1.4 var(--texte);
   margin: 4px 0;
+}
+.bandeau {
+  display: flex;
+  gap: 2px;
+  width: 200px;
+  margin: 6px 0 24px;
+}
+.bandeau span {
+  position: relative;
+  flex: 1;
+  height: 10px;
+  background: var(--case);
+}
+.bandeau span:first-child {
+  border-radius: 5px 0 0 5px;
+}
+.bandeau span:last-child {
+  border-radius: 0 5px 5px 0;
+}
+.bandeau b {
+  position: absolute;
+  inset: 12px auto auto -1px;
+  transform: translateX(-50%);
+  font-weight: 400;
+  color: var(--encre-2);
 }
 .legende ul + h2 {
   margin-top: 10px;
@@ -388,7 +466,7 @@ summary {
 
 /* ------------------------------------------------------------ classement */
 .panneau-classement {
-  padding: 12px 16px 24px;
+  padding: 4px 20px 24px;
 }
 .barre {
   display: flex;
@@ -414,30 +492,44 @@ summary {
   color: var(--encre-2);
 }
 .compte b {
+  font: 400 18px/1.3 var(--titres);
   color: var(--encre);
+}
+.cle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 14px;
+  margin: 12px 0 8px;
+  font-size: 12.5px;
+  color: var(--encre-2);
+}
+.cle .pastille,
+.mini .pastille {
+  margin-inline-end: 5px;
 }
 .classement li > button {
   display: grid;
-  grid-template-columns: 34px minmax(0, 1fr) 46px 62px;
+  grid-template-columns: 22px minmax(0, 1fr) 40px 40px;
   align-items: center;
-  gap: 8px;
-  width: 100%;
-  min-height: 48px;
-  padding: 8px 4px;
+  gap: 10px;
+  width: calc(100% + 20px);
+  min-height: 56px;
+  margin-inline: -10px;
+  padding: 8px 10px;
   border: 0;
-  border-bottom: 1px solid var(--grille);
-  border-radius: 0;
+  border-radius: 14px;
   background: none;
   text-align: start;
 }
 .classement li > button:hover {
-  background: rgba(11, 11, 11, 0.04);
+  background: var(--surface);
 }
 .classement li > button[aria-current] {
-  background: var(--piste);
+  background: var(--voile);
 }
 .rang {
   color: var(--encre-3);
+  font-size: 12.5px;
   text-align: end;
   font-variant-numeric: tabular-nums;
 }
@@ -455,32 +547,22 @@ summary {
 .barres {
   display: flex;
   align-items: flex-end;
-  gap: 2px;
+  gap: 3px;
   height: 26px;
-  border-bottom: 1px solid var(--axe);
 }
 .barres i {
   flex: 1;
-  border-radius: 2px 2px 0 0;
-  background: var(--accent);
+  border-radius: 3px;
+  background: var(--jauge);
 }
 .barres i.inconnue {
-  align-self: flex-end;
-  height: 3px;
-  background: none;
-  border: 1px dashed var(--inconnu);
-  border-width: 1px 0 0;
+  height: 2px;
+  background: var(--axe);
 }
 .note-ecole {
+  font: 400 22px/1 var(--titres);
   text-align: end;
-}
-.note-ecole b {
-  font-size: 17px;
   font-variant-numeric: tabular-nums;
-}
-.note-ecole .sous {
-  font-size: 12px;
-  white-space: nowrap;
 }
 
 /* ------------------------------------------------------------ fiches */
@@ -488,9 +570,8 @@ summary {
   position: sticky;
   top: 0;
   z-index: 1;
-  padding: 6px 16px;
-  border-bottom: 1px solid var(--grille);
-  background: var(--surface);
+  padding: 4px 20px;
+  background: var(--page);
 }
 .parcours {
   display: flex;
@@ -510,16 +591,16 @@ summary {
   line-height: 1;
 }
 .corps-fiche {
-  padding: 14px 16px 32px;
+  padding: 10px 20px 32px;
 }
 .surtitre {
   font-size: 12.5px;
   color: var(--encre-2);
 }
 .fiche > h2 {
-  font-size: 20px;
+  font-size: 24px;
   line-height: 1.2;
-  margin: 2px 0 4px;
+  margin: 2px 0 6px;
 }
 .lieu {
   color: var(--encre-2);
@@ -527,13 +608,22 @@ summary {
 .heros {
   display: flex;
   align-items: center;
-  gap: 14px;
-  margin: 14px 0 10px;
+  gap: 16px;
+  margin: 20px 0 14px;
 }
 .chiffre {
-  font-size: 48px;
-  font-weight: 600;
-  line-height: 1;
+  font: 400 32px/1 var(--titres);
+}
+.anneau {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  background:
+    radial-gradient(closest-side, var(--surface) 76%, transparent calc(76% + 1px)),
+    conic-gradient(var(--accent) calc(var(--score) * 1%), var(--piste) 0);
 }
 .heros b {
   font-weight: 600;
@@ -541,16 +631,16 @@ summary {
 .relance .note:empty {
   display: none;
 }
-.jauge {
-  border-bottom: 1px solid var(--grille);
+.relance {
+  margin-bottom: 8px;
 }
 .jauge > summary,
 .jauge.simple {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 4px 8px;
+  gap: 5px 8px;
   align-items: baseline;
-  padding: 8px 0;
+  padding: 7px 0;
   list-style: none;
 }
 .jauge > summary::-webkit-details-marker {
@@ -575,22 +665,22 @@ summary {
 .metre {
   grid-column: 1 / -1;
   height: 8px;
-  border-radius: 0 4px 4px 0;
+  border-radius: 4px;
   background: var(--piste);
   overflow: hidden;
 }
 .metre-plein {
   height: 100%;
-  border-radius: 0 4px 4px 0;
-  background: var(--accent);
+  border-radius: 4px;
+  background: var(--jauge);
 }
 .metre-vide {
-  background: repeating-linear-gradient(135deg, var(--grille) 0 2px, transparent 2px 6px);
-  border: 1px solid var(--grille);
+  background: repeating-linear-gradient(135deg, var(--axe) 0 2px, transparent 2px 6px);
+  opacity: 0.6;
 }
 .criteres {
   padding: 2px 0 2px 12px;
-  border-inline-start: 2px solid var(--piste);
+  border-inline-start: 2px solid var(--axe);
 }
 .criteres li {
   display: grid;
@@ -606,7 +696,7 @@ summary {
   font-weight: 400;
 }
 .bloc {
-  padding: 16px 0 0;
+  padding: 18px 0 0;
 }
 .bloc > h3,
 .bloc > summary {
@@ -625,6 +715,34 @@ summary {
 }
 .replie > summary h3 {
   color: var(--encre);
+}
+.fiche > .replie {
+  margin-top: 2px;
+  padding: 0;
+  border-top: 1px solid var(--grille);
+}
+.fiche > .replie > summary {
+  min-height: 46px;
+  margin: 0;
+}
+.fiche > .replie[open] {
+  padding-bottom: 14px;
+}
+.fiche > :not(.replie) + .replie {
+  margin-top: 20px;
+}
+.compteur {
+  margin-inline: 8px auto;
+  font-size: 12.5px;
+  color: var(--encre-3);
+  font-variant-numeric: tabular-nums;
+}
+.dessin {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  padding: 32px 0;
+  text-align: center;
 }
 .definition {
   display: grid;
@@ -656,9 +774,9 @@ summary {
 }
 .etiquette {
   display: inline-block;
-  padding: 0 7px;
-  border: 1px solid var(--grille);
+  padding: 0 8px;
   border-radius: 10px;
+  background: var(--piste);
   font-size: 12px;
   color: var(--encre-2);
   white-space: nowrap;
@@ -723,13 +841,20 @@ summary {
   background: linear-gradient(to right, var(--accent) var(--taux), var(--piste) 0) no-repeat center bottom / calc(100% - 12px) 2px;
 }
 
-/* ------------------------------------------------------------ carte : bulles */
+/* ------------------------------------------------------------ carte : commandes et bulles */
+.maplibregl-ctrl-group {
+  border-radius: 14px;
+  overflow: hidden;
+}
+.maplibregl-ctrl-group button {
+  border-radius: 0;
+}
 .maplibregl-popup-content {
-  padding: 10px 12px;
-  border-radius: 8px;
+  padding: 12px 14px;
+  border-radius: 14px;
   background: var(--surface);
   color: var(--encre);
-  font: 13px/1.4 system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font: 13px/1.45 var(--texte);
   box-shadow: var(--ombre);
 }
 .bulle:not(.fenetre) {
@@ -772,17 +897,17 @@ summary {
   width: min(1080px, calc(100vw - 32px));
   max-height: calc(100dvh - 48px);
   padding: 0;
-  border: 1px solid var(--bord);
-  border-radius: 10px;
+  border: 0;
+  border-radius: 20px;
   background: var(--surface);
   color: var(--encre);
   box-shadow: var(--ombre);
 }
 .dialogue::backdrop {
-  background: rgba(11, 11, 11, 0.35);
+  background: rgba(60, 45, 25, 0.35);
 }
 .dialogue-corps {
-  padding: 16px 20px 24px;
+  padding: 20px 28px 28px;
 }
 .dialogue h3 {
   margin-top: 18px;
@@ -794,7 +919,7 @@ summary {
 /* ------------------------------------------------------------ petits écrans */
 @media (max-width: 1180px) {
   #app {
-    grid-template-columns: 272px minmax(0, 1fr) 340px;
+    grid-template-columns: 264px minmax(0, 1fr) 340px;
   }
 }
 @media (max-width: 900px) {
@@ -803,14 +928,14 @@ summary {
     grid-template-areas: 'entete' 'centre' 'onglets';
   }
   .entete {
-    gap: 10px;
+    padding: 8px 14px;
   }
-  .entete p {
-    display: none;
+  h1 img {
+    height: 34px;
   }
-  .entete button {
-    margin-inline-start: auto;
-    white-space: nowrap;
+  .centre {
+    margin: 0;
+    border-radius: 0;
   }
   .onglets {
     grid-area: onglets;
@@ -830,13 +955,13 @@ summary {
     grid-area: centre;
     z-index: 2;
     display: none;
-    border: 0;
+    background: var(--page);
   }
   .droite {
     align-self: end;
     max-height: 62%;
     height: 62%;
-    border-top: 1px solid var(--bord);
+    border-radius: 20px 20px 0 0;
     box-shadow: var(--ombre);
   }
   [data-vue='reglages'] .gauche,
@@ -855,5 +980,10 @@ summary {
 @media (prefers-reduced-motion: no-preference) {
   .metre-plein {
     transition: width 160ms ease-out;
+  }
+}
+@media (max-width: 620px) {
+  h1 span {
+    display: none;
   }
 }

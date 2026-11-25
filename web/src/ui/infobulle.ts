@@ -2,7 +2,7 @@
 
 import type { Modele } from '../modele';
 import { JAUGES, type Meta, type Provenance } from '../types';
-import { definition, provenance } from './commun';
+import { definition, pastille, provenance } from './commun';
 import { h, lien } from './dom';
 import {
   COURT_JAUGE, date, LIBELLE_ADRESSE, LIBELLE_BIO, LIBELLE_COUCHE, LIBELLE_RELAIS, nombre,
@@ -33,7 +33,7 @@ export function infobulle(type: TypePoint | 'ecoles', p: Proprietes, modele: Mod
     h('span', { classe: 'sous' }, h('b', {}, s === null ? 'Données insuffisantes' : nombre(s)), s !== null && ' sur 100'),
     h('ul', { classe: 'mini' }, JAUGES.map((j) => {
       const v = modele.valeur(j, i);
-      return h('li', {}, h('span', {}, COURT_JAUGE[j]), v === null ? h('span', { classe: 'sous' }, 'insuffisant') : h('b', {}, nombre(v)));
+      return h('li', {}, h('span', {}, pastille(j), COURT_JAUGE[j]), v === null ? h('span', { classe: 'sous' }, 'insuffisant') : h('b', {}, nombre(v)));
     })),
     suite,
   );

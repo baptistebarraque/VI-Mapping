@@ -3,6 +3,8 @@
 import { PREMIERS_DEFAUT, PREMIERS_MAX } from '../etat';
 import type { Modele } from '../modele';
 import { JAUGES } from '../types';
+import legumes from '../images/legumes-vi.png';
+import { pastille } from './commun';
 import { h, identifiant, remplacer } from './dom';
 import { COURT_JAUGE, jaugeOuInsuffisant, nombre, pluriel } from './format';
 
@@ -43,11 +45,10 @@ export class Classement {
     this.suite = h('button', { type: 'button', classe: 'discret', onclick: () => this.ajouter() }, 'Afficher la suite');
     this.el = h(
       'div', { classe: 'panneau-classement' },
-      h('div', { classe: 'barre' }, this.entete, h('button', { type: 'button', onclick: exporter }, 'Exporter en CSV')),
+      h('div', { classe: 'barre' }, this.entete, h('button', { type: 'button', classe: 'discret', onclick: exporter }, 'Exporter en CSV')),
       h('div', { classe: 'premiers' }, this.limiter, this.nombre, h('label', { for: id }, 'premières')),
-      h('p', { classe: 'note' },
-        'À score égal, l’école la mieux documentée passe devant. Les cinq barres : ',
-        JAUGES.map((j) => COURT_JAUGE[j].toLowerCase()).join(', '), '.'),
+      h('ul', { classe: 'cle', 'aria-label': 'Les cinq barres' },
+        JAUGES.map((j) => h('li', {}, pastille(j), COURT_JAUGE[j]))),
       this.liste, this.suite,
     );
   }
@@ -60,13 +61,14 @@ export class Classement {
     if (limite !== null && document.activeElement !== this.nombre) this.nombre.value = String(limite);
     remplacer(
       this.entete, h('b', {}, pluriel(visibles.length, 'école')),
-      limite === null ? ` sur ${nombre(n)}` : ` sur ${pluriel(this.modele.nbFiltrees, 'filtrée')}`,
+      limite === null ? visibles.length < n && ` sur ${nombre(n)}` : ` sur ${pluriel(this.modele.nbFiltrees, 'filtrée')}`,
       sans > 0 && ` · ${nombre(sans)} sans score`,
     );
     this.affichees = 0;
     remplacer(this.liste);
     this.ajouter();
-    if (!visibles.length) remplacer(this.liste, h('li', { classe: 'vide' }, 'Aucune école ne répond à ces filtres.'));
+    if (!visibles.length) remplacer(this.liste, h('li', { classe: 'vide dessin' },
+      h('img', { src: legumes, alt: '', width: 209, height: 103 }), 'Aucune école ne répond à ces filtres.'));
   }
 
   private saisi(): number {
@@ -102,18 +104,15 @@ export class Classement {
           onclick: () => this.choisir(i),
         },
         h('span', { classe: 'rang' }, rang),
-        h('span', { classe: 'qui' }, h('b', {}, t.nom[i]), h('span', { classe: 'sous' }, meta.communes[t.commune[i]].nom)),
+        h('span', { classe: 'qui' }, h('b', {}, t.nom[i]), h('span', { classe: 'sous' }, `${meta.communes[t.commune[i]].nom} · ${connues[i]}/5 jauges`)),
         h(
           'span', { classe: 'barres', 'aria-hidden': 'true' },
           JAUGES.map((j) => {
             const v = this.modele.valeur(j, i);
-            return v === null ? h('i', { classe: 'inconnue' }) : h('i', { style: `height:${Math.max(v, 6)}%` });
+            return v === null ? h('i', { classe: 'inconnue' }) : h('i', { classe: `j-${j}`, style: `height:${Math.max(v, 6)}%` });
           }),
         ),
-        h(
-          'span', { classe: 'note-ecole' },
-          h('b', {}, s === null ? '–' : nombre(s)), h('span', { classe: 'sous' }, `${connues[i]}/5 jauges`),
-        ),
+        h('span', { classe: 'note-ecole' }, s === null ? '–' : nombre(s)),
       ),
     );
   }
