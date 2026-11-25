@@ -186,3 +186,30 @@ def couverture(
     for nom, texte in (("rapport_couverture.md", rendu.markdown(r)), ("rapport_couverture.csv", rendu.csv_long(r))):
         (destination / nom).write_text(texte, encoding="utf-8")
         console.print(f"[green]ok[/green] {destination / nom}")
+
+
+@app.command()
+def sauvegarder(fichier: Annotated[Path, typer.Argument(help="Archive à écrire (.zip)")]) -> None:
+    """Écrit une archive portable et publiable de la base."""
+    from .sauvegarde import sauvegarder as ecrire
+
+    with connexion() as conn:
+        ecrire(conn, fichier)
+    console.print(f"[green]ok[/green] {fichier} ({fichier.stat().st_size / 1e6:.0f} Mo)")
+
+
+@app.command()
+def restaurer(
+    fichier: Annotated[Path, typer.Argument(help="Archive écrite par « vi sauvegarder »")],
+    remplacer: Annotated[bool, typer.Option("--remplacer", help="Effacer les données présentes")] = False,
+) -> None:
+    """Crée le schéma et recharge une archive, au lieu de tout collecter."""
+    from .sauvegarde import restaurer as recharger
+
+    with connexion() as conn:
+        try:
+            compte = recharger(conn, fichier, remplacer=remplacer)
+        except RuntimeError as e:
+            console.print(f"[red]{e}[/red]")
+            raise typer.Exit(1) from e
+    console.print(f"[green]ok[/green] {compte}")

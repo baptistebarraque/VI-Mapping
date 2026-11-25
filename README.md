@@ -25,6 +25,19 @@ make installer
 make base
 ```
 
+## Reprendre sans tout recollecter
+
+La base et la carte déjà calculées sont publiées dans les Releases du dépôt.
+
+```bash
+make voir                     # seulement regarder la carte : Node suffit, ni base ni Python
+make donnees                  # reprendre le projet : recharge la base (vide) et les données de la carte
+```
+
+L'archive de la base omet le cache de géocodage et les messages d'erreur. Pour publier une nouvelle version :
+`make archives`, puis `gh release create donnees-AAAA-MM-JJ data/base.zip data/carte.zip`. Licence des données : celle de
+chaque source (voir docs/SOURCES.md), Licence Ouverte 2.0 et ODbL pour OpenStreetMap.
+
 ## Utiliser
 
 ```bash
