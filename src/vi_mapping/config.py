@@ -83,6 +83,7 @@ class Proximite(_Strict):
     cibles: list[Literal["producteur", "relais_local"]]
     moteur: Literal["osrm"]
     profil: Literal["car"]
+    facteur_duree: Annotated[float, Field(gt=0)]
     osm_url: str
     lot_ecoles: int
 

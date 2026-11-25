@@ -76,21 +76,29 @@ class Connecteur:
     code: str
     fonction: Callable[[Contexte], Compteurs]
     depend_de: tuple[str, ...]
+    calcul: bool = False  # calcul dérivé : jamais lancé par « vi collecter »
 
 
 REGISTRE: dict[str, Connecteur] = {}
 
 
-def connecteur(code: str, *, depend_de: Iterable[str] = ()) -> Callable[[Callable[[Contexte], Compteurs]], Any]:
-    """Déclare la fonction de collecte d'une source de config/sources.yaml."""
+def connecteur(
+    code: str, *, depend_de: Iterable[str] = (), calcul: bool = False
+) -> Callable[[Callable[[Contexte], Compteurs]], Any]:
+    """Déclare la fonction de collecte (ou de calcul) d'une source de config/sources.yaml."""
 
     def enregistrer(f: Callable[[Contexte], Compteurs]) -> Callable[[Contexte], Compteurs]:
         if code not in config_sources():
             raise KeyError(f"{code} absent de config/sources.yaml")
-        REGISTRE[code] = Connecteur(code, f, tuple(depend_de))
+        REGISTRE[code] = Connecteur(code, f, tuple(depend_de), calcul)
         return f
 
     return enregistrer
+
+
+def a_collecter() -> list[str]:
+    """Codes des sources à collecter (hors calculs)."""
+    return [c for c, x in REGISTRE.items() if not x.calcul]
 
 
 def ordre(codes: Iterable[str]) -> list[str]:
@@ -122,7 +130,7 @@ def sources_dues(conn: psycopg.Connection[Any]) -> list[str]:
     """Sources dont la dernière collecte réussie est plus vieille que leur fréquence."""
     maintenant = datetime.now(UTC)
     dues = []
-    for code in REGISTRE:
+    for code in a_collecter():
         dernier = dernier_succes(conn, code)
         if dernier is None or maintenant - dernier > DUREE[config_sources()[code].frequence]:
             dues.append(code)

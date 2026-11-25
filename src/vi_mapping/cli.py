@@ -12,7 +12,7 @@ from .config import config_sources
 from .db import connexion
 from .db import migrer as appliquer_migrations
 from .sources import charger
-from .sources.base import REGISTRE, dernier_succes, executer, ordre, sources_dues
+from .sources.base import REGISTRE, a_collecter, dernier_succes, executer, ordre, sources_dues
 
 app = typer.Typer(no_args_is_help=True, add_completion=False, help="Collecte et carte V.i, Île-de-France.")
 console = Console()
@@ -52,7 +52,7 @@ def collecter(
     """Collecte une ou plusieurs sources (idempotent)."""
     charger()
     if tout:
-        choix = ordre(REGISTRE)
+        choix = ordre(a_collecter())
     elif dus:
         with connexion() as conn:
             choix = sources_dues(conn)
@@ -65,4 +65,22 @@ def collecter(
     echecs = [c for c in choix if executer(c, limite=limite, options=options) == "echec"]
     if echecs:
         console.print(f"[red]Échecs : {', '.join(echecs)}[/red]")
+        raise typer.Exit(1)
+
+
+@app.command()
+def rattacher() -> None:
+    """Rattache écoles, IRIS, QPV, accueils et associations ; repère les doublons."""
+    charger()
+    if executer("rattachements") == "echec":
+        raise typer.Exit(1)
+
+
+@app.command()
+def proximite(
+    forcer: Annotated[bool, typer.Option("--forcer", help="Recalculer même si rien n'a changé")] = False,
+) -> None:
+    """Calcule distances et temps par la route (OSRM) entre écoles, producteurs et relais."""
+    charger()
+    if executer("osrm", options={"forcer": True} if forcer else {}) == "echec":
         raise typer.Exit(1)
