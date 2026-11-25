@@ -14,13 +14,13 @@ from urllib.parse import urljoin, urlsplit
 
 from psycopg.types.json import Jsonb
 
-from ..config import contact
 from ..outils.http import Cadence
 from ..outils.texte import site_web
 from ..sources.base import Compteurs, Contexte, connecteur
+from .campagne import DELAI_ENTRE_VISITES, plafond
 from .page import date_la_plus_recente, extraire, iso
 from .robot import Refus, SiteWeb, domaine
-from .sites_mairies import DELAI_ENTRE_VISITES, urls_sitemap
+from .sites_mairies import urls_sitemap
 
 PAGES_MAX = 4
 _FLUX = re.compile(
@@ -109,12 +109,7 @@ def collecter(ctx: Contexte) -> Compteurs:
         if url and hote not in mairies and not _HEBERGEUR.search(hote):
             assos[url.rstrip("/")].append(r["id"])
     cibles = list(assos)
-    maximum = ctx.limite or len(cibles)
-    if contact() is None:
-        maximum = min(maximum, ctx.idf.scraping.echantillon_sans_contact)
-        if maximum < len(cibles):
-            ctx.note(f"VI_CONTACT absent : échantillon de {maximum} sites au plus")
-    cibles = cibles[:maximum]
+    cibles = cibles[: plafond(ctx, "asso_parents", len(cibles))]
     cadence = Cadence(ctx.idf.scraping.delai_s)
     aujourdhui = ctx.debut.date()
     compte: Counter[str] = Counter(sites=len(cibles))

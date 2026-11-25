@@ -11,13 +11,12 @@ import re
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
-from datetime import date, timedelta
+from datetime import date
 from typing import Any
 from urllib.parse import unquote, urlsplit
 
 from psycopg.types.json import Jsonb
 
-from ..config import contact
 from ..db import point, upsert
 from ..outils import motifs
 from ..outils.ban import Adresse, geocoder
@@ -26,10 +25,10 @@ from ..outils.texte import normaliser, sans_contact
 from ..sources.base import Compteurs, Contexte, connecteur
 from . import themes
 from .accueils import AccueilTrouve, lire_accueils
+from .campagne import DELAI_ENTRE_VISITES, plafond
 from .page import Contenu, extraire, iso
 from .robot import Refus, SiteWeb, domaine
 
-DELAI_ENTRE_VISITES = timedelta(days=25)
 SITEMAPS_MAX = 5
 URLS_MAX = 20_000
 
@@ -59,11 +58,7 @@ class Visite:
 @connecteur("sites_mairies", depend_de=["annuaire_administration", "annuaire_education", "rne"])
 def collecter(ctx: Contexte) -> Compteurs:
     cibles = a_visiter(ctx)
-    maximum = ctx.limite or len(cibles)
-    if contact() is None:
-        maximum = min(maximum, ctx.idf.scraping.echantillon_sans_contact)
-        ctx.note(f"VI_CONTACT absent : échantillon de {maximum} sites au plus")
-    cibles = cibles[:maximum]
+    cibles = cibles[: plafond(ctx, "commune", len(cibles))]
     compte: Counter[str] = Counter(sites=len(cibles))
     cadence = Cadence(ctx.idf.scraping.delai_s)
     aujourdhui = ctx.debut.date()
