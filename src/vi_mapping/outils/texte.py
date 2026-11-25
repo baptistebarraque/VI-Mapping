@@ -79,7 +79,7 @@ def titre(texte: str | None) -> str | None:
     mots = []
     for i, mot in enumerate(t.lower().replace("’", "'").split(" ")):
         morceaux = []
-        for j, m in enumerate(re.split(r"(?<=[-'])", mot)):
+        for j, m in enumerate(re.split(r"(?<=[-'/])", mot)):
             nu = m.strip("-")
             petit = (nu in _PETITS_MOTS or nu in _ELISIONS) and (i > 0 or j > 0)
             # première lettre, même précédée de « ( » ou de guillemets
@@ -98,6 +98,14 @@ _TYPES_VOIE = {
     "sq": "square", "tpl": "terre-plein", "tra": "traverse", "vla": "villa", "vlge": "village", "za": "ZA",
     "zac": "ZAC", "zi": "ZI", "zup": "ZUP", "parc": "parc", "pte": "porte", "cour": "cour", "ave": "avenue",
 }
+
+
+def nom_voie(type_: str | None, libelle: str | None) -> str | None:
+    """« RUE », « DE LA SABLIERE » → « rue de la Sabliere »."""
+    nom = titre(libelle)
+    if nom and type_:
+        nom = re.sub(r"^(?:De|Du|Des|D['’]|La|Le|Les|L['’])(?=[\s'’A-ZÀ-Ý]|$)", lambda m: m.group().lower(), nom)
+    return propre(" ".join(m for m in (type_voie(type_), nom) if m))
 
 
 def type_voie(abrege: str | None) -> str | None:

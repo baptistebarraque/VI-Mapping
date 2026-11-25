@@ -15,7 +15,7 @@ from ..db import point, upsert
 from ..outils import motifs
 from ..outils.ban import Adresse, Position, geocoder
 from ..outils.datagouv import derniere
-from ..outils.texte import adresse_sans_personne, normaliser, propre, sans_contact, site_web, titre, type_voie
+from ..outils.texte import adresse_sans_personne, nom_voie, normaliser, propre, sans_contact, site_web, titre
 from ..outils.zip_distant import lignes_csv, ouvrir
 from .base import Compteurs, Contexte, connecteur
 
@@ -46,7 +46,7 @@ def jour(texte: str) -> date | None:
 
 def voie(r: dict[str, str]) -> str:
     """Numéro et voie du siège, sans complément nominatif."""
-    morceaux = [r["adrs_numvoie"], r["adrs_repetition"], type_voie(r["adrs_typevoie"]), titre(r["adrs_libvoie"])]
+    morceaux = [r["adrs_numvoie"], r["adrs_repetition"], nom_voie(r["adrs_typevoie"], r["adrs_libvoie"])]
     texte = " ".join(m for m in (propre(m) for m in morceaux) if m and m not in ("_", "0"))
     return adresse_sans_personne(texte) or ""
 

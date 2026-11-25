@@ -14,7 +14,7 @@ import duckdb
 from ..db import upsert
 from ..outils import motifs
 from ..outils.datagouv import derniere
-from ..outils.texte import adresse_sans_personne, normaliser, propre, sans_contact, titre, type_voie
+from ..outils.texte import adresse_sans_personne, nom_voie, normaliser, propre, sans_contact, titre
 from .base import Compteurs, Contexte, connecteur
 
 JEU = "5b7ffc618b4c4169d30727e0"
@@ -32,7 +32,12 @@ NAF_EXCLUES = ("94.20Z", "55.", "47.", "46.", "70.", "69.", "66.", "77.", "13.",
 @connecteur("sirene", depend_de=["ign_admin_express"])
 def collecter(ctx: Contexte) -> Compteurs:
     ressource = derniere(ctx.http, JEU, r"stock-stocketablissement-parquet\.parquet")
-    communes = {r["code_insee"] for r in ctx.conn.execute("SELECT code_insee FROM commune")}
+    communes = {
+        r["code_insee"]: r["nom"] for r in ctx.conn.execute(
+            # Adresse postale : « Paris » pour un arrondissement
+            "SELECT c.code_insee, coalesce(m.nom, c.nom) AS nom FROM commune c "
+            "LEFT JOIN commune m ON m.code_insee = c.commune_mere")
+    }
     deps = ", ".join(f"'{d}'" for d in ctx.idf.departements)
     base = duckdb.connect()
     base.execute("INSTALL httpfs; LOAD httpfs; SET enable_progress_bar = false;")
@@ -67,11 +72,12 @@ def collecter(ctx: Contexte) -> Compteurs:
         if x in (None, "", "[ND]") or y in (None, "", "[ND]"):
             compte["sans_position"] += 1
             continue
-        voie = " ".join(m for m in (propre(num), type_voie(tv), titre(lv)) if m)
+        rue = " ".join(m for m in (propre(num), nom_voie(tv, lv)) if m)
+        ville = " ".join(m for m in (propre(cp), communes[commune]) if m)
         commun = {
             "id": f"sirene:{siret}",
             "nom": titre(sans_contact(nom_brut)),
-            "adresse": adresse_sans_personne(f"{voie}, {cp or ''}".strip(" ,")),
+            "adresse": adresse_sans_personne(f"{rue}, {ville}".strip(" ,")),
             "commune": commune,
             "geom": (float(x), float(y)),
             **ctx.provenance(FICHE.format(siret=siret)),
