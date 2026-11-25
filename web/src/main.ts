@@ -1,13 +1,14 @@
 import { Carte, type Lien } from './carte/carte';
 import { chargerFond } from './carte/fond';
 import { classementCsv, telecharger } from './csv';
-import { chargerEcoles, chargerFiche, chargerMeta, chargerProducteurs, chargerRelais } from './donnees';
+import { chargerCouverture, chargerEcoles, chargerFiche, chargerMeta, chargerProducteurs, chargerRelais } from './donnees';
 import { depuisAdresse, Magasin, versAdresse, type Selection, type Sujet } from './etat';
 import { dansRayon } from './jauges';
 import { Modele } from './modele';
 import type { Fiche } from './types';
 import { Classement } from './ui/classement';
 import { vide } from './ui/commun';
+import { tableauxCouverture } from './ui/couverture';
 import { dialogueSources, ouvrirDialogue } from './ui/dialogue';
 import { h, remplacer } from './ui/dom';
 import { ficheCommune } from './ui/fiche-commune';
@@ -54,7 +55,7 @@ async function demarrer(app: HTMLElement): Promise<void> {
     carte.allerCommune(code);
     choisir({ type: 'commune', code });
   });
-  const dialogue = dialogueSources(meta, async () => null);
+  const dialogue = dialogueSources(meta, async () => tableauxCouverture(await chargerCouverture()));
   const onglets = (['carte', 'reglages', 'liste'] as const).map((v) => h(
     'button', { type: 'button', 'data-vue': v, onclick: () => voir(v) },
     { carte: 'Carte', reglages: 'Réglages', liste: 'Classement' }[v],

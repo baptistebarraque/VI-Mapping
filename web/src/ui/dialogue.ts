@@ -8,7 +8,7 @@ export function ouvrirDialogue(el: HTMLDialogElement): void {
   if (!el.open) el.showModal();
 }
 
-export function dialogueSources(meta: Meta, couverture: () => Promise<HTMLElement | null>): HTMLDialogElement {
+export function dialogueSources(meta: Meta, couverture: () => Promise<HTMLElement>): HTMLDialogElement {
   const emplacement = h('div', {});
   const fermer = h('button', { type: 'button', classe: 'discret', onclick: () => el.close() }, 'Fermer');
   const sources = Object.values(meta.sources);
@@ -43,7 +43,9 @@ export function dialogueSources(meta: Meta, couverture: () => Promise<HTMLElemen
     ouvrir();
     if (chargee) return;
     chargee = true;
-    void couverture().then((x) => x && emplacement.append(x));
+    couverture().then((x) => emplacement.append(x)).catch(() => {
+      chargee = false; // nouvel essai à la prochaine ouverture
+    });
   };
   return el;
 }

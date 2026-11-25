@@ -2,7 +2,7 @@
 
 import type { FeatureCollection } from 'geojson';
 import type {
-  CollectionPoints, Fiche, Meta, ProprietesProducteur, ProprietesRelais, TableEcoles,
+  CollectionPoints, Couverture, Fiche, Meta, ProprietesProducteur, ProprietesRelais, TableEcoles,
 } from './types';
 
 const RACINE = `${import.meta.env.BASE_URL}donnees/`;
@@ -28,7 +28,7 @@ export const chargerProducteurs = (): Promise<CollectionPoints<ProprietesProduct
   lire('points/producteurs.geojson');
 export const chargerRelais = (): Promise<CollectionPoints<ProprietesRelais>> => lire('points/relais.geojson');
 export const chargerZone = (nom: string): Promise<FeatureCollection> => lire(`zones/${nom}.geojson`);
-export const chargerCouverture = (): Promise<unknown> => lire('couverture.json');
+export const chargerCouverture = (): Promise<Couverture> => lire('couverture.json');
 
 const fiches = new Map<string, Promise<Fiche>>();
 

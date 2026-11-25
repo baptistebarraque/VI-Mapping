@@ -658,6 +658,31 @@ summary {
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
+.couverture h4 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--encre);
+}
+.table-couverture td {
+  min-width: 58px;
+  padding: 5px 6px;
+  text-align: end;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.table-couverture thead th:not(:first-child) {
+  padding-inline: 6px;
+  text-align: end;
+}
+.table-couverture tbody th {
+  min-width: 190px;
+  font-weight: 400;
+  color: var(--encre);
+}
+.table-couverture .plein {
+  background: linear-gradient(to right, var(--accent) var(--taux), var(--piste) 0) no-repeat center bottom / calc(100% - 12px) 2px;
+}
 
 /* ------------------------------------------------------------ carte : bulles */
 .maplibregl-popup-content {

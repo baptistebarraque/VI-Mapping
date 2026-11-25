@@ -9,7 +9,7 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
-from .config import config_sources
+from .config import RACINE, config_sources
 from .db import connexion
 from .db import migrer as appliquer_migrations
 from .sources import charger
@@ -109,3 +109,19 @@ def exporter(
     for nom, octets in tailles.items():
         console.print(f"  {nom:28} {octets / 1e6:8.2f} Mo")
     console.print(f"[green]ok[/green] {destination}")
+
+
+@app.command()
+def couverture(
+    dossier: Annotated[Path | None, typer.Option(help="Dossier du rapport (docs)")] = None,
+) -> None:
+    """Écrit le rapport de couverture : taux de remplissage par champ et par département."""
+    from .couverture import mesurer, rendu
+
+    destination = dossier or RACINE / "docs"
+    destination.mkdir(parents=True, exist_ok=True)
+    with connexion() as conn:
+        r = mesurer(conn)
+    for nom, texte in (("rapport_couverture.md", rendu.markdown(r)), ("rapport_couverture.csv", rendu.csv_long(r))):
+        (destination / nom).write_text(texte, encoding="utf-8")
+        console.print(f"[green]ok[/green] {destination / nom}")

@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from ..config import RACINE, config_idf, config_jauges
+from ..couverture import mesurer, rendu
 from . import meta as meta_
 from . import points, zones
 from .commun import Connexion, ecrire
@@ -45,6 +46,8 @@ def exporter(conn: Connexion, dossier: Path, note: Callable[[str], None] = lambd
     for type_, nom in (("pat", "pat"), ("qpv", "qpv"), ("cite_educative", "cites")):
         fichier(f"zones/{nom}.geojson", zones.dispositifs(conn, type_))
     note("zones exportées")
+    fichier("couverture.json", rendu.pour_carte(mesurer(conn)))
+    note("couverture mesurée")
     tailles["fiches"] = 0
     for code, fiche in Fiches(conn, rang_producteur, rang_relais).composer():
         tailles["fiches"] += ecrire(provisoire / "fiches" / f"{code}.json", fiche)

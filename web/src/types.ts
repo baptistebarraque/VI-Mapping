@@ -258,3 +258,17 @@ export interface ProprietesRelais extends Provenance {
 }
 
 export type CollectionPoints<P> = FeatureCollection<Point, P>;
+
+export interface TableCouverte {
+  nom: string;
+  libelle: string;
+  lignes: number[]; // par zone
+  champs: { libelle: string; nature: 'rempli' | 'part'; cause?: string; taux: (number | null)[] }[];
+}
+
+/** Rapport de couverture ; zones : région puis départements. */
+export interface Couverture {
+  genere_le: string;
+  zones: string[];
+  tables: TableCouverte[];
+}

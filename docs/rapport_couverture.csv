@@ -1,0 +1,730 @@
+table;champ;libelle;nature;zone;lignes;remplies;taux
+commune;siren;Siren;rempli;IdF;1266;1266;1,0000
+commune;siren;Siren;rempli;75;1;1;1,0000
+commune;siren;Siren;rempli;77;507;507;1,0000
+commune;siren;Siren;rempli;78;259;259;1,0000
+commune;siren;Siren;rempli;91;194;194;1,0000
+commune;siren;Siren;rempli;92;36;36;1,0000
+commune;siren;Siren;rempli;93;39;39;1,0000
+commune;siren;Siren;rempli;94;47;47;1,0000
+commune;siren;Siren;rempli;95;183;183;1,0000
+commune;epci_siren;EPCI;rempli;IdF;1266;1266;1,0000
+commune;epci_siren;EPCI;rempli;75;1;1;1,0000
+commune;epci_siren;EPCI;rempli;77;507;507;1,0000
+commune;epci_siren;EPCI;rempli;78;259;259;1,0000
+commune;epci_siren;EPCI;rempli;91;194;194;1,0000
+commune;epci_siren;EPCI;rempli;92;36;36;1,0000
+commune;epci_siren;EPCI;rempli;93;39;39;1,0000
+commune;epci_siren;EPCI;rempli;94;47;47;1,0000
+commune;epci_siren;EPCI;rempli;95;183;183;1,0000
+commune;population;Population;rempli;IdF;1286;1286;1,0000
+commune;population;Population;rempli;75;21;21;1,0000
+commune;population;Population;rempli;77;507;507;1,0000
+commune;population;Population;rempli;78;259;259;1,0000
+commune;population;Population;rempli;91;194;194;1,0000
+commune;population;Population;rempli;92;36;36;1,0000
+commune;population;Population;rempli;93;39;39;1,0000
+commune;population;Population;rempli;94;47;47;1,0000
+commune;population;Population;rempli;95;183;183;1,0000
+commune;densite;Densité;rempli;IdF;1286;1286;1,0000
+commune;densite;Densité;rempli;75;21;21;1,0000
+commune;densite;Densité;rempli;77;507;507;1,0000
+commune;densite;Densité;rempli;78;259;259;1,0000
+commune;densite;Densité;rempli;91;194;194;1,0000
+commune;densite;Densité;rempli;92;36;36;1,0000
+commune;densite;Densité;rempli;93;39;39;1,0000
+commune;densite;Densité;rempli;94;47;47;1,0000
+commune;densite;Densité;rempli;95;183;183;1,0000
+commune;site_web;Site web de la mairie;rempli;IdF;1286;1124;0,8740
+commune;site_web;Site web de la mairie;rempli;75;21;21;1,0000
+commune;site_web;Site web de la mairie;rempli;77;507;401;0,7909
+commune;site_web;Site web de la mairie;rempli;78;259;239;0,9228
+commune;site_web;Site web de la mairie;rempli;91;194;178;0,9175
+commune;site_web;Site web de la mairie;rempli;92;36;36;1,0000
+commune;site_web;Site web de la mairie;rempli;93;39;39;1,0000
+commune;site_web;Site web de la mairie;rempli;94;47;47;1,0000
+commune;site_web;Site web de la mairie;rempli;95;183;163;0,8907
+commune;cantine_gestion;Cantine : régie ou concédée;rempli;IdF;1286;765;0,5949
+commune;cantine_gestion;Cantine : régie ou concédée;rempli;75;21;20;0,9524
+commune;cantine_gestion;Cantine : régie ou concédée;rempli;77;507;234;0,4615
+commune;cantine_gestion;Cantine : régie ou concédée;rempli;78;259;174;0,6718
+commune;cantine_gestion;Cantine : régie ou concédée;rempli;91;194;130;0,6701
+commune;cantine_gestion;Cantine : régie ou concédée;rempli;92;36;31;0,8611
+commune;cantine_gestion;Cantine : régie ou concédée;rempli;93;39;33;0,8462
+commune;cantine_gestion;Cantine : régie ou concédée;rempli;94;47;41;0,8723
+commune;cantine_gestion;Cantine : régie ou concédée;rempli;95;183;102;0,5574
+commune;bio;Cantine : % bio;rempli;IdF;1286;463;0,3600
+commune;bio;Cantine : % bio;rempli;75;21;21;1,0000
+commune;bio;Cantine : % bio;rempli;77;507;118;0,2327
+commune;bio;Cantine : % bio;rempli;78;259;97;0,3745
+commune;bio;Cantine : % bio;rempli;91;194;98;0,5052
+commune;bio;Cantine : % bio;rempli;92;36;26;0,7222
+commune;bio;Cantine : % bio;rempli;93;39;22;0,5641
+commune;bio;Cantine : % bio;rempli;94;47;26;0,5532
+commune;bio;Cantine : % bio;rempli;95;183;55;0,3005
+commune;egalim;Cantine : % EGalim;rempli;IdF;1286;463;0,3600
+commune;egalim;Cantine : % EGalim;rempli;75;21;21;1,0000
+commune;egalim;Cantine : % EGalim;rempli;77;507;118;0,2327
+commune;egalim;Cantine : % EGalim;rempli;78;259;97;0,3745
+commune;egalim;Cantine : % EGalim;rempli;91;194;98;0,5052
+commune;egalim;Cantine : % EGalim;rempli;92;36;26;0,7222
+commune;egalim;Cantine : % EGalim;rempli;93;39;22;0,5641
+commune;egalim;Cantine : % EGalim;rempli;94;47;26;0,5532
+commune;egalim;Cantine : % EGalim;rempli;95;183;55;0,3005
+commune;visitee;Site de la mairie visité;part;IdF;1286;114;0,0886
+commune;visitee;Site de la mairie visité;part;75;21;15;0,7143
+commune;visitee;Site de la mairie visité;part;77;507;4;0,0079
+commune;visitee;Site de la mairie visité;part;78;259;9;0,0347
+commune;visitee;Site de la mairie visité;part;91;194;11;0,0567
+commune;visitee;Site de la mairie visité;part;92;36;19;0,5278
+commune;visitee;Site de la mairie visité;part;93;39;26;0,6667
+commune;visitee;Site de la mairie visité;part;94;47;16;0,3404
+commune;visitee;Site de la mairie visité;part;95;183;14;0,0765
+ecole;nom;Nom;rempli;IdF;6563;6563;1,0000
+ecole;nom;Nom;rempli;75;724;724;1,0000
+ecole;nom;Nom;rempli;77;1084;1084;1,0000
+ecole;nom;Nom;rempli;78;958;958;1,0000
+ecole;nom;Nom;rempli;91;835;835;1,0000
+ecole;nom;Nom;rempli;92;627;627;1,0000
+ecole;nom;Nom;rempli;93;896;896;1,0000
+ecole;nom;Nom;rempli;94;648;648;1,0000
+ecole;nom;Nom;rempli;95;791;791;1,0000
+ecole;adresse;Adresse;rempli;IdF;6563;6563;1,0000
+ecole;adresse;Adresse;rempli;75;724;724;1,0000
+ecole;adresse;Adresse;rempli;77;1084;1084;1,0000
+ecole;adresse;Adresse;rempli;78;958;958;1,0000
+ecole;adresse;Adresse;rempli;91;835;835;1,0000
+ecole;adresse;Adresse;rempli;92;627;627;1,0000
+ecole;adresse;Adresse;rempli;93;896;896;1,0000
+ecole;adresse;Adresse;rempli;94;648;648;1,0000
+ecole;adresse;Adresse;rempli;95;791;791;1,0000
+ecole;geom;Position;rempli;IdF;6563;6563;1,0000
+ecole;geom;Position;rempli;75;724;724;1,0000
+ecole;geom;Position;rempli;77;1084;1084;1,0000
+ecole;geom;Position;rempli;78;958;958;1,0000
+ecole;geom;Position;rempli;91;835;835;1,0000
+ecole;geom;Position;rempli;92;627;627;1,0000
+ecole;geom;Position;rempli;93;896;896;1,0000
+ecole;geom;Position;rempli;94;648;648;1,0000
+ecole;geom;Position;rempli;95;791;791;1,0000
+ecole;nb_eleves;Nombre d'élèves;rempli;IdF;6563;6548;0,9977
+ecole;nb_eleves;Nombre d'élèves;rempli;75;724;722;0,9972
+ecole;nb_eleves;Nombre d'élèves;rempli;77;1084;1083;0,9991
+ecole;nb_eleves;Nombre d'élèves;rempli;78;958;953;0,9948
+ecole;nb_eleves;Nombre d'élèves;rempli;91;835;835;1,0000
+ecole;nb_eleves;Nombre d'élèves;rempli;92;627;625;0,9968
+ecole;nb_eleves;Nombre d'élèves;rempli;93;896;894;0,9978
+ecole;nb_eleves;Nombre d'élèves;rempli;94;648;648;1,0000
+ecole;nb_eleves;Nombre d'élèves;rempli;95;791;788;0,9962
+ecole;nb_classes;Nombre de classes;rempli;IdF;6563;6548;0,9977
+ecole;nb_classes;Nombre de classes;rempli;75;724;722;0,9972
+ecole;nb_classes;Nombre de classes;rempli;77;1084;1083;0,9991
+ecole;nb_classes;Nombre de classes;rempli;78;958;953;0,9948
+ecole;nb_classes;Nombre de classes;rempli;91;835;835;1,0000
+ecole;nb_classes;Nombre de classes;rempli;92;627;625;0,9968
+ecole;nb_classes;Nombre de classes;rempli;93;896;894;0,9978
+ecole;nb_classes;Nombre de classes;rempli;94;648;648;1,0000
+ecole;nb_classes;Nombre de classes;rempli;95;791;788;0,9962
+ecole;ips;IPS (hors maternelles);rempli;IdF;3957;3722;0,9406
+ecole;ips;IPS (hors maternelles);rempli;75;460;446;0,9696
+ecole;ips;IPS (hors maternelles);rempli;77;725;624;0,8607
+ecole;ips;IPS (hors maternelles);rempli;78;584;555;0,9503
+ecole;ips;IPS (hors maternelles);rempli;91;475;444;0,9347
+ecole;ips;IPS (hors maternelles);rempli;92;375;362;0,9653
+ecole;ips;IPS (hors maternelles);rempli;93;500;483;0,9660
+ecole;ips;IPS (hors maternelles);rempli;94;343;336;0,9796
+ecole;ips;IPS (hors maternelles);rempli;95;495;472;0,9535
+ecole;restauration;Restauration;rempli;IdF;6563;6563;1,0000
+ecole;restauration;Restauration;rempli;75;724;724;1,0000
+ecole;restauration;Restauration;rempli;77;1084;1084;1,0000
+ecole;restauration;Restauration;rempli;78;958;958;1,0000
+ecole;restauration;Restauration;rempli;91;835;835;1,0000
+ecole;restauration;Restauration;rempli;92;627;627;1,0000
+ecole;restauration;Restauration;rempli;93;896;896;1,0000
+ecole;restauration;Restauration;rempli;94;648;648;1,0000
+ecole;restauration;Restauration;rempli;95;791;791;1,0000
+ecole;iris;Quartier IRIS;rempli;IdF;6563;6563;1,0000
+ecole;iris;Quartier IRIS;rempli;75;724;724;1,0000
+ecole;iris;Quartier IRIS;rempli;77;1084;1084;1,0000
+ecole;iris;Quartier IRIS;rempli;78;958;958;1,0000
+ecole;iris;Quartier IRIS;rempli;91;835;835;1,0000
+ecole;iris;Quartier IRIS;rempli;92;627;627;1,0000
+ecole;iris;Quartier IRIS;rempli;93;896;896;1,0000
+ecole;iris;Quartier IRIS;rempli;94;648;648;1,0000
+ecole;iris;Quartier IRIS;rempli;95;791;791;1,0000
+ecole;education_prioritaire;REP ou REP+;part;IdF;6563;1660;0,2529
+ecole;education_prioritaire;REP ou REP+;part;75;724;209;0,2887
+ecole;education_prioritaire;REP ou REP+;part;77;1084;87;0,0803
+ecole;education_prioritaire;REP ou REP+;part;78;958;144;0,1503
+ecole;education_prioritaire;REP ou REP+;part;91;835;173;0,2072
+ecole;education_prioritaire;REP ou REP+;part;92;627;119;0,1898
+ecole;education_prioritaire;REP ou REP+;part;93;896;506;0,5647
+ecole;education_prioritaire;REP ou REP+;part;94;648;206;0,3179
+ecole;education_prioritaire;REP ou REP+;part;95;791;216;0,2731
+ecole;cite_educative;Cité éducative;part;IdF;6563;1138;0,1734
+ecole;cite_educative;Cité éducative;part;75;724;95;0,1312
+ecole;cite_educative;Cité éducative;part;77;1084;102;0,0941
+ecole;cite_educative;Cité éducative;part;78;958;165;0,1722
+ecole;cite_educative;Cité éducative;part;91;835;174;0,2084
+ecole;cite_educative;Cité éducative;part;92;627;92;0,1467
+ecole;cite_educative;Cité éducative;part;93;896;228;0,2545
+ecole;cite_educative;Cité éducative;part;94;648;57;0,0880
+ecole;cite_educative;Cité éducative;part;95;791;225;0,2845
+ecole;qpv;QPV à moins de 2 km;part;IdF;6563;4463;0,6800
+ecole;qpv;QPV à moins de 2 km;part;75;724;604;0,8343
+ecole;qpv;QPV à moins de 2 km;part;77;1084;390;0,3598
+ecole;qpv;QPV à moins de 2 km;part;78;958;405;0,4228
+ecole;qpv;QPV à moins de 2 km;part;91;835;539;0,6455
+ecole;qpv;QPV à moins de 2 km;part;92;627;417;0,6651
+ecole;qpv;QPV à moins de 2 km;part;93;896;895;0,9989
+ecole;qpv;QPV à moins de 2 km;part;94;648;630;0,9722
+ecole;qpv;QPV à moins de 2 km;part;95;791;583;0,7370
+accueil_periscolaire;adresse;Adresse;rempli;IdF;523;296;0,5660
+accueil_periscolaire;adresse;Adresse;rempli;75;13;8;0,6154
+accueil_periscolaire;adresse;Adresse;rempli;77;83;45;0,5422
+accueil_periscolaire;adresse;Adresse;rempli;78;67;41;0,6119
+accueil_periscolaire;adresse;Adresse;rempli;91;85;29;0,3412
+accueil_periscolaire;adresse;Adresse;rempli;92;55;31;0,5636
+accueil_periscolaire;adresse;Adresse;rempli;93;107;78;0,7290
+accueil_periscolaire;adresse;Adresse;rempli;94;51;29;0,5686
+accueil_periscolaire;adresse;Adresse;rempli;95;62;35;0,5645
+accueil_periscolaire;geom;Position;rempli;IdF;523;523;1,0000
+accueil_periscolaire;geom;Position;rempli;75;13;13;1,0000
+accueil_periscolaire;geom;Position;rempli;77;83;83;1,0000
+accueil_periscolaire;geom;Position;rempli;78;67;67;1,0000
+accueil_periscolaire;geom;Position;rempli;91;85;85;1,0000
+accueil_periscolaire;geom;Position;rempli;92;55;55;1,0000
+accueil_periscolaire;geom;Position;rempli;93;107;107;1,0000
+accueil_periscolaire;geom;Position;rempli;94;51;51;1,0000
+accueil_periscolaire;geom;Position;rempli;95;62;62;1,0000
+accueil_periscolaire;accueil_soir;Accueil du soir;rempli;IdF;523;61;0,1166
+accueil_periscolaire;accueil_soir;Accueil du soir;rempli;75;13;1;0,0769
+accueil_periscolaire;accueil_soir;Accueil du soir;rempli;77;83;7;0,0843
+accueil_periscolaire;accueil_soir;Accueil du soir;rempli;78;67;10;0,1493
+accueil_periscolaire;accueil_soir;Accueil du soir;rempli;91;85;14;0,1647
+accueil_periscolaire;accueil_soir;Accueil du soir;rempli;92;55;11;0,2000
+accueil_periscolaire;accueil_soir;Accueil du soir;rempli;93;107;5;0,0467
+accueil_periscolaire;accueil_soir;Accueil du soir;rempli;94;51;7;0,1373
+accueil_periscolaire;accueil_soir;Accueil du soir;rempli;95;62;6;0,0968
+accueil_periscolaire;accueil_mercredi;Accueil du mercredi;rempli;IdF;523;59;0,1128
+accueil_periscolaire;accueil_mercredi;Accueil du mercredi;rempli;75;13;1;0,0769
+accueil_periscolaire;accueil_mercredi;Accueil du mercredi;rempli;77;83;3;0,0361
+accueil_periscolaire;accueil_mercredi;Accueil du mercredi;rempli;78;67;6;0,0896
+accueil_periscolaire;accueil_mercredi;Accueil du mercredi;rempli;91;85;5;0,0588
+accueil_periscolaire;accueil_mercredi;Accueil du mercredi;rempli;92;55;20;0,3636
+accueil_periscolaire;accueil_mercredi;Accueil du mercredi;rempli;93;107;14;0,1308
+accueil_periscolaire;accueil_mercredi;Accueil du mercredi;rempli;94;51;6;0,1176
+accueil_periscolaire;accueil_mercredi;Accueil du mercredi;rempli;95;62;4;0,0645
+accueil_periscolaire;horaires;Horaires;rempli;IdF;523;8;0,0153
+accueil_periscolaire;horaires;Horaires;rempli;75;13;1;0,0769
+accueil_periscolaire;horaires;Horaires;rempli;77;83;3;0,0361
+accueil_periscolaire;horaires;Horaires;rempli;78;67;0;0,0000
+accueil_periscolaire;horaires;Horaires;rempli;91;85;2;0,0235
+accueil_periscolaire;horaires;Horaires;rempli;92;55;2;0,0364
+accueil_periscolaire;horaires;Horaires;rempli;93;107;0;0,0000
+accueil_periscolaire;horaires;Horaires;rempli;94;51;0;0,0000
+accueil_periscolaire;horaires;Horaires;rempli;95;62;0;0,0000
+accueil_periscolaire;gestionnaire;Gestionnaire;rempli;IdF;523;184;0,3518
+accueil_periscolaire;gestionnaire;Gestionnaire;rempli;75;13;10;0,7692
+accueil_periscolaire;gestionnaire;Gestionnaire;rempli;77;83;43;0,5181
+accueil_periscolaire;gestionnaire;Gestionnaire;rempli;78;67;33;0,4925
+accueil_periscolaire;gestionnaire;Gestionnaire;rempli;91;85;22;0,2588
+accueil_periscolaire;gestionnaire;Gestionnaire;rempli;92;55;12;0,2182
+accueil_periscolaire;gestionnaire;Gestionnaire;rempli;93;107;15;0,1402
+accueil_periscolaire;gestionnaire;Gestionnaire;rempli;94;51;23;0,4510
+accueil_periscolaire;gestionnaire;Gestionnaire;rempli;95;62;26;0,4194
+accueil_periscolaire;rattache;Rattaché à une école;part;IdF;523;414;0,7916
+accueil_periscolaire;rattache;Rattaché à une école;part;75;13;10;0,7692
+accueil_periscolaire;rattache;Rattaché à une école;part;77;83;65;0,7831
+accueil_periscolaire;rattache;Rattaché à une école;part;78;67;46;0,6866
+accueil_periscolaire;rattache;Rattaché à une école;part;91;85;56;0,6588
+accueil_periscolaire;rattache;Rattaché à une école;part;92;55;53;0,9636
+accueil_periscolaire;rattache;Rattaché à une école;part;93;107;100;0,9346
+accueil_periscolaire;rattache;Rattaché à une école;part;94;51;35;0,6863
+accueil_periscolaire;rattache;Rattaché à une école;part;95;62;49;0,7903
+gestionnaire_perisco;siren;Siren;rempli;IdF;136;136;1,0000
+gestionnaire_perisco;siren;Siren;rempli;75;9;9;1,0000
+gestionnaire_perisco;siren;Siren;rempli;77;22;22;1,0000
+gestionnaire_perisco;siren;Siren;rempli;78;28;28;1,0000
+gestionnaire_perisco;siren;Siren;rempli;91;22;22;1,0000
+gestionnaire_perisco;siren;Siren;rempli;92;10;10;1,0000
+gestionnaire_perisco;siren;Siren;rempli;93;14;14;1,0000
+gestionnaire_perisco;siren;Siren;rempli;94;20;20;1,0000
+gestionnaire_perisco;siren;Siren;rempli;95;15;15;1,0000
+gestionnaire_perisco;nom;Nom;rempli;IdF;136;136;1,0000
+gestionnaire_perisco;nom;Nom;rempli;75;9;9;1,0000
+gestionnaire_perisco;nom;Nom;rempli;77;22;22;1,0000
+gestionnaire_perisco;nom;Nom;rempli;78;28;28;1,0000
+gestionnaire_perisco;nom;Nom;rempli;91;22;22;1,0000
+gestionnaire_perisco;nom;Nom;rempli;92;10;10;1,0000
+gestionnaire_perisco;nom;Nom;rempli;93;14;14;1,0000
+gestionnaire_perisco;nom;Nom;rempli;94;20;20;1,0000
+gestionnaire_perisco;nom;Nom;rempli;95;15;15;1,0000
+gestionnaire_perisco;type;Type;rempli;IdF;136;136;1,0000
+gestionnaire_perisco;type;Type;rempli;75;9;9;1,0000
+gestionnaire_perisco;type;Type;rempli;77;22;22;1,0000
+gestionnaire_perisco;type;Type;rempli;78;28;28;1,0000
+gestionnaire_perisco;type;Type;rempli;91;22;22;1,0000
+gestionnaire_perisco;type;Type;rempli;92;10;10;1,0000
+gestionnaire_perisco;type;Type;rempli;93;14;14;1,0000
+gestionnaire_perisco;type;Type;rempli;94;20;20;1,0000
+gestionnaire_perisco;type;Type;rempli;95;15;15;1,0000
+gestionnaire_perisco;nb_accueils;Nombre d'accueils;rempli;IdF;136;131;0,9632
+gestionnaire_perisco;nb_accueils;Nombre d'accueils;rempli;75;9;9;1,0000
+gestionnaire_perisco;nb_accueils;Nombre d'accueils;rempli;77;22;22;1,0000
+gestionnaire_perisco;nb_accueils;Nombre d'accueils;rempli;78;28;26;0,9286
+gestionnaire_perisco;nb_accueils;Nombre d'accueils;rempli;91;22;21;0,9545
+gestionnaire_perisco;nb_accueils;Nombre d'accueils;rempli;92;10;10;1,0000
+gestionnaire_perisco;nb_accueils;Nombre d'accueils;rempli;93;14;14;1,0000
+gestionnaire_perisco;nb_accueils;Nombre d'accueils;rempli;94;20;18;0,9000
+gestionnaire_perisco;nb_accueils;Nombre d'accueils;rempli;95;15;15;1,0000
+asso_parents;rna;Numéro RNA;rempli;IdF;3030;2987;0,9858
+asso_parents;rna;Numéro RNA;rempli;75;500;500;1,0000
+asso_parents;rna;Numéro RNA;rempli;77;609;609;1,0000
+asso_parents;rna;Numéro RNA;rempli;78;384;384;1,0000
+asso_parents;rna;Numéro RNA;rempli;91;397;397;1,0000
+asso_parents;rna;Numéro RNA;rempli;92;264;264;1,0000
+asso_parents;rna;Numéro RNA;rempli;93;241;209;0,8672
+asso_parents;rna;Numéro RNA;rempli;94;273;273;1,0000
+asso_parents;rna;Numéro RNA;rempli;95;362;351;0,9696
+asso_parents;siren;Siren;rempli;IdF;3030;1297;0,4281
+asso_parents;siren;Siren;rempli;75;500;174;0,3480
+asso_parents;siren;Siren;rempli;77;609;287;0,4713
+asso_parents;siren;Siren;rempli;78;384;162;0,4219
+asso_parents;siren;Siren;rempli;91;397;200;0,5038
+asso_parents;siren;Siren;rempli;92;264;103;0,3902
+asso_parents;siren;Siren;rempli;93;241;93;0,3859
+asso_parents;siren;Siren;rempli;94;273;121;0,4432
+asso_parents;siren;Siren;rempli;95;362;157;0,4337
+asso_parents;siege;Siège;rempli;IdF;3030;2987;0,9858
+asso_parents;siege;Siège;rempli;75;500;500;1,0000
+asso_parents;siege;Siège;rempli;77;609;609;1,0000
+asso_parents;siege;Siège;rempli;78;384;384;1,0000
+asso_parents;siege;Siège;rempli;91;397;397;1,0000
+asso_parents;siege;Siège;rempli;92;264;264;1,0000
+asso_parents;siege;Siège;rempli;93;241;209;0,8672
+asso_parents;siege;Siège;rempli;94;273;273;1,0000
+asso_parents;siege;Siège;rempli;95;362;351;0,9696
+asso_parents;geom;Position du siège;rempli;IdF;3030;2670;0,8812
+asso_parents;geom;Position du siège;rempli;75;500;474;0,9480
+asso_parents;geom;Position du siège;rempli;77;609;497;0,8161
+asso_parents;geom;Position du siège;rempli;78;384;323;0,8411
+asso_parents;geom;Position du siège;rempli;91;397;344;0,8665
+asso_parents;geom;Position du siège;rempli;92;264;248;0,9394
+asso_parents;geom;Position du siège;rempli;93;241;203;0,8423
+asso_parents;geom;Position du siège;rempli;94;273;259;0,9487
+asso_parents;geom;Position du siège;rempli;95;362;322;0,8895
+asso_parents;federation;Fédération reconnue;part;IdF;3030;729;0,2406
+asso_parents;federation;Fédération reconnue;part;75;500;150;0,3000
+asso_parents;federation;Fédération reconnue;part;77;609;90;0,1478
+asso_parents;federation;Fédération reconnue;part;78;384;87;0,2266
+asso_parents;federation;Fédération reconnue;part;91;397;107;0,2695
+asso_parents;federation;Fédération reconnue;part;92;264;68;0,2576
+asso_parents;federation;Fédération reconnue;part;93;241;74;0,3071
+asso_parents;federation;Fédération reconnue;part;94;273;74;0,2711
+asso_parents;federation;Fédération reconnue;part;95;362;79;0,2182
+asso_parents;date_creation;Date de création;rempli;IdF;3030;2987;0,9858
+asso_parents;date_creation;Date de création;rempli;75;500;500;1,0000
+asso_parents;date_creation;Date de création;rempli;77;609;609;1,0000
+asso_parents;date_creation;Date de création;rempli;78;384;384;1,0000
+asso_parents;date_creation;Date de création;rempli;91;397;397;1,0000
+asso_parents;date_creation;Date de création;rempli;92;264;264;1,0000
+asso_parents;date_creation;Date de création;rempli;93;241;209;0,8672
+asso_parents;date_creation;Date de création;rempli;94;273;273;1,0000
+asso_parents;date_creation;Date de création;rempli;95;362;351;0,9696
+asso_parents;site_web;Site web;rempli;IdF;3030;122;0,0403
+asso_parents;site_web;Site web;rempli;75;500;21;0,0420
+asso_parents;site_web;Site web;rempli;77;609;14;0,0230
+asso_parents;site_web;Site web;rempli;78;384;13;0,0339
+asso_parents;site_web;Site web;rempli;91;397;17;0,0428
+asso_parents;site_web;Site web;rempli;92;264;17;0,0644
+asso_parents;site_web;Site web;rempli;93;241;15;0,0622
+asso_parents;site_web;Site web;rempli;94;273;8;0,0293
+asso_parents;site_web;Site web;rempli;95;362;17;0,0470
+asso_parents;derniere_activite;Dernière activité en ligne;rempli;IdF;3030;58;0,0191
+asso_parents;derniere_activite;Dernière activité en ligne;rempli;75;500;8;0,0160
+asso_parents;derniere_activite;Dernière activité en ligne;rempli;77;609;7;0,0115
+asso_parents;derniere_activite;Dernière activité en ligne;rempli;78;384;4;0,0104
+asso_parents;derniere_activite;Dernière activité en ligne;rempli;91;397;8;0,0202
+asso_parents;derniere_activite;Dernière activité en ligne;rempli;92;264;5;0,0189
+asso_parents;derniere_activite;Dernière activité en ligne;rempli;93;241;11;0,0456
+asso_parents;derniere_activite;Dernière activité en ligne;rempli;94;273;5;0,0183
+asso_parents;derniere_activite;Dernière activité en ligne;rempli;95;362;10;0,0276
+asso_parents;ecole_uai;Rattachée à une école;part;IdF;3030;1801;0,5944
+asso_parents;ecole_uai;Rattachée à une école;part;75;500;300;0,6000
+asso_parents;ecole_uai;Rattachée à une école;part;77;609;379;0,6223
+asso_parents;ecole_uai;Rattachée à une école;part;78;384;226;0,5885
+asso_parents;ecole_uai;Rattachée à une école;part;91;397;232;0,5844
+asso_parents;ecole_uai;Rattachée à une école;part;92;264;152;0,5758
+asso_parents;ecole_uai;Rattachée à une école;part;93;241;139;0,5768
+asso_parents;ecole_uai;Rattachée à une école;part;94;273;162;0,5934
+asso_parents;ecole_uai;Rattachée à une école;part;95;362;211;0,5829
+territoire_social;familles_avec_enfants;Familles avec enfants;rempli;IdF;5265;5265;1,0000
+territoire_social;familles_avec_enfants;Familles avec enfants;rempli;75;992;992;1,0000
+territoire_social;familles_avec_enfants;Familles avec enfants;rempli;77;762;762;1,0000
+territoire_social;familles_avec_enfants;Familles avec enfants;rempli;78;683;683;1,0000
+territoire_social;familles_avec_enfants;Familles avec enfants;rempli;91;507;507;1,0000
+territoire_social;familles_avec_enfants;Familles avec enfants;rempli;92;616;616;1,0000
+territoire_social;familles_avec_enfants;Familles avec enfants;rempli;93;614;614;1,0000
+territoire_social;familles_avec_enfants;Familles avec enfants;rempli;94;530;530;1,0000
+territoire_social;familles_avec_enfants;Familles avec enfants;rempli;95;561;561;1,0000
+territoire_social;revenu_median;Revenu médian;rempli;IdF;5265;4862;0,9235
+territoire_social;revenu_median;Revenu médian;rempli;75;992;864;0,8710
+territoire_social;revenu_median;Revenu médian;rempli;77;762;720;0,9449
+territoire_social;revenu_median;Revenu médian;rempli;78;683;641;0,9385
+territoire_social;revenu_median;Revenu médian;rempli;91;507;468;0,9231
+territoire_social;revenu_median;Revenu médian;rempli;92;616;585;0,9497
+territoire_social;revenu_median;Revenu médian;rempli;93;614;560;0,9121
+territoire_social;revenu_median;Revenu médian;rempli;94;530;518;0,9774
+territoire_social;revenu_median;Revenu médian;rempli;95;561;506;0,9020
+territoire_social;taux_pauvrete;Taux de pauvreté;rempli;IdF;5265;4150;0,7882
+territoire_social;taux_pauvrete;Taux de pauvreté;rempli;75;992;864;0,8710
+territoire_social;taux_pauvrete;Taux de pauvreté;rempli;77;762;350;0,4593
+territoire_social;taux_pauvrete;Taux de pauvreté;rempli;78;683;487;0,7130
+territoire_social;taux_pauvrete;Taux de pauvreté;rempli;91;507;377;0,7436
+territoire_social;taux_pauvrete;Taux de pauvreté;rempli;92;616;584;0,9481
+territoire_social;taux_pauvrete;Taux de pauvreté;rempli;93;614;560;0,9121
+territoire_social;taux_pauvrete;Taux de pauvreté;rempli;94;530;518;0,9774
+territoire_social;taux_pauvrete;Taux de pauvreté;rempli;95;561;410;0,7308
+territoire_social;qpv;Touché par un QPV;part;IdF;5265;1066;0,2025
+territoire_social;qpv;Touché par un QPV;part;75;992;83;0,0837
+territoire_social;qpv;Touché par un QPV;part;77;762;68;0,0892
+territoire_social;qpv;Touché par un QPV;part;78;683;77;0,1127
+territoire_social;qpv;Touché par un QPV;part;91;507;114;0,2249
+territoire_social;qpv;Touché par un QPV;part;92;616;75;0,1218
+territoire_social;qpv;Touché par un QPV;part;93;614;364;0,5928
+territoire_social;qpv;Touché par un QPV;part;94;530;130;0,2453
+territoire_social;qpv;Touché par un QPV;part;95;561;155;0,2763
+relais_local;type;Type;rempli;IdF;625;625;1,0000
+relais_local;type;Type;rempli;75;85;85;1,0000
+relais_local;type;Type;rempli;77;85;85;1,0000
+relais_local;type;Type;rempli;78;66;66;1,0000
+relais_local;type;Type;rempli;91;70;70;1,0000
+relais_local;type;Type;rempli;92;77;77;1,0000
+relais_local;type;Type;rempli;93;115;115;1,0000
+relais_local;type;Type;rempli;94;61;61;1,0000
+relais_local;type;Type;rempli;95;66;66;1,0000
+relais_local;nom;Nom;rempli;IdF;625;625;1,0000
+relais_local;nom;Nom;rempli;75;85;85;1,0000
+relais_local;nom;Nom;rempli;77;85;85;1,0000
+relais_local;nom;Nom;rempli;78;66;66;1,0000
+relais_local;nom;Nom;rempli;91;70;70;1,0000
+relais_local;nom;Nom;rempli;92;77;77;1,0000
+relais_local;nom;Nom;rempli;93;115;115;1,0000
+relais_local;nom;Nom;rempli;94;61;61;1,0000
+relais_local;nom;Nom;rempli;95;66;66;1,0000
+relais_local;adresse;Adresse;rempli;IdF;625;510;0,8160
+relais_local;adresse;Adresse;rempli;75;85;73;0,8588
+relais_local;adresse;Adresse;rempli;77;85;77;0,9059
+relais_local;adresse;Adresse;rempli;78;66;51;0,7727
+relais_local;adresse;Adresse;rempli;91;70;52;0,7429
+relais_local;adresse;Adresse;rempli;92;77;62;0,8052
+relais_local;adresse;Adresse;rempli;93;115;95;0,8261
+relais_local;adresse;Adresse;rempli;94;61;49;0,8033
+relais_local;adresse;Adresse;rempli;95;66;51;0,7727
+relais_local;geom;Position;rempli;IdF;625;625;1,0000
+relais_local;geom;Position;rempli;75;85;85;1,0000
+relais_local;geom;Position;rempli;77;85;85;1,0000
+relais_local;geom;Position;rempli;78;66;66;1,0000
+relais_local;geom;Position;rempli;91;70;70;1,0000
+relais_local;geom;Position;rempli;92;77;77;1,0000
+relais_local;geom;Position;rempli;93;115;115;1,0000
+relais_local;geom;Position;rempli;94;61;61;1,0000
+relais_local;geom;Position;rempli;95;66;66;1,0000
+relais_local;site_web;Site web;rempli;IdF;625;87;0,1392
+relais_local;site_web;Site web;rempli;75;85;13;0,1529
+relais_local;site_web;Site web;rempli;77;85;12;0,1412
+relais_local;site_web;Site web;rempli;78;66;14;0,2121
+relais_local;site_web;Site web;rempli;91;70;10;0,1429
+relais_local;site_web;Site web;rempli;92;77;20;0,2597
+relais_local;site_web;Site web;rempli;93;115;9;0,0783
+relais_local;site_web;Site web;rempli;94;61;5;0,0820
+relais_local;site_web;Site web;rempli;95;66;4;0,0606
+elu;nom;Nom;rempli;IdF;27874;27874;1,0000
+elu;nom;Nom;rempli;75;735;735;1,0000
+elu;nom;Nom;rempli;77;8855;8855;1,0000
+elu;nom;Nom;rempli;78;5314;5314;1,0000
+elu;nom;Nom;rempli;91;4334;4334;1,0000
+elu;nom;Nom;rempli;92;1485;1485;1,0000
+elu;nom;Nom;rempli;93;1594;1594;1,0000
+elu;nom;Nom;rempli;94;1730;1730;1,0000
+elu;nom;Nom;rempli;95;3827;3827;1,0000
+elu;fonction;Fonction;rempli;IdF;27874;27874;1,0000
+elu;fonction;Fonction;rempli;75;735;735;1,0000
+elu;fonction;Fonction;rempli;77;8855;8855;1,0000
+elu;fonction;Fonction;rempli;78;5314;5314;1,0000
+elu;fonction;Fonction;rempli;91;4334;4334;1,0000
+elu;fonction;Fonction;rempli;92;1485;1485;1,0000
+elu;fonction;Fonction;rempli;93;1594;1594;1,0000
+elu;fonction;Fonction;rempli;94;1730;1730;1,0000
+elu;fonction;Fonction;rempli;95;3827;3827;1,0000
+elu;delegation;Délégation des adjoints;rempli;IdF;7243;284;0,0392
+elu;delegation;Délégation des adjoints;rempli;75;250;7;0,0280
+elu;delegation;Délégation des adjoints;rempli;77;2046;10;0,0049
+elu;delegation;Délégation des adjoints;rempli;78;1308;12;0,0092
+elu;delegation;Délégation des adjoints;rempli;91;1131;40;0,0354
+elu;delegation;Délégation des adjoints;rempli;92;488;68;0,1393
+elu;delegation;Délégation des adjoints;rempli;93;525;70;0,1333
+elu;delegation;Délégation des adjoints;rempli;94;516;53;0,1027
+elu;delegation;Délégation des adjoints;rempli;95;979;24;0,0245
+elu;debut_mandat;Début de mandat;rempli;IdF;27874;27874;1,0000
+elu;debut_mandat;Début de mandat;rempli;75;735;735;1,0000
+elu;debut_mandat;Début de mandat;rempli;77;8855;8855;1,0000
+elu;debut_mandat;Début de mandat;rempli;78;5314;5314;1,0000
+elu;debut_mandat;Début de mandat;rempli;91;4334;4334;1,0000
+elu;debut_mandat;Début de mandat;rempli;92;1485;1485;1,0000
+elu;debut_mandat;Début de mandat;rempli;93;1594;1594;1,0000
+elu;debut_mandat;Début de mandat;rempli;94;1730;1730;1,0000
+elu;debut_mandat;Début de mandat;rempli;95;3827;3827;1,0000
+signal_web;url;Adresse de la page;rempli;IdF;617;617;1,0000
+signal_web;url;Adresse de la page;rempli;75;40;40;1,0000
+signal_web;url;Adresse de la page;rempli;77;20;20;1,0000
+signal_web;url;Adresse de la page;rempli;78;46;46;1,0000
+signal_web;url;Adresse de la page;rempli;91;48;48;1,0000
+signal_web;url;Adresse de la page;rempli;92;129;129;1,0000
+signal_web;url;Adresse de la page;rempli;93;172;172;1,0000
+signal_web;url;Adresse de la page;rempli;94;115;115;1,0000
+signal_web;url;Adresse de la page;rempli;95;47;47;1,0000
+signal_web;theme;Thème;rempli;IdF;617;617;1,0000
+signal_web;theme;Thème;rempli;75;40;40;1,0000
+signal_web;theme;Thème;rempli;77;20;20;1,0000
+signal_web;theme;Thème;rempli;78;46;46;1,0000
+signal_web;theme;Thème;rempli;91;48;48;1,0000
+signal_web;theme;Thème;rempli;92;129;129;1,0000
+signal_web;theme;Thème;rempli;93;172;172;1,0000
+signal_web;theme;Thème;rempli;94;115;115;1,0000
+signal_web;theme;Thème;rempli;95;47;47;1,0000
+signal_web;type_page;Type de page;rempli;IdF;617;617;1,0000
+signal_web;type_page;Type de page;rempli;75;40;40;1,0000
+signal_web;type_page;Type de page;rempli;77;20;20;1,0000
+signal_web;type_page;Type de page;rempli;78;46;46;1,0000
+signal_web;type_page;Type de page;rempli;91;48;48;1,0000
+signal_web;type_page;Type de page;rempli;92;129;129;1,0000
+signal_web;type_page;Type de page;rempli;93;172;172;1,0000
+signal_web;type_page;Type de page;rempli;94;115;115;1,0000
+signal_web;type_page;Type de page;rempli;95;47;47;1,0000
+signal_web;titre;Titre;rempli;IdF;617;614;0,9951
+signal_web;titre;Titre;rempli;75;40;40;1,0000
+signal_web;titre;Titre;rempli;77;20;20;1,0000
+signal_web;titre;Titre;rempli;78;46;46;1,0000
+signal_web;titre;Titre;rempli;91;48;48;1,0000
+signal_web;titre;Titre;rempli;92;129;129;1,0000
+signal_web;titre;Titre;rempli;93;172;169;0,9826
+signal_web;titre;Titre;rempli;94;115;115;1,0000
+signal_web;titre;Titre;rempli;95;47;47;1,0000
+signal_web;date_page;Date;rempli;IdF;617;397;0,6434
+signal_web;date_page;Date;rempli;75;40;32;0,8000
+signal_web;date_page;Date;rempli;77;20;13;0,6500
+signal_web;date_page;Date;rempli;78;46;31;0,6739
+signal_web;date_page;Date;rempli;91;48;38;0,7917
+signal_web;date_page;Date;rempli;92;129;54;0,4186
+signal_web;date_page;Date;rempli;93;172;131;0,7616
+signal_web;date_page;Date;rempli;94;115;63;0,5478
+signal_web;date_page;Date;rempli;95;47;35;0,7447
+dispositif;type;Type;rempli;IdF;384;384;1,0000
+dispositif;type;Type;rempli;75;25;25;1,0000
+dispositif;type;Type;rempli;77;37;37;1,0000
+dispositif;type;Type;rempli;78;35;35;1,0000
+dispositif;type;Type;rempli;91;65;65;1,0000
+dispositif;type;Type;rempli;92;26;26;1,0000
+dispositif;type;Type;rempli;93;91;91;1,0000
+dispositif;type;Type;rempli;94;56;56;1,0000
+dispositif;type;Type;rempli;95;56;56;1,0000
+dispositif;communes;Périmètre;rempli;IdF;384;384;1,0000
+dispositif;communes;Périmètre;rempli;75;25;25;1,0000
+dispositif;communes;Périmètre;rempli;77;37;37;1,0000
+dispositif;communes;Périmètre;rempli;78;35;35;1,0000
+dispositif;communes;Périmètre;rempli;91;65;65;1,0000
+dispositif;communes;Périmètre;rempli;92;26;26;1,0000
+dispositif;communes;Périmètre;rempli;93;91;91;1,0000
+dispositif;communes;Périmètre;rempli;94;56;56;1,0000
+dispositif;communes;Périmètre;rempli;95;56;56;1,0000
+dispositif;geom;Contour;rempli;IdF;384;383;0,9974
+dispositif;geom;Contour;rempli;75;25;25;1,0000
+dispositif;geom;Contour;rempli;77;37;37;1,0000
+dispositif;geom;Contour;rempli;78;35;35;1,0000
+dispositif;geom;Contour;rempli;91;65;64;0,9846
+dispositif;geom;Contour;rempli;92;26;26;1,0000
+dispositif;geom;Contour;rempli;93;91;91;1,0000
+dispositif;geom;Contour;rempli;94;56;56;1,0000
+dispositif;geom;Contour;rempli;95;56;56;1,0000
+dispositif;annee;Année;rempli;IdF;384;384;1,0000
+dispositif;annee;Année;rempli;75;25;25;1,0000
+dispositif;annee;Année;rempli;77;37;37;1,0000
+dispositif;annee;Année;rempli;78;35;35;1,0000
+dispositif;annee;Année;rempli;91;65;65;1,0000
+dispositif;annee;Année;rempli;92;26;26;1,0000
+dispositif;annee;Année;rempli;93;91;91;1,0000
+dispositif;annee;Année;rempli;94;56;56;1,0000
+dispositif;annee;Année;rempli;95;56;56;1,0000
+dispositif;axe_education_alimentaire;Volet éducation alimentaire (PAT);rempli;IdF;14;14;1,0000
+dispositif;axe_education_alimentaire;Volet éducation alimentaire (PAT);rempli;75;1;1;1,0000
+dispositif;axe_education_alimentaire;Volet éducation alimentaire (PAT);rempli;77;3;3;1,0000
+dispositif;axe_education_alimentaire;Volet éducation alimentaire (PAT);rempli;78;2;2;1,0000
+dispositif;axe_education_alimentaire;Volet éducation alimentaire (PAT);rempli;91;4;4;1,0000
+dispositif;axe_education_alimentaire;Volet éducation alimentaire (PAT);rempli;92;1;1;1,0000
+dispositif;axe_education_alimentaire;Volet éducation alimentaire (PAT);rempli;93;2;2;1,0000
+dispositif;axe_education_alimentaire;Volet éducation alimentaire (PAT);rempli;94;2;2;1,0000
+dispositif;axe_education_alimentaire;Volet éducation alimentaire (PAT);rempli;95;3;3;1,0000
+producteur;siret;Siret;rempli;IdF;713;705;0,9888
+producteur;siret;Siret;rempli;75;55;55;1,0000
+producteur;siret;Siret;rempli;77;266;266;1,0000
+producteur;siret;Siret;rempli;78;148;147;0,9932
+producteur;siret;Siret;rempli;91;153;151;0,9869
+producteur;siret;Siret;rempli;92;22;22;1,0000
+producteur;siret;Siret;rempli;93;11;10;0,9091
+producteur;siret;Siret;rempli;94;24;21;0,8750
+producteur;siret;Siret;rempli;95;34;33;0,9706
+producteur;numero_bio;Numéro bio;rempli;IdF;713;713;1,0000
+producteur;numero_bio;Numéro bio;rempli;75;55;55;1,0000
+producteur;numero_bio;Numéro bio;rempli;77;266;266;1,0000
+producteur;numero_bio;Numéro bio;rempli;78;148;148;1,0000
+producteur;numero_bio;Numéro bio;rempli;91;153;153;1,0000
+producteur;numero_bio;Numéro bio;rempli;92;22;22;1,0000
+producteur;numero_bio;Numéro bio;rempli;93;11;11;1,0000
+producteur;numero_bio;Numéro bio;rempli;94;24;24;1,0000
+producteur;numero_bio;Numéro bio;rempli;95;34;34;1,0000
+producteur;activites;Activités;rempli;IdF;713;711;0,9972
+producteur;activites;Activités;rempli;75;55;54;0,9818
+producteur;activites;Activités;rempli;77;266;266;1,0000
+producteur;activites;Activités;rempli;78;148;148;1,0000
+producteur;activites;Activités;rempli;91;153;153;1,0000
+producteur;activites;Activités;rempli;92;22;21;0,9545
+producteur;activites;Activités;rempli;93;11;11;1,0000
+producteur;activites;Activités;rempli;94;24;24;1,0000
+producteur;activites;Activités;rempli;95;34;34;1,0000
+producteur;vente_directe;Vente directe;rempli;IdF;713;713;1,0000
+producteur;vente_directe;Vente directe;rempli;75;55;55;1,0000
+producteur;vente_directe;Vente directe;rempli;77;266;266;1,0000
+producteur;vente_directe;Vente directe;rempli;78;148;148;1,0000
+producteur;vente_directe;Vente directe;rempli;91;153;153;1,0000
+producteur;vente_directe;Vente directe;rempli;92;22;22;1,0000
+producteur;vente_directe;Vente directe;rempli;93;11;11;1,0000
+producteur;vente_directe;Vente directe;rempli;94;24;24;1,0000
+producteur;vente_directe;Vente directe;rempli;95;34;34;1,0000
+producteur;membre_amap;Membre d'une AMAP;rempli;IdF;713;0;0,0000
+producteur;membre_amap;Membre d'une AMAP;rempli;75;55;0;0,0000
+producteur;membre_amap;Membre d'une AMAP;rempli;77;266;0;0,0000
+producteur;membre_amap;Membre d'une AMAP;rempli;78;148;0;0,0000
+producteur;membre_amap;Membre d'une AMAP;rempli;91;153;0;0,0000
+producteur;membre_amap;Membre d'une AMAP;rempli;92;22;0;0,0000
+producteur;membre_amap;Membre d'une AMAP;rempli;93;11;0;0,0000
+producteur;membre_amap;Membre d'une AMAP;rempli;94;24;0;0,0000
+producteur;membre_amap;Membre d'une AMAP;rempli;95;34;0;0,0000
+producteur;lieu;Adresse du lieu d'activité;rempli;IdF;713;649;0,9102
+producteur;lieu;Adresse du lieu d'activité;rempli;75;55;19;0,3455
+producteur;lieu;Adresse du lieu d'activité;rempli;77;266;261;0,9812
+producteur;lieu;Adresse du lieu d'activité;rempli;78;148;146;0,9865
+producteur;lieu;Adresse du lieu d'activité;rempli;91;153;152;0,9935
+producteur;lieu;Adresse du lieu d'activité;rempli;92;22;13;0,5909
+producteur;lieu;Adresse du lieu d'activité;rempli;93;11;7;0,6364
+producteur;lieu;Adresse du lieu d'activité;rempli;94;24;22;0,9167
+producteur;lieu;Adresse du lieu d'activité;rempli;95;34;29;0,8529
+producteur;eligible;Pris en compte (critères de la jauge);part;IdF;713;270;0,3787
+producteur;eligible;Pris en compte (critères de la jauge);part;75;55;17;0,3091
+producteur;eligible;Pris en compte (critères de la jauge);part;77;266;90;0,3383
+producteur;eligible;Pris en compte (critères de la jauge);part;78;148;54;0,3649
+producteur;eligible;Pris en compte (critères de la jauge);part;91;153;61;0,3987
+producteur;eligible;Pris en compte (critères de la jauge);part;92;22;8;0,3636
+producteur;eligible;Pris en compte (critères de la jauge);part;93;11;6;0,5455
+producteur;eligible;Pris en compte (critères de la jauge);part;94;24;13;0,5417
+producteur;eligible;Pris en compte (critères de la jauge);part;95;34;21;0,6176
+proximite;km_route;Distance par la route;rempli;IdF;4554128;4554128;1,0000
+proximite;km_route;Distance par la route;rempli;75;561247;561247;1,0000
+proximite;km_route;Distance par la route;rempli;77;552205;552205;1,0000
+proximite;km_route;Distance par la route;rempli;78;610780;610780;1,0000
+proximite;km_route;Distance par la route;rempli;91;614048;614048;1,0000
+proximite;km_route;Distance par la route;rempli;92;483337;483337;1,0000
+proximite;km_route;Distance par la route;rempli;93;677758;677758;1,0000
+proximite;km_route;Distance par la route;rempli;94;511940;511940;1,0000
+proximite;km_route;Distance par la route;rempli;95;542813;542813;1,0000
+proximite;minutes;Temps de trajet;rempli;IdF;4554128;4554128;1,0000
+proximite;minutes;Temps de trajet;rempli;75;561247;561247;1,0000
+proximite;minutes;Temps de trajet;rempli;77;552205;552205;1,0000
+proximite;minutes;Temps de trajet;rempli;78;610780;610780;1,0000
+proximite;minutes;Temps de trajet;rempli;91;614048;614048;1,0000
+proximite;minutes;Temps de trajet;rempli;92;483337;483337;1,0000
+proximite;minutes;Temps de trajet;rempli;93;677758;677758;1,0000
+proximite;minutes;Temps de trajet;rempli;94;511940;511940;1,0000
+proximite;minutes;Temps de trajet;rempli;95;542813;542813;1,0000
+jauge_ecole;engagement;Engagement de la collectivité;rempli;IdF;6563;6563;1,0000
+jauge_ecole;engagement;Engagement de la collectivité;rempli;75;724;724;1,0000
+jauge_ecole;engagement;Engagement de la collectivité;rempli;77;1084;1084;1,0000
+jauge_ecole;engagement;Engagement de la collectivité;rempli;78;958;958;1,0000
+jauge_ecole;engagement;Engagement de la collectivité;rempli;91;835;835;1,0000
+jauge_ecole;engagement;Engagement de la collectivité;rempli;92;627;627;1,0000
+jauge_ecole;engagement;Engagement de la collectivité;rempli;93;896;896;1,0000
+jauge_ecole;engagement;Engagement de la collectivité;rempli;94;648;648;1,0000
+jauge_ecole;engagement;Engagement de la collectivité;rempli;95;791;791;1,0000
+jauge_ecole;periscolaire;Périscolaire;rempli;IdF;6563;2658;0,4050
+jauge_ecole;periscolaire;Périscolaire;rempli;75;724;619;0,8550
+jauge_ecole;periscolaire;Périscolaire;rempli;77;1084;166;0,1531
+jauge_ecole;periscolaire;Périscolaire;rempli;78;958;177;0,1848
+jauge_ecole;periscolaire;Périscolaire;rempli;91;835;239;0,2862
+jauge_ecole;periscolaire;Périscolaire;rempli;92;627;340;0,5423
+jauge_ecole;periscolaire;Périscolaire;rempli;93;896;561;0,6261
+jauge_ecole;periscolaire;Périscolaire;rempli;94;648;315;0,4861
+jauge_ecole;periscolaire;Périscolaire;rempli;95;791;241;0,3047
+jauge_ecole;parents;Parents;rempli;IdF;6563;2210;0,3367
+jauge_ecole;parents;Parents;rempli;75;724;330;0,4558
+jauge_ecole;parents;Parents;rempli;77;1084;433;0,3994
+jauge_ecole;parents;Parents;rempli;78;958;289;0,3017
+jauge_ecole;parents;Parents;rempli;91;835;296;0,3545
+jauge_ecole;parents;Parents;rempli;92;627;203;0,3238
+jauge_ecole;parents;Parents;rempli;93;896;186;0,2076
+jauge_ecole;parents;Parents;rempli;94;648;203;0,3133
+jauge_ecole;parents;Parents;rempli;95;791;270;0,3413
+jauge_ecole;producteurs;Producteurs;rempli;IdF;6563;6563;1,0000
+jauge_ecole;producteurs;Producteurs;rempli;75;724;724;1,0000
+jauge_ecole;producteurs;Producteurs;rempli;77;1084;1084;1,0000
+jauge_ecole;producteurs;Producteurs;rempli;78;958;958;1,0000
+jauge_ecole;producteurs;Producteurs;rempli;91;835;835;1,0000
+jauge_ecole;producteurs;Producteurs;rempli;92;627;627;1,0000
+jauge_ecole;producteurs;Producteurs;rempli;93;896;896;1,0000
+jauge_ecole;producteurs;Producteurs;rempli;94;648;648;1,0000
+jauge_ecole;producteurs;Producteurs;rempli;95;791;791;1,0000
+jauge_ecole;familles;Familles;rempli;IdF;6563;6553;0,9985
+jauge_ecole;familles;Familles;rempli;75;724;723;0,9986
+jauge_ecole;familles;Familles;rempli;77;1084;1084;1,0000
+jauge_ecole;familles;Familles;rempli;78;958;954;0,9958
+jauge_ecole;familles;Familles;rempli;91;835;835;1,0000
+jauge_ecole;familles;Familles;rempli;92;627;626;0,9984
+jauge_ecole;familles;Familles;rempli;93;896;894;0,9978
+jauge_ecole;familles;Familles;rempli;94;648;648;1,0000
+jauge_ecole;familles;Familles;rempli;95;791;789;0,9975
+jauge_ecole;score;Score global;rempli;IdF;6563;6559;0,9994
+jauge_ecole;score;Score global;rempli;75;724;723;0,9986
+jauge_ecole;score;Score global;rempli;77;1084;1084;1,0000
+jauge_ecole;score;Score global;rempli;78;958;956;0,9979
+jauge_ecole;score;Score global;rempli;91;835;835;1,0000
+jauge_ecole;score;Score global;rempli;92;627;627;1,0000
+jauge_ecole;score;Score global;rempli;93;896;896;1,0000
+jauge_ecole;score;Score global;rempli;94;648;648;1,0000
+jauge_ecole;score;Score global;rempli;95;791;790;0,9987
+jauge_ecole;connues;Les cinq jauges connues;part;IdF;6563;774;0,1179
+jauge_ecole;connues;Les cinq jauges connues;part;75;724;240;0,3315
+jauge_ecole;connues;Les cinq jauges connues;part;77;1084;47;0,0434
+jauge_ecole;connues;Les cinq jauges connues;part;78;958;37;0,0386
+jauge_ecole;connues;Les cinq jauges connues;part;91;835;77;0,0922
+jauge_ecole;connues;Les cinq jauges connues;part;92;627;104;0,1659
+jauge_ecole;connues;Les cinq jauges connues;part;93;896;101;0,1127
+jauge_ecole;connues;Les cinq jauges connues;part;94;648;94;0,1451
+jauge_ecole;connues;Les cinq jauges connues;part;95;791;74;0,0936
+jauge_ecole;avec_accueil;École avec au moins un accueil;part;IdF;6563;808;0,1231
+jauge_ecole;avec_accueil;École avec au moins un accueil;part;75;724;33;0,0456
+jauge_ecole;avec_accueil;École avec au moins un accueil;part;77;1084;100;0,0923
+jauge_ecole;avec_accueil;École avec au moins un accueil;part;78;958;79;0,0825
+jauge_ecole;avec_accueil;École avec au moins un accueil;part;91;835;102;0,1222
+jauge_ecole;avec_accueil;École avec au moins un accueil;part;92;627;103;0,1643
+jauge_ecole;avec_accueil;École avec au moins un accueil;part;93;896;204;0,2277
+jauge_ecole;avec_accueil;École avec au moins un accueil;part;94;648;82;0,1265
+jauge_ecole;avec_accueil;École avec au moins un accueil;part;95;791;105;0,1327
+jauge_ecole;avec_asso;École avec au moins une association;part;IdF;6563;2210;0,3367
+jauge_ecole;avec_asso;École avec au moins une association;part;75;724;330;0,4558
+jauge_ecole;avec_asso;École avec au moins une association;part;77;1084;433;0,3994
+jauge_ecole;avec_asso;École avec au moins une association;part;78;958;289;0,3017
+jauge_ecole;avec_asso;École avec au moins une association;part;91;835;296;0,3545
+jauge_ecole;avec_asso;École avec au moins une association;part;92;627;203;0,3238
+jauge_ecole;avec_asso;École avec au moins une association;part;93;896;186;0,2076
+jauge_ecole;avec_asso;École avec au moins une association;part;94;648;203;0,3133
+jauge_ecole;avec_asso;École avec au moins une association;part;95;791;270;0,3413
