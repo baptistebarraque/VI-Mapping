@@ -1,0 +1,84 @@
+# Périmètre et paramètres de collecte. Île-de-France uniquement.
+
+region:
+  code: "11"
+  nom: Île-de-France
+  departements:
+    "75": Paris
+    "77": Seine-et-Marne
+    "78": Yvelines
+    "91": Essonne
+    "92": Hauts-de-Seine
+    "93": Seine-Saint-Denis
+    "94": Val-de-Marne
+    "95": Val-d'Oise
+  bbox: [1.44, 48.12, 3.56, 49.25]   # lon min, lat min, lon max, lat max
+
+ecoles:
+  # Contrats privés retenus (annuaire de l'éducation) : sous contrat uniquement, jamais « HORS CONTRAT ».
+  contrats_prives:
+    - CONTRAT D'ASSOCIATION TOUTES CLASSES
+    - CONTRAT ASSOCIATION PARTIE DES CLASSES
+    - CONTRAT SIMPLE TOUTES CLASSES
+    - C0NTRAT SIMPLE POUR PARTIE DES CLASSES   # zéro dans « C0NTRAT » : libellé officiel de la source
+
+producteurs:
+  # Filtre « pris en compte » : bio ou conversion ET (maraîchage ou fruits) ET (vente directe ou AMAP).
+  etats_bio: [AB]
+  etats_conversion: [C1, C2, C3]
+  certifications_actives: [ENGAGEE]
+  # Codes de production (préfixes CPF de l'Agence Bio)
+  prefixes_maraichage: ["01.13"]
+  prefixes_fruits: ["01.21.11", "01.22", "01.23", "01.24", "01.25"]   # raisin de table, fruits, baies
+  activites_maraichage: [Maraîchage, Culture de pommes de terre]
+  activites_fruits: [Arboriculture]
+  activites_exclues: [Restaurant - Traiteur - Restauration rapide]   # si c'est la seule activité
+  categories_vente_directe: [Vente aux consommateurs]
+  # Confiance selon l'adresse disponible : le siège n'est pas forcément la ferme.
+  confiance_adresse: {lieu_activite: 0.95, lieu_vente: 0.85, siege: 0.6}
+
+rattachements:
+  accueil_ecole:
+    distance_max_m: 300
+    similarite_nom_min: 0.82          # rapprochement par nom, dans la même commune
+    distance_max_nom_m: 1500
+    confiance: {adresse: 0.95, distance: 0.8, nom: 0.7}
+  asso_ecole:
+    confiance_min: 0.35               # en dessous : pas de rattachement
+    distance_max_m: 2000
+    # Contributions au score de confiance (somme plafonnée à 1)
+    poids:
+      nom_ecole: 0.60                 # nom propre de l'école dans le nom ou l'objet de l'asso
+      commune: 0.15                   # nom de la commune dans le nom ou l'objet
+      proximite: 0.25                 # siège proche de l'école (100 % à distance_pleine_m ou moins)
+      ecole_unique: 0.20              # seule école possible dans la commune (petites communes)
+    distance_pleine_m: 80
+    distance_nulle_m: 1000
+    ecoles_max_par_asso: 6
+  qpv_distance_max_m: 2000            # au-delà, aucun QPV « le plus proche » n'est retenu
+
+proximite:
+  km_vol_oiseau_max: 50
+  cibles: [producteur, relais_local]
+  moteur: osrm
+  profil: car
+  facteur_duree: 1.0                  # OSRM ignore le trafic ; 1.3 à 1.5 donnerait des durées d'heure de pointe
+  osm_url: https://download.geofabrik.de/europe/france/ile-de-france-latest.osm.pbf
+  lot_ecoles: 400                     # taille des matrices OSRM
+
+http:
+  # User-agent identifié. Le contact (URL ou adresse de service) se règle par VI_CONTACT,
+  # jamais dans le dépôt. Sans contact, le scraping est limité à un échantillon.
+  nom_robot: ecoles-idf-bot
+  version: "0.1"
+  timeout_s: 60
+  tentatives: 4
+  delai_min_s: 0.25                   # entre deux appels au même hôte (API)
+
+scraping:
+  delai_s: 2.0                        # entre deux pages d'un même site (ou Crawl-delay s'il est plus long)
+  pages_max_par_site: 25
+  sites_en_parallele: 8
+  octets_max: 1500000
+  timeout_s: 15
+  echantillon_sans_contact: 120       # nombre maximal de sites visités si VI_CONTACT est absent
