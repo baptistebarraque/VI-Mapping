@@ -271,6 +271,16 @@ sources:
     statut: ouverte
     confiance: 0.9
 
+  jauges:
+    libelle: Jauges et score global
+    producteur: Calcul
+    url: config/jauges.yaml
+    licence: Sans objet
+    methode: calcul
+    frequence: mensuelle
+    statut: ouverte
+    confiance: 0.7
+
   # ------------------------------------------------------------------ Scraping autorisé
   sites_mairies:
     libelle: Sites web des mairies (signaux, délégations, périscolaire)

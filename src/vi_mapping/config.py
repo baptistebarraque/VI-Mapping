@@ -201,6 +201,7 @@ class BaremeBio(_Strict):
 class BaremeWeb(_Strict):
     fenetre_mois: int
     themes_plein: int
+    poids_sans_date: Part
     themes: list[str]
 
 
@@ -218,6 +219,7 @@ class BaremeSoir(_Strict):
 
 class BaremeMercredi(_Strict):
     oui: float
+    centre_de_loisirs: float
     oui_commune: float
 
 
@@ -241,13 +243,16 @@ class JaugeParents(_Jauge):
 
 
 class JaugeProducteurs(_Jauge):
+    adresses: list[Literal["lieu_activite", "lieu_vente", "siege"]]
     minutes_plein: float
+    km_plein: float
     nombre_plein: int
 
 
 class BaremeMixite(_Strict):
     ips_reference: float
     ips_amplitude: float
+    ips_voisin_max_m: int
     part_ips: float
     part_qpv: float
     qpv_distance_max_m: int

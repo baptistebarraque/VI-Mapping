@@ -84,3 +84,11 @@ def proximite(
     charger()
     if executer("osrm", options={"forcer": True} if forcer else {}) == "echec":
         raise typer.Exit(1)
+
+
+@app.command()
+def jauges() -> None:
+    """Recalcule les cinq jauges et le score de chaque école (config/jauges.yaml)."""
+    charger()
+    if executer("jauges") == "echec":
+        raise typer.Exit(1)

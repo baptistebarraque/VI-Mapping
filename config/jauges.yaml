@@ -15,7 +15,7 @@ donnees_insuffisantes:
   part_min_connue_jauge: 0.5
   part_min_connue_score: 0.5
 
-# Rayon par défaut. mode « ou » : un producteur est dans le rayon s'il est à 30 km OU à 45 min.
+# Rayon par défaut, par la route. mode « ou » : un producteur est dans le rayon s'il est à 30 km OU à 45 min.
 rayon:
   km: 30
   minutes: 45
@@ -29,6 +29,7 @@ engagement:
   web:
     fenetre_mois: 24
     themes_plein: 3    # 3 thèmes alimentaires distincts récents sur le site de la mairie = 100
+    poids_sans_date: 0.5   # thème attesté seulement par des pages sans date : compte pour moitié
     themes: [bio, anti_gaspi, potager, education_gout, alimentation_durable]
   # Arrondissements de Paris : PAT, cantine et site web sont ceux de la commune mère si absents.
 
@@ -37,7 +38,8 @@ periscolaire:
   distance_max_m: 300
   # Valeurs selon la précision de l'information disponible
   soir: {oui: 100, accueil_sans_horaire: 50, oui_commune: 70}
-  mercredi: {oui: 100, oui_commune: 70}
+  # centre_de_loisirs : accueil nommé « centre / accueil de loisirs », ouvert en principe le mercredi
+  mercredi: {oui: 100, centre_de_loisirs: 70, oui_commune: 70}
   gestionnaire: {identifie: 100, non_identifie: 0}
   # Les sources d'accueils ne sont pas exhaustives (monenfant.fr verrouillé) :
   # l'absence d'accueil trouvé vaut « inconnu », pas 0.
@@ -53,7 +55,11 @@ parents:
 
 producteurs:
   sous_poids: {plus_proche: 60, nombre: 40}
+  # Adresses qui situent vraiment la production ou la vente. Un producteur connu par son seul siège est affiché
+  # sur la carte mais pas compté ici (ajouter « siege » pour le compter).
+  adresses: [lieu_activite, lieu_vente]
   minutes_plein: 15    # 100 si le plus proche est à 15 min ou moins, 0 en bord de rayon
+  km_plein: 10         # équivalent quand le rayon est exprimé en km seulement (mode km)
   nombre_plein: 5
 
 familles:
@@ -64,6 +70,7 @@ familles:
     # Mixité = IPS proche de la référence (ni très favorisé ni très défavorisé) + QPV à proximité.
     ips_reference: 104
     ips_amplitude: 40   # écart à la référence qui donne 0
+    ips_voisin_max_m: 200   # maternelle (IPS non publié) : IPS de l'élémentaire du même secteur à moins de 200 m
     part_ips: 70
     part_qpv: 30
     qpv_distance_max_m: 300
