@@ -404,6 +404,7 @@ summary {
   color: var(--encre-2);
 }
 .premiers .puce {
+  white-space: nowrap;
   color: var(--encre);
 }
 .premiers input {

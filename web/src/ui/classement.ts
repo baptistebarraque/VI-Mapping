@@ -27,6 +27,7 @@ export class Classement {
     const id = identifiant('premiers');
     this.limiter = h('button', {
       type: 'button', classe: 'puce',
+      title: 'Garder seulement le début du classement',
       onclick: () => this.premiers.changer(this.premiers.lire() === null ? this.saisi() : null),
     }, 'Seulement les');
     this.nombre = h('input', {
@@ -43,7 +44,7 @@ export class Classement {
     this.el = h(
       'div', { classe: 'panneau-classement' },
       h('div', { classe: 'barre' }, this.entete, h('button', { type: 'button', onclick: exporter }, 'Exporter en CSV')),
-      h('div', { classe: 'premiers' }, this.limiter, this.nombre, h('label', { for: id }, 'premières du classement')),
+      h('div', { classe: 'premiers' }, this.limiter, this.nombre, h('label', { for: id }, 'premières')),
       h('p', { classe: 'note' },
         'À score égal, l’école la mieux documentée passe devant. Les cinq barres : ',
         JAUGES.map((j) => COURT_JAUGE[j].toLowerCase()).join(', '), '.'),
