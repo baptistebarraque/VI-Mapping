@@ -24,7 +24,8 @@ def communes(conn: Connexion) -> list[dict[str, Any]]:
 
 def sources(conn: Connexion) -> dict[str, dict[str, Any]]:
     dates = {r["source"]: r["fin"] for r in conn.execute(
-        "SELECT source, max(fin) AS fin FROM collecte_run WHERE statut = 'succes' GROUP BY source")}
+        "SELECT source, max(fin) AS fin FROM collecte_run WHERE statut = 'succes' AND NOT parametres ? 'communes' "
+        "GROUP BY source")}
     return {
         code: sans_vide({
             "libelle": s.libelle, "producteur": s.producteur, "url": s.url, "licence": s.licence,

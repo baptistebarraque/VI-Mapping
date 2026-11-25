@@ -111,7 +111,12 @@ button {
   flex: none;
   white-space: nowrap;
 }
-button:hover {
+button:disabled {
+  color: var(--inconnu);
+  cursor: default;
+  opacity: 0.6;
+}
+button:hover:enabled {
   border-color: var(--inconnu);
 }
 button.discret {
@@ -391,6 +396,20 @@ summary {
   justify-content: space-between;
   gap: 12px;
 }
+.premiers {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  color: var(--encre-2);
+}
+.premiers .puce {
+  white-space: nowrap;
+  color: var(--encre);
+}
+.premiers input {
+  width: 76px;
+}
 .compte {
   color: var(--encre-2);
 }
@@ -473,6 +492,23 @@ summary {
   border-bottom: 1px solid var(--grille);
   background: var(--surface);
 }
+.parcours {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.parcours .place {
+  min-width: 84px;
+  text-align: center;
+  color: var(--encre-2);
+  font-variant-numeric: tabular-nums;
+}
+.parcours .fleche {
+  width: 34px;
+  padding: 0 0 2px;
+  font-size: 20px;
+  line-height: 1;
+}
 .corps-fiche {
   padding: 14px 16px 32px;
 }
@@ -501,6 +537,9 @@ summary {
 }
 .heros b {
   font-weight: 600;
+}
+.relance .note:empty {
+  display: none;
 }
 .jauge {
   border-bottom: 1px solid var(--grille);

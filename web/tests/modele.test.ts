@@ -40,6 +40,25 @@ describe('classement', () => {
   });
 });
 
+describe('parcours du classement', () => {
+  test('avance et recule dans l’ordre du classement, s’arrête aux bouts', () => {
+    uai();
+    const [premiere, deuxieme] = m.visibles;
+    const derniere = m.visibles.at(-1) as number;
+    expect(m.voisine(premiere, 1)).toBe(deuxieme);
+    expect(m.voisine(deuxieme, -1)).toBe(premiere);
+    expect(m.voisine(premiere, -1)).toBeNull();
+    expect(m.voisine(derniere, 1)).toBeNull();
+  });
+
+  test('suit les filtres ; une école filtrée n’a pas de voisine', () => {
+    uai({ commune: '93048', secteur: 'public' });
+    expect(m.visibles).toEqual([3, 1]); // l'école C, privée, est sautée
+    expect(m.voisine(3, 1)).toBe(1);
+    expect(m.voisine(0, 1)).toBeNull();
+  });
+});
+
 describe('filtres', () => {
   test('département et commune', () => {
     expect(uai({ departements: ['75'] })).toEqual(['1']);
@@ -63,6 +82,13 @@ describe('filtres', () => {
     const seuils = { ...filtresVides().seuils, parents: 50 };
     expect(uai({ seuils })).toEqual(['1']);
     expect(uai({ seuils, garderInconnues: true }).sort()).toEqual(['1', '2', '3', '4']);
+  });
+
+  test('début du classement, après les autres filtres', () => {
+    const complet = uai({ commune: '93048' });
+    expect(uai({ commune: '93048', premiers: 2 })).toEqual(complet.slice(0, 2));
+    expect(m.nbFiltrees).toBe(3);
+    expect(uai({ premiers: 100 })).toHaveLength(4);
   });
 
   test('nombre de jauges connues', () => {

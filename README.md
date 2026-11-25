@@ -25,6 +25,19 @@ make installer
 make base
 ```
 
+## Reprendre sans tout recollecter
+
+La base et la carte déjà calculées sont publiées dans les Releases du dépôt.
+
+```bash
+make voir                     # seulement regarder la carte : Node suffit, ni base ni Python
+make donnees                  # reprendre le projet : recharge la base (vide) et les données de la carte
+```
+
+L'archive de la base omet le cache de géocodage et les messages d'erreur. Pour publier une nouvelle version :
+`make archives`, puis `gh release create donnees-AAAA-MM-JJ data/base.zip data/carte.zip`. Licence des données : celle de
+chaque source (voir docs/SOURCES.md), Licence Ouverte 2.0 et ODbL pour OpenStreetMap.
+
 ## Utiliser
 
 ```bash
@@ -44,6 +57,7 @@ téléchargés à nouveau, les sites vus depuis moins de 25 jours pas visités �
 | `uv run vi collecter CODE…` | une ou plusieurs sources, puis les calculs (`--sans-calcul` pour s'en passer) |
 | `uv run vi collecter --dus` | sources arrivées à échéance |
 | `uv run vi maj` | mise à jour planifiée : échéances, calculs, contrôles, rapport, export |
+| `uv run vi analyser UAI` | une école : site de sa mairie, calculs, export ; c'est le bouton « Relancer l'analyse » de la carte locale |
 | `uv run vi rattacher`, `proximite`, `jauges` | un seul calcul |
 | `uv run vi couverture` | rapport de couverture |
 | `uv run vi exporter` | fichiers JSON de la carte |

@@ -1,8 +1,8 @@
 /** Chargement des fichiers de public/donnees, avec le numéro d'export pour ne pas relire un cache périmé. */
 
-import type { FeatureCollection } from 'geojson';
+import type { FeatureCollection, MultiPolygon, Polygon } from 'geojson';
 import type {
-  CollectionPoints, Couverture, Fiche, Meta, ProprietesProducteur, ProprietesRelais, TableEcoles,
+  CollectionPoints, Couverture, Fiche, Meta, ProprietesPat, ProprietesProducteur, ProprietesRelais, TableEcoles,
 } from './types';
 
 const RACINE = `${import.meta.env.BASE_URL}donnees/`;
@@ -29,6 +29,20 @@ export const chargerProducteurs = (): Promise<CollectionPoints<ProprietesProduct
 export const chargerRelais = (): Promise<CollectionPoints<ProprietesRelais>> => lire('points/relais.geojson');
 export const chargerZone = (nom: string): Promise<FeatureCollection> => lire(`zones/${nom}.geojson`);
 export const chargerCouverture = (): Promise<Couverture> => lire('couverture.json');
+
+export type CollectionPats = FeatureCollection<Polygon | MultiPolygon, ProprietesPat>;
+let pats: Promise<CollectionPats> | null = null;
+
+/** PAT, pour la couche et les fiches : lus une seule fois. */
+export function chargerPats(): Promise<CollectionPats> {
+  if (pats === null) {
+    pats = lire<CollectionPats>('zones/pat.geojson');
+    pats.catch(() => {
+      pats = null;
+    });
+  }
+  return pats;
+}
 
 const fiches = new Map<string, Promise<Fiche>>();
 

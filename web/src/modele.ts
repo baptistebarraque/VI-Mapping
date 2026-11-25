@@ -14,7 +14,8 @@ export class Modele {
   nbProducteurs: Uint8Array;
   scores: Nombre[];
   connues: Uint8Array; // jauges connues, sur 5
-  visibles: number[] = []; // écoles filtrées, de la mieux à la moins bien classée
+  visibles: number[] = []; // écoles filtrées, de la mieux à la moins bien classée, coupées aux « premiers »
+  nbFiltrees = 0; // écoles filtrées avant cette coupe
 
   constructor(
     readonly meta: Meta,
@@ -97,7 +98,14 @@ export class Modele {
         this.t.nom[a].localeCompare(this.t.nom[b], 'fr') ||
         a - b,
     );
-    this.visibles = gardees;
+    this.nbFiltrees = gardees.length;
+    this.visibles = f.premiers === null ? gardees : gardees.slice(0, f.premiers);
+  }
+
+  /** École juste avant (-1) ou juste après (1) dans le classement ; null au bout, ou si l'école est filtrée. */
+  voisine(i: number, pas: 1 | -1): number | null {
+    const rang = this.visibles.indexOf(i);
+    return rang < 0 ? null : (this.visibles[rang + pas] ?? null);
   }
 
   moyenne(valeurs: Iterable<Nombre>): Nombre {

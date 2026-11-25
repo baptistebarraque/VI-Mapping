@@ -82,7 +82,11 @@ def collecter(ctx: Contexte) -> Compteurs:
 
 
 def a_visiter(ctx: Contexte) -> list[Cible]:
-    """Sites non visités récemment, en commençant par les communes qui ont le plus d'élèves."""
+    """Sites non visités récemment, en commençant par les communes qui ont le plus d'élèves.
+
+    Option `communes` : s'en tenir à ces codes Insee.
+    """
+    communes = ctx.options.get("communes")
     lignes = ctx.conn.execute(
         """
         SELECT c.code_insee, c.nom, c.site_web, coalesce(sum(e.nb_eleves), 0) AS eleves
@@ -90,9 +94,10 @@ def a_visiter(ctx: Contexte) -> list[Cible]:
         LEFT JOIN ecole e ON e.commune = c.code_insee OR (c.code_insee = '75056' AND e.departement = '75')
         LEFT JOIN crawl_site v ON v.objet_type = 'commune' AND v.objet_id = c.code_insee
         WHERE c.site_web IS NOT NULL AND (v.visite_le IS NULL OR v.visite_le < %s OR %s)
+          AND (%s::text[] IS NULL OR c.code_insee = ANY(%s))
         GROUP BY 1, 2, 3 ORDER BY eleves DESC, c.code_insee
         """,
-        (ctx.debut - DELAI_ENTRE_VISITES, bool(ctx.options.get("forcer"))),
+        (ctx.debut - DELAI_ENTRE_VISITES, bool(ctx.options.get("forcer")), communes, communes),
     ).fetchall()
     cibles, vus = [], set()
     for r in lignes:

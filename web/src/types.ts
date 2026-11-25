@@ -257,6 +257,16 @@ export interface ProprietesRelais extends Provenance {
   commune?: string;
 }
 
+export interface ProprietesPat extends Provenance {
+  id: string;
+  nom: string;
+  axe?: boolean;
+  annee?: number;
+  niveau?: string;
+  laureat?: boolean;
+  communes?: string[]; // codes Insee ; Paris : la commune entière. Absent des exports antérieurs
+}
+
 export type CollectionPoints<P> = FeatureCollection<Point, P>;
 
 export interface TableCouverte {

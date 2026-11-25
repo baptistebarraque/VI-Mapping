@@ -78,6 +78,14 @@ export const ZONES: LayerSpecification[] = [
   { id: 'qpv', source: 'qpv', type: 'fill', paint: { 'fill-pattern': 'hachures' } },
   { id: 'qpv-trait', source: 'qpv', type: 'line', paint: { 'line-color': ENCRE_2, 'line-width': 1.5 } },
   {
+    id: 'pat-choisi', source: 'pat', type: 'fill', filter: ['==', ['get', 'id'], ''],
+    paint: { 'fill-color': ALIMENTATION, 'fill-opacity': 0.18 },
+  },
+  {
+    id: 'pat-choisi-trait', source: 'pat', type: 'line', filter: ['==', ['get', 'id'], ''],
+    paint: { 'line-color': ALIMENTATION, 'line-width': 3.5 },
+  },
+  {
     id: 'communes-choisie', source: 'communes', type: 'line', filter: ['==', ['get', 'code'], ''],
     paint: { 'line-color': ENCRE, 'line-width': 2.5 },
   },

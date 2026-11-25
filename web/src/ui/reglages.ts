@@ -3,7 +3,7 @@
 import {
   filtresVides, type Coloration, type Couche, type Etat, type Magasin, type Secteur, type VariableIris,
 } from '../etat';
-import { JAUGES, TYPES_ECOLE, type Meta, type Mode, type NomJauge } from '../types';
+import { JAUGES, TYPES_ECOLE, type Meta, type Mode, type NomJauge, type ProprietesPat } from '../types';
 import { ALIMENTATION, ENCRE_2, INCONNU, RAMPE_ECOLES, RAMPE_IRIS, SURFACE, VIE_SCOLAIRE } from '../couleurs';
 import { h, identifiant, remplacer, type Enfant } from './dom';
 import { COURT_JAUGE, LIBELLE_COLORATION, LIBELLE_COUCHE, LIBELLE_IRIS } from './format';
@@ -84,7 +84,13 @@ export interface Reglages {
   maj: () => void;
 }
 
-export function panneauReglages(meta: Meta, m: Magasin, allerCommune: (code: string) => void): Reglages {
+export interface Deplacements {
+  commune: (code: string) => void;
+  departement: (code: string) => void;
+  pat: (id: string) => void;
+}
+
+export function panneauReglages(meta: Meta, m: Magasin, pats: ProprietesPat[], aller: Deplacements): Reglages {
   const e = (): Etat => m.etat;
   const majs: (() => void)[] = [];
   const suivre = <X extends { maj: () => void }>(x: X): X => {
@@ -102,7 +108,9 @@ export function panneauReglages(meta: Meta, m: Magasin, allerCommune: (code: str
     () => e().filtres.departements,
     (d) => {
       const l = e().filtres.departements;
-      m.filtrer({ departements: l.includes(d) ? l.filter((x) => x !== d) : [...l, d].sort() });
+      const choisis = l.includes(d) ? l.filter((x) => x !== d) : [...l, d].sort();
+      m.filtrer({ departements: choisis });
+      if (choisis.length === 1) aller.departement(choisis[0]);
     },
   ));
 
@@ -119,7 +127,7 @@ export function panneauReglages(meta: Meta, m: Magasin, allerCommune: (code: str
       }
       commune.setCustomValidity('');
       m.filtrer({ commune: code });
-      if (code) allerCommune(code);
+      if (code) aller.commune(code);
     },
     oninput: () => commune.setCustomValidity(''),
   });
@@ -282,6 +290,21 @@ export function panneauReglages(meta: Meta, m: Magasin, allerCommune: (code: str
     });
     return h('div', { classe: 'champ' }, h('label', { classe: 'libelle', for: id }, libelle), select);
   };
+  const idPat = identifiant('pat');
+  const pat = h(
+    'select', { id: idPat, onchange: () => pat.value && aller.pat(pat.value) },
+    h('option', { value: '' }, 'Choisir…'),
+    [...pats].sort((a, b) => a.nom.localeCompare(b.nom, 'fr', { ignorePunctuation: true }))
+      .map((p) => h('option', { value: p.id }, p.nom)),
+  );
+  const majPat = (): void => {
+    const s = e().selection;
+    pat.value = s?.type === 'pat' ? s.id : '';
+  };
+  majs.push(majPat);
+  m.abonner((sujets) => {
+    if (sujets.has('selection')) majPat();
+  });
   const couches = section(
     'Couches de la carte', false,
     choix<Coloration>(
@@ -291,6 +314,7 @@ export function panneauReglages(meta: Meta, m: Magasin, allerCommune: (code: str
     h('fieldset', {}, h('legend', {}, 'Points'),
       (['ecoles', 'accueils', 'assos', 'producteurs', 'relais'] as const).map(bascule)),
     h('fieldset', {}, h('legend', {}, 'Zones'), (['communes', 'pat', 'cites', 'qpv', 'iris'] as const).map(bascule)),
+    h('div', { classe: 'champ' }, h('label', { classe: 'libelle', for: idPat }, 'Voir un PAT'), pat),
     choix<VariableIris>(
       'Variable des IRIS', Object.entries(LIBELLE_IRIS) as [VariableIris, string][],
       () => e().iris,

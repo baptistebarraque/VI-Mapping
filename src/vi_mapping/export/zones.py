@@ -49,12 +49,13 @@ def iris(conn: Connexion) -> dict[str, Any]:
 
 
 def dispositifs(conn: Connexion, type_: str) -> dict[str, Any]:
-    """PAT (avec la mention « lauréat de l'appel à projets du PNA »), QPV ou cités éducatives."""
+    """PAT (avec ses communes et la mention « lauréat de l'appel à projets du PNA »), QPV ou cités éducatives."""
     tolerance = TOLERANCE_QPV_M if type_ == "qpv" else TOLERANCE_DISPOSITIFS_M
     return collection(
         _feature(r["g"], {
             "id": r["id"], "nom": r["nom"], "axe": r["axe_education_alimentaire"], "annee": r["annee"],
-            "niveau": r["niveau"], "laureat": r["laureat"] or None, **prov(r),
+            "niveau": r["niveau"], "laureat": r["laureat"] or None,
+            "communes": r["communes"] if type_ == "pat" else None, **prov(r),
         })
         for r in conn.execute(
             """SELECT d.*,

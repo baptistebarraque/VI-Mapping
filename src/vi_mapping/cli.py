@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+from dataclasses import asdict
 from pathlib import Path
 from typing import Annotated
 
@@ -107,6 +109,31 @@ def maj(
         raise typer.Exit(1)
 
 
+@app.command()
+def analyser(
+    uai: Annotated[str, typer.Argument(help="Code UAI de l'école")],
+) -> None:
+    """Relance l'analyse d'une école : site de sa mairie, calculs, contrôles et export. Finit par un bilan en JSON."""
+    from .analyse import EcoleInconnue, relancer
+
+    charger()
+    with connexion() as verrou:
+        verrou.autocommit = True
+        pris = verrou.execute("SELECT pg_try_advisory_lock(hashtext('vi maj')) AS pris").fetchone()
+        if not pris or not pris["pris"]:
+            console.print("[yellow]Une mise à jour est déjà en cours.[/yellow]")
+            raise typer.Exit(1)
+        try:
+            bilan = relancer(uai)
+        except EcoleInconnue:
+            raise typer.BadParameter(f"école inconnue : {uai}") from None
+        if not afficher_controles():
+            console.print("[red]Contrôles en erreur : export non refait.[/red]")
+            raise typer.Exit(1)
+        exporter(None)
+    typer.echo(json.dumps(asdict(bilan)))
+
+
 def afficher_controles() -> bool:
     from .verifications import verifier as controles
 
@@ -186,3 +213,30 @@ def couverture(
     for nom, texte in (("rapport_couverture.md", rendu.markdown(r)), ("rapport_couverture.csv", rendu.csv_long(r))):
         (destination / nom).write_text(texte, encoding="utf-8")
         console.print(f"[green]ok[/green] {destination / nom}")
+
+
+@app.command()
+def sauvegarder(fichier: Annotated[Path, typer.Argument(help="Archive à écrire (.zip)")]) -> None:
+    """Écrit une archive portable et publiable de la base."""
+    from .sauvegarde import sauvegarder as ecrire
+
+    with connexion() as conn:
+        ecrire(conn, fichier)
+    console.print(f"[green]ok[/green] {fichier} ({fichier.stat().st_size / 1e6:.0f} Mo)")
+
+
+@app.command()
+def restaurer(
+    fichier: Annotated[Path, typer.Argument(help="Archive écrite par « vi sauvegarder »")],
+    remplacer: Annotated[bool, typer.Option("--remplacer", help="Effacer les données présentes")] = False,
+) -> None:
+    """Crée le schéma et recharge une archive, au lieu de tout collecter."""
+    from .sauvegarde import restaurer as recharger
+
+    with connexion() as conn:
+        try:
+            compte = recharger(conn, fichier, remplacer=remplacer)
+        except RuntimeError as e:
+            console.print(f"[red]{e}[/red]")
+            raise typer.Exit(1) from e
+    console.print(f"[green]ok[/green] {compte}")

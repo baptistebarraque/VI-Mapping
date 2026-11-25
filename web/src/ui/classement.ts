@@ -1,8 +1,9 @@
 /** Classement des écoles filtrées, de la mieux à la moins bien notée. */
 
+import { PREMIERS_DEFAUT, PREMIERS_MAX } from '../etat';
 import type { Modele } from '../modele';
 import { JAUGES } from '../types';
-import { h, remplacer } from './dom';
+import { h, identifiant, remplacer } from './dom';
 import { COURT_JAUGE, jaugeOuInsuffisant, nombre, pluriel } from './format';
 
 const PAR_PAGE = 60;
@@ -12,6 +13,8 @@ export class Classement {
   private entete = h('p', { classe: 'compte', 'aria-live': 'polite' });
   private liste = h('ol', { classe: 'classement' });
   private suite: HTMLButtonElement;
+  private limiter: HTMLButtonElement;
+  private nombre: HTMLInputElement;
   private affichees = 0;
   private choisie: number | null = null;
 
@@ -19,11 +22,29 @@ export class Classement {
     private modele: Modele,
     private choisir: (i: number) => void,
     exporter: () => void,
+    private premiers: { lire: () => number | null; changer: (n: number | null) => void },
   ) {
+    const id = identifiant('premiers');
+    this.limiter = h('button', {
+      type: 'button', classe: 'puce',
+      title: 'Garder seulement le début du classement',
+      onclick: () => this.premiers.changer(this.premiers.lire() === null ? this.saisi() : null),
+    }, 'Seulement les');
+    this.nombre = h('input', {
+      id, type: 'number', min: 1, max: PREMIERS_MAX, step: 1, inputmode: 'numeric', value: PREMIERS_DEFAUT,
+      'aria-label': 'Nombre d’écoles gardées en tête du classement',
+      oninput: () => {
+        if (this.premiers.lire() !== null && this.nombre.value !== '') this.premiers.changer(this.saisi());
+      },
+      onchange: () => {
+        this.nombre.value = String(this.saisi());
+      },
+    });
     this.suite = h('button', { type: 'button', classe: 'discret', onclick: () => this.ajouter() }, 'Afficher la suite');
     this.el = h(
       'div', { classe: 'panneau-classement' },
       h('div', { classe: 'barre' }, this.entete, h('button', { type: 'button', onclick: exporter }, 'Exporter en CSV')),
+      h('div', { classe: 'premiers' }, this.limiter, this.nombre, h('label', { for: id }, 'premières')),
       h('p', { classe: 'note' },
         'À score égal, l’école la mieux documentée passe devant. Les cinq barres : ',
         JAUGES.map((j) => COURT_JAUGE[j].toLowerCase()).join(', '), '.'),
@@ -34,14 +55,23 @@ export class Classement {
   maj(): void {
     const { visibles, n } = this.modele;
     const sans = visibles.reduce((s, i) => s + (this.modele.scores[i] === null ? 1 : 0), 0);
+    const limite = this.premiers.lire();
+    this.limiter.setAttribute('aria-pressed', String(limite !== null));
+    if (limite !== null && document.activeElement !== this.nombre) this.nombre.value = String(limite);
     remplacer(
-      this.entete, h('b', {}, pluriel(visibles.length, 'école')), ` sur ${nombre(n)}`,
+      this.entete, h('b', {}, pluriel(visibles.length, 'école')),
+      limite === null ? ` sur ${nombre(n)}` : ` sur ${pluriel(this.modele.nbFiltrees, 'filtrée')}`,
       sans > 0 && ` · ${nombre(sans)} sans score`,
     );
     this.affichees = 0;
     remplacer(this.liste);
     this.ajouter();
     if (!visibles.length) remplacer(this.liste, h('li', { classe: 'vide' }, 'Aucune école ne répond à ces filtres.'));
+  }
+
+  private saisi(): number {
+    const x = Math.round(this.nombre.valueAsNumber);
+    return Number.isFinite(x) ? Math.min(PREMIERS_MAX, Math.max(1, x)) : PREMIERS_DEFAUT;
   }
 
   marquer(i: number | null): void {
