@@ -7,6 +7,8 @@ import {
 import { depuisAdresse, Magasin, versAdresse, type Selection, type Sujet } from './etat';
 import { dansRayon } from './jauges';
 import { Modele } from './modele';
+import logo from './images/logo-vi.png';
+import logoComplet from './images/logo-vraiment-irresistibles.png';
 import type { Fiche, ProprietesPat } from './types';
 import { Classement } from './ui/classement';
 import { vide } from './ui/commun';
@@ -16,7 +18,6 @@ import { h, remplacer } from './ui/dom';
 import { ficheCommune } from './ui/fiche-commune';
 import { ficheEcole, type ContexteFiche } from './ui/fiche-ecole';
 import { fichePat } from './ui/fiche-pat';
-import { date, pluriel } from './ui/format';
 import { majLegende } from './ui/legende';
 import { Parcours } from './ui/parcours';
 import { panneauReglages } from './ui/reglages';
@@ -76,9 +77,9 @@ async function demarrer(app: HTMLElement): Promise<void> {
   remplacer(
     app,
     h('header', { classe: 'entete' },
-      h('h1', {}, 'V.i ', h('span', {}, 'Communautés scolaires d’Île-de-France')),
-      h('p', {}, `${pluriel(modele.n, 'école')} du 1er degré · données du ${date(meta.genere_le)}`),
-      h('button', { type: 'button', onclick: () => ouvrirDialogue(dialogue) }, 'Méthode et sources')),
+      h('h1', {}, h('img', { src: logo, alt: 'V.i', width: 150, height: 44 }),
+        h('span', {}, 'Communautés scolaires d’Île-de-France')),
+      h('button', { type: 'button', classe: 'discret', onclick: () => ouvrirDialogue(dialogue) }, 'Méthode et sources')),
     h('aside', { classe: 'gauche', 'aria-label': 'Réglages' }, reglages.el),
     h('main', { classe: 'centre', 'aria-label': 'Carte' }, zoneCarte, legende),
     droite,
@@ -265,12 +266,15 @@ async function demarrer(app: HTMLElement): Promise<void> {
 }
 
 const app = document.getElementById('app') as HTMLElement;
-remplacer(app, h('p', { classe: 'attente' }, 'Chargement des écoles…'));
+remplacer(app, h('div', { classe: 'attente' },
+  h('img', { src: logoComplet, alt: 'Vraiment irrésistibles', width: 350, height: 134 }),
+  h('p', {}, 'Chargement des écoles…')));
 demarrer(app).catch((e: unknown) => {
   console.error(e);
   remplacer(
     app,
     h('div', { classe: 'attente' },
+      h('img', { src: logoComplet, alt: 'Vraiment irrésistibles', width: 350, height: 134 }),
       h('p', {}, 'Les données de la carte n’ont pas pu être chargées.'),
       h('p', { classe: 'note' }, 'Lancez « vi exporter » pour les produire, puis rechargez la page.'),
       h('p', { classe: 'note' }, String(e))),

@@ -1,7 +1,7 @@
 /** Légende : échelle des écoles, symboles des couches affichées, échelle des IRIS. */
 
 import {
-  ALIMENTATION, BORNES_IRIS, bornesDe, ENCRE_2, INCONNU, OPACITE_IRIS, RAMPE_ECOLES, RAMPE_IRIS, VIE_SCOLAIRE,
+  BORNES_IRIS, bornesDe, ENCRE_2, INCONNU, OPACITE_IRIS, RAMPE_ECOLES, RAMPE_IRIS, ZONE_CITE, ZONE_PAT,
 } from '../couleurs';
 import type { Etat } from '../etat';
 import { h, remplacer, svg, type Enfant } from './dom';
@@ -21,15 +21,21 @@ const carre = (couleur: string): SVGElement => svg(
   svg('rect', { x: 0, y: 0, width: 16, height: 12, rx: 2, fill: couleur, 'fill-opacity': OPACITE_IRIS }),
 );
 
+/** Échelle en bandeau : une case par tranche, les bornes entre deux cases. */
+const bandeau = (couleurs: readonly string[], bornes: readonly number[]): HTMLElement => h(
+  'div', { classe: 'bandeau', role: 'img', 'aria-label': tranches(bornes, String).join(', ') },
+  couleurs.map((c, k) => h('span', { style: `--case:${c}` }, k > 0 && h('b', {}, bornes[k - 1]))),
+);
+
 export function majLegende(el: HTMLDetailsElement, e: Etat): void {
   const c = e.couches;
   const blocs: Enfant[] = [];
   if (c.ecoles) {
     blocs.push(
       h('h2', {}, `Écoles — ${LIBELLE_COLORATION[e.coloration].toLowerCase()}`),
+      bandeau(RAMPE_ECOLES, bornesDe(e.coloration)),
       h(
         'ul', {},
-        tranches(bornesDe(e.coloration), String).map((t, k) => ligne(rond(RAMPE_ECOLES[k]), t)),
         ligne(rond(INCONNU, { creux: true }), 'données insuffisantes'),
       ),
     );
@@ -41,8 +47,8 @@ export function majLegende(el: HTMLDetailsElement, e: Etat): void {
     autres.push(ligne(symbole('producteurs_autres'), 'Autres producteurs bio'));
   }
   if (c.relais) autres.push(ligne(symbole('relais'), LIBELLE_COUCHE.relais));
-  if (c.pat) autres.push(ligne(zone(ALIMENTATION, `${ALIMENTATION}22`), LIBELLE_COUCHE.pat));
-  if (c.cites) autres.push(ligne(zone(VIE_SCOLAIRE, `${VIE_SCOLAIRE}22`), LIBELLE_COUCHE.cites));
+  if (c.pat) autres.push(ligne(zone(ZONE_PAT, `${ZONE_PAT}22`), LIBELLE_COUCHE.pat));
+  if (c.cites) autres.push(ligne(zone(ZONE_CITE, `${ZONE_CITE}22`), LIBELLE_COUCHE.cites));
   if (c.qpv) autres.push(ligne(zone(ENCRE_2, 'none', true), LIBELLE_COUCHE.qpv));
   if (autres.length) blocs.push(h('h2', {}, 'Acteurs et zones'), h('ul', {}, autres));
   if (c.iris) {

@@ -4,7 +4,7 @@ import type { ExpressionSpecification, LayerSpecification } from '@maplibre/mapl
 
 import {
   ALIMENTATION, BORNES_IRIS, bornesDe, ENCRE, ENCRE_2, INCONNU, OPACITE_IRIS, RAMPE_ECOLES, RAMPE_IRIS, SURFACE,
-  VIE_SCOLAIRE,
+  VIE_SCOLAIRE, ZONE_CITE, ZONE_PAT,
 } from '../couleurs';
 import type { Coloration, Couche, VariableIris } from '../etat';
 import { POLICE } from './fond';
@@ -68,22 +68,22 @@ export const ZONES: LayerSpecification[] = [
     id: 'communes-trait', source: 'communes', type: 'line',
     paint: { 'line-color': INCONNU, 'line-width': selonZoom(8, 0.4, 12, 1.2), 'line-opacity': 0.7 },
   },
-  { id: 'pat', source: 'pat', type: 'fill', paint: { 'fill-color': ALIMENTATION, 'fill-opacity': 0.1 } },
+  { id: 'pat', source: 'pat', type: 'fill', paint: { 'fill-color': ZONE_PAT, 'fill-opacity': 0.1 } },
   {
     id: 'pat-trait', source: 'pat', type: 'line',
-    paint: { 'line-color': ALIMENTATION, 'line-width': 2, 'line-offset': 1 },
+    paint: { 'line-color': ZONE_PAT, 'line-width': 1.75, 'line-offset': 1 },
   },
-  { id: 'cites', source: 'cites', type: 'fill', paint: { 'fill-color': VIE_SCOLAIRE, 'fill-opacity': 0.12 } },
-  { id: 'cites-trait', source: 'cites', type: 'line', paint: { 'line-color': VIE_SCOLAIRE, 'line-width': 2 } },
+  { id: 'cites', source: 'cites', type: 'fill', paint: { 'fill-color': ZONE_CITE, 'fill-opacity': 0.12 } },
+  { id: 'cites-trait', source: 'cites', type: 'line', paint: { 'line-color': ZONE_CITE, 'line-width': 2 } },
   { id: 'qpv', source: 'qpv', type: 'fill', paint: { 'fill-pattern': 'hachures' } },
   { id: 'qpv-trait', source: 'qpv', type: 'line', paint: { 'line-color': ENCRE_2, 'line-width': 1.5 } },
   {
     id: 'pat-choisi', source: 'pat', type: 'fill', filter: ['==', ['get', 'id'], ''],
-    paint: { 'fill-color': ALIMENTATION, 'fill-opacity': 0.18 },
+    paint: { 'fill-color': ZONE_PAT, 'fill-opacity': 0.18 },
   },
   {
     id: 'pat-choisi-trait', source: 'pat', type: 'line', filter: ['==', ['get', 'id'], ''],
-    paint: { 'line-color': ALIMENTATION, 'line-width': 3.5 },
+    paint: { 'line-color': ZONE_PAT, 'line-width': 3.5 },
   },
   {
     id: 'communes-choisie', source: 'communes', type: 'line', filter: ['==', ['get', 'code'], ''],
@@ -99,7 +99,7 @@ export const MARQUES: LayerSpecification[] = [
     id: 'liens', source: 'liens', type: 'line',
     paint: {
       'line-color': ['match', ['get', 'famille'], 'alimentation', ALIMENTATION, VIE_SCOLAIRE],
-      'line-width': 2, 'line-opacity': 0.85,
+      'line-width': 1.75, 'line-opacity': 0.7,
     },
     layout: { 'line-cap': 'round' },
   },

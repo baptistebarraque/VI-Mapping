@@ -1,15 +1,15 @@
 /** Briques partagées par les fiches : jauge, provenance, blocs. */
 
-import type { Meta, Provenance } from '../types';
+import type { Meta, NomJauge, Provenance } from '../types';
 import { h, lien, type Enfant } from './dom';
-import { date, dixieme, LIBELLE_METHODE } from './format';
+import { date, dixieme, LIBELLE_METHODE, nombre } from './format';
 
 /** Jauge horizontale 0-100. Sans valeur : piste vide, « données insuffisantes ». */
-export function metre(valeur: number | null, libelle: string): HTMLElement {
+export function metre(valeur: number | null, libelle: string, jauge: NomJauge): HTMLElement {
   return h(
     'div',
     {
-      classe: valeur === null ? 'metre metre-vide' : 'metre',
+      classe: `metre j-${jauge}${valeur === null ? ' metre-vide' : ''}`,
       role: 'meter', 'aria-label': libelle, 'aria-valuemin': 0, 'aria-valuemax': 100,
       'aria-valuenow': valeur ?? undefined,
       'aria-valuetext': valeur === null ? 'données insuffisantes' : `${Math.round(valeur)} sur 100`,
@@ -17,6 +17,15 @@ export function metre(valeur: number | null, libelle: string): HTMLElement {
     valeur !== null && h('div', { classe: 'metre-plein', style: `width:${valeur}%` }),
   );
 }
+
+/** Pastille de la couleur d'une jauge : collectivités, écoles, parents, producteurs, familles. */
+export const pastille = (j: NomJauge): HTMLElement => h('i', { classe: `pastille j-${j}`, 'aria-hidden': 'true' });
+
+/** Score dans un anneau rempli à sa hauteur. */
+export const anneau = (score: number | null): HTMLElement => h(
+  'span', { classe: 'anneau', style: `--score:${score ?? 0}` },
+  h('span', { classe: 'chiffre' }, score === null ? '–' : nombre(score)),
+);
 
 export function nomSource(code: string, meta: Meta): string {
   return meta.sources[code]?.libelle ?? code;
@@ -35,6 +44,15 @@ export function provenance(p: Provenance | undefined, meta: Meta, prefixe = ''):
 
 export function bloc(titre: string, ...contenu: Enfant[]): HTMLElement {
   return h('section', { classe: 'bloc' }, h('h3', {}, titre), ...contenu);
+}
+
+/** Bloc replié : le détail ne s'affiche qu'à la demande. */
+export function volet(titre: string, compte: number | null, ...contenu: Enfant[]): HTMLElement {
+  return h(
+    'details', { classe: 'bloc replie' },
+    h('summary', {}, h('h3', {}, titre), compte !== null && h('span', { classe: 'compteur' }, nombre(compte))),
+    ...contenu,
+  );
 }
 
 export const vide = (texte: string): HTMLElement => h('p', { classe: 'vide' }, texte);
