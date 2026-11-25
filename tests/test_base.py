@@ -16,6 +16,7 @@ from vi_mapping.config import config_idf, config_sources
 from vi_mapping.couverture import mesurer, rendu
 from vi_mapping.couverture.champs import TABLES
 from vi_mapping.db import ChuteAnormale, enrichir, migrer, point, purger_absents, upsert
+from vi_mapping.export import zones
 from vi_mapping.scrapers.campagne import plafond
 from vi_mapping.sources.base import Contexte, sources_dues
 
@@ -206,6 +207,16 @@ def test_dispositif_sur_deux_departements_compte_une_fois_en_region(conn: Conn) 
         "axe_education_alimentaire": True, **prov("france_pat")}], ["id"])
     m = next(m for m in mesurer(conn).mesures if m.table.nom == "dispositif")
     assert m.total == {"IdF": 1, "93": 1, "94": 1}
+
+
+def test_export_des_pat_avec_leurs_communes(conn: Conn) -> None:
+    commune(conn)
+    for type_ in ("pat", "qpv"):
+        upsert(conn, "dispositif", [{
+            "id": f"{type_}:1", "type": type_, "nom": "Projet", "communes": ["93048"], "geom": CARRE,
+            **prov("france_pat")}], ["id"])
+    assert [f["properties"]["communes"] for f in zones.dispositifs(conn, "pat")["features"]] == [["93048"]]
+    assert "communes" not in zones.dispositifs(conn, "qpv")["features"][0]["properties"]
 
 
 @pytest.mark.parametrize(("taux", "attendu"), [
