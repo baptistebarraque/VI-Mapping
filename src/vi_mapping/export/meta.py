@@ -54,6 +54,8 @@ def meta(conn: Connexion, idf: ConfigIdf, cfg: ConfigJauges, liste_communes: lis
         "sous_poids": {"engagement": cfg.engagement.sous_poids, "periscolaire": cfg.periscolaire.sous_poids,
                        "parents": cfg.parents.sous_poids, "producteurs": p.sous_poids,
                        "familles": cfg.familles.sous_poids},
+        "poids_communes": cfg.communes.sous_poids,
+        "part_min_jauge": cfg.donnees_insuffisantes.part_min_connue_jauge,
         "seuils": {"web_mois": cfg.engagement.web.fenetre_mois, "parents_mois": cfg.parents.fenetre_activite_mois,
                    "accueil_m": cfg.periscolaire.distance_max_m, "asso_confiance": cfg.parents.confiance_min,
                    "bio_pct_plein": cfg.engagement.bio.pct_plein},

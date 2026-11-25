@@ -1,4 +1,4 @@
-"""Calcul des cinq jauges et du score de chaque école, à partir de la base."""
+"""Calcul des cinq jauges et du score de chaque école, puis du score propre de chaque commune, à partir de la base."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from ..db import upsert
 from ..outils.texte import normaliser
 from ..sources.base import Compteurs, Contexte, connecteur
 from . import formules
-from .formules import Accueil, AssoLiee, Jauge
+from .formules import Accueil, AssoLiee, Jauge, PatCommune
 
 
 def il_y_a(mois: int, jour: date) -> date:
@@ -55,19 +55,66 @@ class Donnees:
         conn = ctx.conn
         self.communes = {
             r["code_insee"]: r for r in conn.execute(
-                "SELECT code_insee, commune_mere, site_web, cantine_pct_bio, cantine_annee FROM commune")
+                """SELECT code_insee, commune_mere, site_web, cantine_pct_bio, cantine_annee, cantine_pat, population,
+                          departement, cantine_nb_satellites, cantine_nb_sur_place, cantine_part_regie,
+                          cuisine_centrale_siret FROM commune""")
         }
-        self.pat: dict[str, list[tuple[bool, str]]] = defaultdict(list)
-        for r in conn.execute(
-            "SELECT nom, communes, axe_education_alimentaire AS axe FROM dispositif WHERE type = 'pat'"
-        ):
-            for c in r["communes"]:
-                self.pat[c].append((bool(r["axe"]), r["nom"]))
+        self._pat()
+        self._territoires()
         self._web(jour)
         self._accueils()
         self._assos(jour)
         self._producteurs()
         self._ips_voisins()
+
+    def _pat(self) -> None:
+        """PAT de chaque commune : périmètre France PAT, communes ajoutées (DRIAAF) et PAT déclarés dans ma cantine.
+
+        L'axe éducation alimentaire lu dans la fiche DRIAAF prime sur le repérage par mot-clé.
+        """
+        par_id: dict[str, PatCommune] = {}
+        self.pats: dict[str, dict[str, PatCommune]] = defaultdict(dict)
+        for r in self.ctx.conn.execute(
+            """SELECT id, nom, communes, communes_ajoutees, niveau_num, axe_restauration_collective AS restauration,
+                      coalesce(axe_education_verifie, axe_education_alimentaire) AS education
+               FROM dispositif WHERE type = 'pat'"""
+        ):
+            pat = par_id[r["id"]] = PatCommune(r["nom"], r["niveau_num"], r["restauration"], r["education"])
+            for c in {*r["communes"], *r["communes_ajoutees"]}:
+                self.pats[c][r["id"]] = pat
+        for code, c in self.communes.items():
+            for id_ in c["cantine_pat"]:
+                if id_ in par_id:
+                    self.pats[code][id_] = par_id[id_]
+
+    def pats_de(self, code: str) -> list[PatCommune]:
+        """PAT de la commune, et ceux de la commune mère pour un arrondissement de Paris."""
+        mere = self.communes[code]["commune_mere"]
+        return list({**self.pats[code], **(self.pats[mere] if mere else {})}.values())
+
+    def _territoires(self) -> None:
+        """Soutiens (référentiel), cuisines centrales, associations d'alimentation et élèves par commune."""
+        conn = self.ctx.conn
+        self.soutien: dict[tuple[str, str], int] = {}
+        self.aap_mgp: set[str] = set()
+        self.syndicat: set[str] = set()
+        for r in conn.execute(
+            "SELECT type, echelon, score, communes FROM dispositif "
+            "WHERE type IN ('soutien_territorial', 'laureat_aap_mgp', 'syndicat_restauration')"
+        ):
+            for c in r["communes"]:
+                if r["type"] == "laureat_aap_mgp":
+                    self.aap_mgp.add(c)
+                elif r["type"] == "syndicat_restauration":
+                    self.syndicat.add(c)
+                elif r["score"] is not None:
+                    cle = (c, r["echelon"])
+                    self.soutien[cle] = max(self.soutien.get(cle, 0), r["score"])
+        self.cuisines = {r["siret"]: r["type"] for r in conn.execute("SELECT siret, type FROM cuisine_centrale")}
+        self.assos_alim = {r["commune"]: r["n"] for r in conn.execute(
+            "SELECT commune, count(*) AS n FROM asso_alimentation GROUP BY commune")}
+        self.eleves = {r["commune"]: r["n"] for r in conn.execute(
+            "SELECT commune, sum(nb_eleves) AS n FROM ecole GROUP BY commune HAVING sum(nb_eleves) IS NOT NULL")}
 
     # -- sites des mairies : signaux partagés entre communes d'un même site, puis commune mère (Paris)
     def _web(self, jour: date) -> None:
@@ -147,7 +194,7 @@ class Donnees:
         cfg = self.cfg
         commune = self.communes[e["commune"]]
         mere = self.communes.get(commune["commune_mere"] or "")
-        pats = self.pat[e["commune"]] + (self.pat[mere["code_insee"]] if mere else [])
+        pats = [(bool(p.education), p.nom) for p in self.pats_de(e["commune"])]
         pat, pat_nom = "aucun", None
         if pats:
             axe, pat_nom = max(pats)
@@ -183,6 +230,48 @@ class Donnees:
         }
 
 
+    # -- score propre d'une commune
+    def jauge_commune(self, code: str, producteurs_ecoles: list[float | None]) -> Jauge:
+        cfg = self.cfg
+        c = self.communes[code]
+        mere = self.communes.get(c["commune_mere"] or "")
+        cantine = c if c["cantine_pct_bio"] is not None or mere is None else mere
+        pat, pat_nom = formules.commune_pat(cfg, self.pats_de(code))
+        heritier = mere["code_insee"] if mere else code
+        soutiens = formules.commune_soutiens(
+            cfg, departement=self.soutien.get((code, "departement")),
+            interco=self.soutien.get((code, "interco"), self.soutien.get((heritier, "interco"))),
+            aap_mgp=code in self.aap_mgp)
+        cuisine, origine = formules.commune_cuisine(
+            cfg, type_centrale=self.cuisines.get(c["cuisine_centrale_siret"] or ""),
+            satellites=c["cantine_nb_satellites"], sur_place=c["cantine_nb_sur_place"],
+            part_regie=None if c["cantine_part_regie"] is None else float(c["cantine_part_regie"]),
+            syndicat=code in self.syndicat)
+        bio = None if cantine["cantine_pct_bio"] is None else float(cantine["cantine_pct_bio"])
+        web = self.web[code]
+        alimentaires = set(cfg.engagement.web.themes)
+        nb_assos = self.assos_alim.get(code, 0)
+        eleves = self.eleves.get(code)
+        valeurs = {
+            "pat": pat,
+            "soutiens": soutiens,
+            "cuisine": cuisine,
+            "cantine_bio": None if bio is None else formules.borne(100 * bio / cfg.engagement.bio.pct_plein),
+            "producteurs": formules.commune_producteurs(producteurs_ecoles),
+            "associations": formules.commune_associations(cfg, nb_assos, c["population"]),
+            "communications": None if web is None else formules.commune_communications(
+                cfg, sorted(web[0] & alimentaires), sorted((web[1] - web[0]) & alimentaires)),
+            "ecoles": None if eleves is None else formules.borne(100 * eleves / cfg.communes.ecoles.eleves_plein),
+        }
+        details = {
+            "pat": pat_nom, "cuisine": origine, "cantine_bio": bio, "associations": nb_assos, "ecoles": eleves,
+            "producteurs": sum(v is not None for v in producteurs_ecoles) or None,
+            "communications": None if web is None else sorted(web[0] & alimentaires),
+            "soutiens": {"departement": self.soutien.get((code, "departement")), "aap_mgp": code in self.aap_mgp},
+        }
+        return formules.commune(cfg, valeurs, details)
+
+
 @connecteur("jauges", calcul=True)
 def calculer(ctx: Contexte) -> Compteurs:
     cfg = config_jauges()
@@ -190,6 +279,7 @@ def calculer(ctx: Contexte) -> Compteurs:
     empreinte = cfg.empreinte()
     lignes: list[dict[str, Any]] = []
     compte: Compteurs = dict.fromkeys((*cfg.poids, "score"), 0)
+    producteurs_par_commune: dict[str, list[float | None]] = defaultdict(list)
     for e in ctx.conn.execute(
         """SELECT e.uai, e.commune, e.secteur, e.nb_eleves, e.ips, e.cite_educative, e.qpv_distance_m,
                   e.geom IS NOT NULL AS localisee, t.familles_avec_enfants
@@ -197,6 +287,7 @@ def calculer(ctx: Contexte) -> Compteurs:
     ).fetchall():
         jauges = donnees.jauges(e)
         valeurs = {nom: j.valeur for nom, j in jauges.items()}
+        producteurs_par_commune[e["commune"]].append(valeurs["producteurs"])
         global_ = formules.score(cfg, valeurs)
         part = sum(cfg.poids[n] * j.part_connue for n, j in jauges.items()) / sum(cfg.poids.values())  # type: ignore[index]
         for nom, v in {**valeurs, "score": global_.valeur}.items():
@@ -211,4 +302,14 @@ def calculer(ctx: Contexte) -> Compteurs:
         })
     upsert(ctx.conn, "jauge_ecole", lignes, ["ecole_uai"])
     ctx.conn.execute("DELETE FROM jauge_ecole WHERE collecte_le < %s", (ctx.debut,))
-    return {"ecoles": len(lignes), **{f"avec_{k}": v for k, v in compte.items()}}
+    communes = []
+    for code in donnees.communes:
+        j = donnees.jauge_commune(code, producteurs_par_commune[code])
+        communes.append({
+            "code_insee": code, "score": j.valeur, "details": j.en_json(), "config_hash": empreinte,
+            **ctx.provenance(confiance=min(j.part_connue, 1.0)),
+        })
+    upsert(ctx.conn, "jauge_commune", communes, ["code_insee"])
+    ctx.conn.execute("DELETE FROM jauge_commune WHERE collecte_le < %s", (ctx.debut,))
+    return {"ecoles": len(lignes), **{f"avec_{k}": v for k, v in compte.items()}, "communes": len(communes),
+            "communes_avec_score": sum(c["score"] is not None for c in communes)}

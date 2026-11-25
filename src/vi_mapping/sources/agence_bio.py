@@ -189,6 +189,7 @@ def collecter(ctx: Contexte) -> Compteurs:
             "fruits": fruits,
             "etat_bio": etat if etat != "inconnu" else etat_bio(tous, c),
             "vente_directe": directe,
+            "vente_restauration_collective": (o.get("venteAnnuaire") or {}).get("venteRestauCollective"),
             "membre_amap": None,  # l'API ne le dit pas ; la carte du Réseau AMAP IdF est verrouillée
             "eligible": etat != "inconnu" and (maraichage or fruits) and bool(directe) and est_agricole(o, c),
             # Siège d'un exploitant individuel : souvent son domicile, on s'en tient à la ville.

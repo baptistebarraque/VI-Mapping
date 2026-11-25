@@ -1,7 +1,10 @@
 {
   "description": "Vecteurs communs à tests/test_formules.py (Python) et web/tests/jauges.test.ts (TypeScript).",
   "config_producteurs": {
-    "sous_poids": { "plus_proche": 60, "nombre": 40 },
+    "sous_poids": {
+      "plus_proche": 60,
+      "nombre": 40
+    },
     "minutes_plein": 15,
     "km_plein": 10,
     "nombre_plein": 5
@@ -11,133 +14,282 @@
     {
       "cas": "école non localisée",
       "prod": null,
-      "rayon": { "km": 30, "minutes": 45, "mode": "ou" },
+      "rayon": {
+        "km": 30,
+        "minutes": 45,
+        "mode": "ou"
+      },
       "valeur": null,
       "nombre": 0
     },
     {
       "cas": "aucun producteur",
       "prod": [],
-      "rayon": { "km": 30, "minutes": 45, "mode": "ou" },
+      "rayon": {
+        "km": 30,
+        "minutes": 45,
+        "mode": "ou"
+      },
       "valeur": 0.0,
       "nombre": 0
     },
     {
       "cas": "un producteur à 10 min",
-      "prod": [8, 10],
-      "rayon": { "km": 30, "minutes": 45, "mode": "ou" },
+      "prod": [
+        8,
+        10
+      ],
+      "rayon": {
+        "km": 30,
+        "minutes": 45,
+        "mode": "ou"
+      },
       "valeur": 68.0,
       "nombre": 1
     },
     {
       "cas": "un producteur à 15 min pile",
-      "prod": [12, 15],
-      "rayon": { "km": 30, "minutes": 45, "mode": "ou" },
+      "prod": [
+        12,
+        15
+      ],
+      "rayon": {
+        "km": 30,
+        "minutes": 45,
+        "mode": "ou"
+      },
       "valeur": 68.0,
       "nombre": 1
     },
     {
       "cas": "un producteur à 30 min : mi-pente",
-      "prod": [25, 30],
-      "rayon": { "km": 30, "minutes": 45, "mode": "ou" },
+      "prod": [
+        25,
+        30
+      ],
+      "rayon": {
+        "km": 30,
+        "minutes": 45,
+        "mode": "ou"
+      },
       "valeur": 38.0,
       "nombre": 1
     },
     {
       "cas": "au bord du rayon en minutes",
-      "prod": [29, 44],
-      "rayon": { "km": 30, "minutes": 45, "mode": "ou" },
+      "prod": [
+        29,
+        44
+      ],
+      "rayon": {
+        "km": 30,
+        "minutes": 45,
+        "mode": "ou"
+      },
       "valeur": 10.0,
       "nombre": 1
     },
     {
       "cas": "dans le rayon par les km seulement : note 0, compté",
-      "prod": [29, 50],
-      "rayon": { "km": 30, "minutes": 45, "mode": "ou" },
+      "prod": [
+        29,
+        50
+      ],
+      "rayon": {
+        "km": 30,
+        "minutes": 45,
+        "mode": "ou"
+      },
       "valeur": 8.0,
       "nombre": 1
     },
     {
       "cas": "dans le rayon par les minutes seulement",
-      "prod": [40, 30],
-      "rayon": { "km": 30, "minutes": 45, "mode": "ou" },
+      "prod": [
+        40,
+        30
+      ],
+      "rayon": {
+        "km": 30,
+        "minutes": 45,
+        "mode": "ou"
+      },
       "valeur": 38.0,
       "nombre": 1
     },
     {
       "cas": "hors rayon des deux côtés",
-      "prod": [31, 46],
-      "rayon": { "km": 30, "minutes": 45, "mode": "ou" },
+      "prod": [
+        31,
+        46
+      ],
+      "rayon": {
+        "km": 30,
+        "minutes": 45,
+        "mode": "ou"
+      },
       "valeur": 0.0,
       "nombre": 0
     },
     {
       "cas": "mode km : la pente se fait en km",
-      "prod": [20, 12],
-      "rayon": { "km": 30, "minutes": 45, "mode": "km" },
+      "prod": [
+        20,
+        12
+      ],
+      "rayon": {
+        "km": 30,
+        "minutes": 45,
+        "mode": "km"
+      },
       "valeur": 38.0,
       "nombre": 1
     },
     {
       "cas": "mode km : hors rayon malgré un trajet court",
-      "prod": [31, 12],
-      "rayon": { "km": 30, "minutes": 45, "mode": "km" },
+      "prod": [
+        31,
+        12
+      ],
+      "rayon": {
+        "km": 30,
+        "minutes": 45,
+        "mode": "km"
+      },
       "valeur": 0.0,
       "nombre": 0
     },
     {
       "cas": "mode minutes : hors rayon malgré 10 km",
-      "prod": [10, 50],
-      "rayon": { "km": 30, "minutes": 45, "mode": "minutes" },
+      "prod": [
+        10,
+        50
+      ],
+      "rayon": {
+        "km": 30,
+        "minutes": 45,
+        "mode": "minutes"
+      },
       "valeur": 0.0,
       "nombre": 0
     },
     {
       "cas": "durée inconnue : repli sur les km",
-      "prod": [10, null],
-      "rayon": { "km": 30, "minutes": 45, "mode": "ou" },
+      "prod": [
+        10,
+        null
+      ],
+      "rayon": {
+        "km": 30,
+        "minutes": 45,
+        "mode": "ou"
+      },
       "valeur": 68.0,
       "nombre": 1
     },
     {
       "cas": "durée inconnue en mode minutes : hors rayon",
-      "prod": [10, null],
-      "rayon": { "km": 30, "minutes": 45, "mode": "minutes" },
+      "prod": [
+        10,
+        null
+      ],
+      "rayon": {
+        "km": 30,
+        "minutes": 45,
+        "mode": "minutes"
+      },
       "valeur": 0.0,
       "nombre": 0
     },
     {
       "cas": "cinq producteurs proches",
-      "prod": [3, 5, 4, 6, 5, 7, 6, 8, 7, 9],
-      "rayon": { "km": 30, "minutes": 45, "mode": "ou" },
+      "prod": [
+        3,
+        5,
+        4,
+        6,
+        5,
+        7,
+        6,
+        8,
+        7,
+        9
+      ],
+      "rayon": {
+        "km": 30,
+        "minutes": 45,
+        "mode": "ou"
+      },
       "valeur": 100.0,
       "nombre": 5
     },
     {
       "cas": "nombre plafonné à cinq",
-      "prod": [3, 5, 4, 6, 5, 7, 6, 8, 7, 9, 8, 10, 9, 11],
-      "rayon": { "km": 30, "minutes": 45, "mode": "ou" },
+      "prod": [
+        3,
+        5,
+        4,
+        6,
+        5,
+        7,
+        6,
+        8,
+        7,
+        9,
+        8,
+        10,
+        9,
+        11
+      ],
+      "rayon": {
+        "km": 30,
+        "minutes": 45,
+        "mode": "ou"
+      },
       "valeur": 100.0,
       "nombre": 5
     },
     {
       "cas": "le plus proche en minutes l'emporte",
-      "prod": [5, 40, 28, 20],
-      "rayon": { "km": 30, "minutes": 45, "mode": "ou" },
+      "prod": [
+        5,
+        40,
+        28,
+        20
+      ],
+      "rayon": {
+        "km": 30,
+        "minutes": 45,
+        "mode": "ou"
+      },
       "valeur": 66.0,
       "nombre": 2
     },
     {
       "cas": "rayon plus court que le plein : dans le rayon",
-      "prod": [4, 8],
-      "rayon": { "km": 5, "minutes": 10, "mode": "ou" },
+      "prod": [
+        4,
+        8
+      ],
+      "rayon": {
+        "km": 5,
+        "minutes": 10,
+        "mode": "ou"
+      },
       "valeur": 68.0,
       "nombre": 1
     },
     {
       "cas": "rayon plus court que le plein : par les km seulement",
-      "prod": [4, 12],
-      "rayon": { "km": 5, "minutes": 10, "mode": "ou" },
+      "prod": [
+        4,
+        12
+      ],
+      "rayon": {
+        "km": 5,
+        "minutes": 10,
+        "mode": "ou"
+      },
       "valeur": 8.0,
       "nombre": 1
     }
@@ -145,57 +297,247 @@
   "score": [
     {
       "cas": "toutes les jauges connues",
-      "valeurs": { "engagement": 80, "periscolaire": 60, "parents": 40, "producteurs": 100, "familles": 50 },
-      "poids": { "engagement": 25, "periscolaire": 25, "parents": 15, "producteurs": 20, "familles": 15 },
+      "valeurs": {
+        "engagement": 80,
+        "periscolaire": 60,
+        "parents": 40,
+        "producteurs": 100,
+        "familles": 50
+      },
+      "poids": {
+        "engagement": 25,
+        "periscolaire": 25,
+        "parents": 15,
+        "producteurs": 20,
+        "familles": 15
+      },
       "score": 68.5
     },
     {
       "cas": "périscolaire inconnu : ne compte pas 0",
-      "valeurs": { "engagement": 80, "periscolaire": null, "parents": 40, "producteurs": 100, "familles": 50 },
-      "poids": { "engagement": 25, "periscolaire": 25, "parents": 15, "producteurs": 20, "familles": 15 },
+      "valeurs": {
+        "engagement": 80,
+        "periscolaire": null,
+        "parents": 40,
+        "producteurs": 100,
+        "familles": 50
+      },
+      "poids": {
+        "engagement": 25,
+        "periscolaire": 25,
+        "parents": 15,
+        "producteurs": 20,
+        "familles": 15
+      },
       "score": 71.3
     },
     {
       "cas": "moitié du poids connue : score calculé",
-      "valeurs": { "engagement": 80, "periscolaire": 60, "parents": null, "producteurs": null, "familles": null },
-      "poids": { "engagement": 25, "periscolaire": 25, "parents": 15, "producteurs": 20, "familles": 15 },
+      "valeurs": {
+        "engagement": 80,
+        "periscolaire": 60,
+        "parents": null,
+        "producteurs": null,
+        "familles": null
+      },
+      "poids": {
+        "engagement": 25,
+        "periscolaire": 25,
+        "parents": 15,
+        "producteurs": 20,
+        "familles": 15
+      },
       "score": 70.0
     },
     {
       "cas": "moins de la moitié du poids : insuffisant",
-      "valeurs": { "engagement": 80, "periscolaire": null, "parents": null, "producteurs": 100, "familles": null },
-      "poids": { "engagement": 25, "periscolaire": 25, "parents": 15, "producteurs": 20, "familles": 15 },
+      "valeurs": {
+        "engagement": 80,
+        "periscolaire": null,
+        "parents": null,
+        "producteurs": 100,
+        "familles": null
+      },
+      "poids": {
+        "engagement": 25,
+        "periscolaire": 25,
+        "parents": 15,
+        "producteurs": 20,
+        "familles": 15
+      },
       "score": null
     },
     {
       "cas": "rien de connu",
-      "valeurs": { "engagement": null, "periscolaire": null, "parents": null, "producteurs": null, "familles": null },
-      "poids": { "engagement": 25, "periscolaire": 25, "parents": 15, "producteurs": 20, "familles": 15 },
+      "valeurs": {
+        "engagement": null,
+        "periscolaire": null,
+        "parents": null,
+        "producteurs": null,
+        "familles": null
+      },
+      "poids": {
+        "engagement": 25,
+        "periscolaire": 25,
+        "parents": 15,
+        "producteurs": 20,
+        "familles": 15
+      },
       "score": null
     },
     {
       "cas": "poids nuls : seules les jauges pondérées comptent",
-      "valeurs": { "engagement": 80, "periscolaire": 60, "parents": 40, "producteurs": 100, "familles": 50 },
-      "poids": { "engagement": 0, "periscolaire": 0, "parents": 10, "producteurs": 0, "familles": 30 },
+      "valeurs": {
+        "engagement": 80,
+        "periscolaire": 60,
+        "parents": 40,
+        "producteurs": 100,
+        "familles": 50
+      },
+      "poids": {
+        "engagement": 0,
+        "periscolaire": 0,
+        "parents": 10,
+        "producteurs": 0,
+        "familles": 30
+      },
       "score": 47.5
     },
     {
       "cas": "tous les poids à zéro",
-      "valeurs": { "engagement": 80, "periscolaire": 60, "parents": 40, "producteurs": 100, "familles": 50 },
-      "poids": { "engagement": 0, "periscolaire": 0, "parents": 0, "producteurs": 0, "familles": 0 },
+      "valeurs": {
+        "engagement": 80,
+        "periscolaire": 60,
+        "parents": 40,
+        "producteurs": 100,
+        "familles": 50
+      },
+      "poids": {
+        "engagement": 0,
+        "periscolaire": 0,
+        "parents": 0,
+        "producteurs": 0,
+        "familles": 0
+      },
       "score": null
     },
     {
       "cas": "jauge inconnue de poids nul : sans effet",
-      "valeurs": { "engagement": 80, "periscolaire": null, "parents": 40, "producteurs": 100, "familles": 50 },
-      "poids": { "engagement": 25, "periscolaire": 0, "parents": 15, "producteurs": 20, "familles": 15 },
+      "valeurs": {
+        "engagement": 80,
+        "periscolaire": null,
+        "parents": 40,
+        "producteurs": 100,
+        "familles": 50
+      },
+      "poids": {
+        "engagement": 25,
+        "periscolaire": 0,
+        "parents": 15,
+        "producteurs": 20,
+        "familles": 15
+      },
       "score": 71.3
     },
     {
       "cas": "arrondi au dixième",
-      "valeurs": { "engagement": 33.3, "periscolaire": 60, "parents": 40, "producteurs": 100, "familles": 66.6 },
-      "poids": { "engagement": 25, "periscolaire": 25, "parents": 15, "producteurs": 20, "familles": 15 },
+      "valeurs": {
+        "engagement": 33.3,
+        "periscolaire": 60,
+        "parents": 40,
+        "producteurs": 100,
+        "familles": 66.6
+      },
+      "poids": {
+        "engagement": 25,
+        "periscolaire": 25,
+        "parents": 15,
+        "producteurs": 20,
+        "familles": 15
+      },
       "score": 59.3
     }
-  ]
+  ],
+  "communes": {
+    "sous_poids": {
+      "pat": 20,
+      "soutiens": 10,
+      "cuisine": 15,
+      "cantine_bio": 10,
+      "producteurs": 15,
+      "associations": 10,
+      "communications": 10,
+      "ecoles": 10
+    },
+    "part_min": 0.5,
+    "score": [
+      {
+        "cas": "tout connu",
+        "valeurs": {
+          "pat": 100,
+          "soutiens": 50,
+          "cuisine": 100,
+          "cantine_bio": 50,
+          "producteurs": 80,
+          "associations": 40,
+          "communications": 0,
+          "ecoles": 100
+        },
+        "valeur": 71.0
+      },
+      {
+        "cas": "inconnus hors de la moyenne",
+        "valeurs": {
+          "pat": 100,
+          "soutiens": 50,
+          "cuisine": null,
+          "cantine_bio": null,
+          "producteurs": 80,
+          "associations": 40,
+          "communications": null,
+          "ecoles": 100
+        },
+        "valeur": 78.5
+      },
+      {
+        "cas": "moins de la moitié des poids connus",
+        "valeurs": {
+          "pat": 100,
+          "soutiens": 50,
+          "cuisine": null,
+          "cantine_bio": null,
+          "producteurs": null,
+          "associations": 40,
+          "communications": null,
+          "ecoles": null
+        },
+        "valeur": null
+      }
+    ],
+    "producteurs": [
+      {
+        "cas": "aucune école",
+        "ecoles": [],
+        "valeur": null
+      },
+      {
+        "cas": "écoles inconnues ignorées",
+        "ecoles": [
+          60,
+          null,
+          90
+        ],
+        "valeur": 75.0
+      },
+      {
+        "cas": "arrondi au dixième",
+        "ecoles": [
+          10,
+          20,
+          20
+        ],
+        "valeur": 16.7
+      }
+    ]
+  }
 }

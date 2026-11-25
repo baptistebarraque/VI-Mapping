@@ -161,3 +161,63 @@ def test_familles(cfg: ConfigJauges) -> None:
     assert critere(j, "familles_iris") == 100
     assert critere(j, "mixite") is None
     assert j.valeur == 75
+
+
+# ------------------------------------------------------------------ communes (étape 1)
+@pytest.fixture
+def cfg_communes(cfg: ConfigJauges) -> ConfigJauges:
+    """Barème communal figé, indépendant de config/jauges.yaml."""
+    c = cfg.model_copy(deep=True)
+    v = VECTEURS["communes"]
+    c.communes.sous_poids = v["sous_poids"]
+    c.donnees_insuffisantes.part_min_connue_jauge = v["part_min"]
+    c.communes.pat = c.communes.pat.model_validate(
+        {"part_niveau": 60, "part_restauration": 20, "part_education": 20, "niveau_inconnu": 1})
+    c.communes.soutiens = c.communes.soutiens.model_validate(
+        {"part_departement": 50, "part_interco": 25, "part_aap_mgp": 25})
+    c.communes.associations = c.communes.associations.model_validate({"nombre_plein": 5, "densite_plein_10k": 3})
+    c.engagement.bio.pct_plein = 40
+    return c
+
+
+@pytest.mark.parametrize("v", VECTEURS["communes"]["score"], ids=lambda v: v["cas"])
+def test_score_commune(cfg_communes: ConfigJauges, v: dict[str, Any]) -> None:
+    assert formules.commune(cfg_communes, v["valeurs"]).valeur == v["valeur"]
+
+
+@pytest.mark.parametrize("v", VECTEURS["communes"]["producteurs"], ids=lambda v: v["cas"])
+def test_producteurs_commune(v: dict[str, Any]) -> None:
+    assert formules.commune_producteurs(v["ecoles"]) == v["valeur"]
+
+
+def test_pat_commune(cfg_communes: ConfigJauges) -> None:
+    P = formules.PatCommune
+    assert formules.commune_pat(cfg_communes, []) == (0.0, None)
+    assert formules.commune_pat(cfg_communes, [P("A", 2, True, True)]) == (100.0, "A")
+    # Meilleur des deux PAT ; niveau inconnu compté 1
+    assert formules.commune_pat(cfg_communes, [P("A", 1, False, False), P("B", None, True, None)]) == (50.0, "B")
+
+
+def test_soutiens_commune(cfg_communes: ConfigJauges) -> None:
+    assert formules.commune_soutiens(cfg_communes, departement=2, interco=1, aap_mgp=True) == 87.5
+    assert formules.commune_soutiens(cfg_communes, departement=None, interco=None, aap_mgp=False) == 0
+
+
+def test_cuisine_commune(cfg_communes: ConfigJauges) -> None:
+    def note(**k: Any) -> tuple[float | None, str | None]:
+        base = {"type_centrale": None, "satellites": None, "sur_place": None, "part_regie": None}
+        return formules.commune_cuisine(cfg_communes, **{**base, **k})
+
+    b = cfg_communes.communes.cuisine
+    assert note(type_centrale="caisse_des_ecoles", satellites=20) == (b.caisse_des_ecoles, "caisse_des_ecoles")
+    assert note(type_centrale="inconnu", satellites=2, sur_place=5, part_regie=1.0) == (b.sur_place_regie,
+                                                                                         "sur_place_regie")
+    assert note(satellites=0, sur_place=3, part_regie=0.0) == (b.sur_place_concedee, "sur_place_concedee")
+    assert note(syndicat=True) == (b.intercommunale, "syndicat")
+    assert note() == (None, None)  # aucune cantine déclarée : inconnu, jamais 0
+
+
+def test_associations_commune(cfg_communes: ConfigJauges) -> None:
+    assert formules.commune_associations(cfg_communes, 0, 1000) == 0
+    assert formules.commune_associations(cfg_communes, 5, 10_000) == 100
+    assert formules.commune_associations(cfg_communes, 1, 100_000) == pytest.approx(10 + 50 / 30)

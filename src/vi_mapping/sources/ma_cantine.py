@@ -1,6 +1,8 @@
-"""Restauration scolaire du 1er degré par commune : gestion, % bio, % EGalim (ma cantine).
+"""Restauration scolaire du 1er degré par commune : gestion, % bio, % EGalim, cuisines centrales (ma cantine).
 
 Les taux viennent de la télédéclaration du restaurant, sinon de celle de la cuisine centrale qui le sert.
+Les cuisines centrales sont celles que citent les restaurants satellites ; leur type (municipale, caisse des écoles,
+intercommunale, privée) est déduit ensuite de la catégorie juridique Sirene (connecteur sirene_unites).
 """
 
 from __future__ import annotations
@@ -12,7 +14,9 @@ import sys
 from collections import defaultdict
 from typing import Any
 
+from ..db import upsert
 from ..outils.datagouv import ressources
+from ..outils.texte import propre
 from .base import Compteurs, Contexte, connecteur
 
 csv.field_size_limit(min(sys.maxsize, 2**31 - 1))
@@ -21,6 +25,9 @@ SECTEUR = "Ecole primaire (maternelle et élémentaire)"
 JEU_TELEDECLARATIONS = "6482ed2ee3f9ec5215b41828"
 REGISTRE = "https://cellar-c2.services.clever-cloud.com/ma-cantine-egalim-prod/media/open_data/registre_cantines.csv"
 MODES_CENTRAUX = {"CENTRAL_ALL", "CENTRAL_APPRO"}
+SATELLITE = "site_cooked_elsewhere"
+SUR_PLACE = {"site", "central_serving"}
+GESTION = {"direct": "regie", "conceded": "concedee"}
 
 
 def derniere_campagne(ctx: Contexte) -> tuple[int, str]:
@@ -75,42 +82,107 @@ def collecter(ctx: Contexte) -> Compteurs:
             heritees += td is not None
         commune = c["city_insee_code"]
         ligne = {
-            "gestion": {"direct": "regie", "conceded": "concedee"}.get(c["management_type"]),
+            "gestion": GESTION.get(c["management_type"]),
             "repas": nombre(c["daily_meal_count"]) or 1.0,
+            "repas_connus": nombre(c["daily_meal_count"]),
             "bio": nombre(td["teledeclaration_ratio_bio"]) if td else None,
             "egalim_hors_bio": nombre(td["teledeclaration_ratio_egalim_hors_bio"]) if td else None,
+            "production": c["production_type"],
+            "centrale": c["central_producer_siret"] if c["production_type"] == SATELLITE else None,
+            "pat": [f"pat:{x.strip()}" for x in c["pat_list"].split(",") if x.strip()],
         }
         cantines[commune].append(ligne)
         if commune.startswith("751"):
             cantines["75056"].append(ligne)
 
-    lignes = []
-    for commune, liste in cantines.items():
-        gestions = {c["gestion"] for c in liste} - {None}
-        declarees = [c for c in liste if c["bio"] is not None]
-        bio = moyenne(declarees, lambda c: c["bio"])
-        egalim = moyenne(declarees, lambda c: c["bio"] + (c["egalim_hors_bio"] or 0))
-        # Confiance réduite quand peu de restaurants de la commune sont couverts.
-        couverture = len(declarees) / len(liste)
-        lignes.append({
-            "code_insee": commune,
-            "cantine_gestion": None if not gestions else gestions.pop() if len(gestions) == 1 else "mixte",
-            "cantine_nb": len(liste),
-            "cantine_nb_declarations": len(declarees),
-            "cantine_pct_bio": bio,
-            "cantine_pct_egalim": egalim,
-            "cantine_annee": annee if declarees else None,
-            "provenance": ctx.provenance_json(
-                url_td if declarees else REGISTRE,
-                confiance=ctx.config.confiance * (0.75 + 0.25 * couverture),
-            ),
-        })
+    communes_idf = {r["code_insee"] for r in ctx.conn.execute("SELECT code_insee FROM commune")}
+    lignes = [ligne_commune(ctx, commune, liste, annee, url_td) for commune, liste in cantines.items()]
     n = ctx.enrichir("commune", lignes, "code_insee", "cantine")
+    cuisines = cuisines_centrales(ctx, cantines, registre, centrales, communes_idf, annee, url_td)
+    # Type et catégorie juridique : renseignés par sirene_unites, à ne pas effacer.
+    upsert(ctx.conn, "cuisine_centrale", cuisines, ["siret"], ne_pas_ecraser=["type", "categorie_juridique"])
     return {
         "campagne": annee, "restaurants": sum(len(v) for k, v in cantines.items() if k != "75056"),
         "taux_de_la_cuisine_centrale": heritees, "communes": n,
         "communes_avec_pct_bio": sum(ligne["cantine_pct_bio"] is not None for ligne in lignes),
+        "cuisines_centrales": len(cuisines), "supprimees": ctx.purger("cuisine_centrale"),
     }
+
+
+def ligne_commune(
+    ctx: Contexte, commune: str, liste: list[dict[str, Any]], annee: int, url_td: str
+) -> dict[str, Any]:
+    gestions = {c["gestion"] for c in liste} - {None}
+    declarees = [c for c in liste if c["bio"] is not None]
+    bio = moyenne(declarees, lambda c: c["bio"])
+    egalim = moyenne(declarees, lambda c: c["bio"] + (c["egalim_hors_bio"] or 0))
+    # Confiance réduite quand peu de restaurants de la commune sont couverts.
+    couverture = len(declarees) / len(liste)
+    gerees = [c for c in liste if c["gestion"]]
+    repas = [c["repas_connus"] for c in liste if c["repas_connus"]]
+    # Cuisine centrale principale : celle qui livre le plus de repas aux satellites de la commune
+    livres: dict[str, float] = defaultdict(float)
+    for c in liste:
+        if c["centrale"]:
+            livres[c["centrale"]] += c["repas"]
+    return {
+        "code_insee": commune,
+        "cantine_gestion": None if not gestions else next(iter(gestions)) if len(gestions) == 1 else "mixte",
+        "cantine_nb": len(liste),
+        "cantine_nb_declarations": len(declarees),
+        "cantine_pct_bio": bio,
+        "cantine_pct_egalim": egalim,
+        "cantine_annee": annee if declarees else None,
+        "cantine_nb_satellites": sum(c["production"] == SATELLITE for c in liste),
+        "cantine_nb_sur_place": sum(c["production"] in SUR_PLACE for c in liste),
+        "cantine_part_regie": round(sum(c["gestion"] == "regie" for c in gerees) / len(gerees), 3) if gerees else None,
+        "cantine_repas_jour": round(sum(repas)) if repas else None,
+        "cuisine_centrale_siret": max(livres, key=lambda s: (livres[s], s)) if livres else None,
+        "cantine_pat": sorted({p for c in liste for p in c["pat"]}),
+        "provenance": ctx.provenance_json(
+            url_td if declarees else REGISTRE,
+            confiance=ctx.config.confiance * (0.75 + 0.25 * couverture),
+        ),
+    }
+
+
+def cuisines_centrales(
+    ctx: Contexte, cantines: dict[str, list[dict[str, Any]]], registre: list[dict[str, str]],
+    centrales: dict[str, dict[str, str]], communes_idf: set[str], annee: int, url_td: str,
+) -> list[dict[str, Any]]:
+    """Cuisines centrales citées par les restaurants satellites d'Île-de-France."""
+    servies: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for commune, liste in cantines.items():
+        if commune != "75056":
+            for c in liste:
+                if c["centrale"]:
+                    servies[c["centrale"]].append(c)
+    inscrites = {c["siret"]: c for c in registre if c["siret"]}
+    lignes = []
+    for siret, liste in servies.items():
+        if not re.fullmatch(r"\d{14}", siret):
+            continue
+        td, fiche = centrales.get(siret) or {}, inscrites.get(siret) or {}
+        nom = td.get("canteen_name") or fiche.get("name") or f"Cuisine centrale {siret}"
+        commune = td.get("canteen_city_insee_code") or fiche.get("city_insee_code")
+        gestion = td.get("canteen_management_type") or fiche.get("management_type") or ""
+        bio = nombre(td.get("teledeclaration_ratio_bio"))
+        hors_bio = nombre(td.get("teledeclaration_ratio_egalim_hors_bio"))
+        repas = [c["repas_connus"] for c in liste if c["repas_connus"]]
+        lignes.append({
+            "siret": siret, "nom": propre(nom) or f"Cuisine centrale {siret}", "type": "inconnu",
+            "categorie_juridique": None,
+            "commune": commune if commune in communes_idf else None,
+            "gestion": GESTION.get(gestion),
+            "nb_cantines": len(liste),
+            "repas_jour": round(sum(repas)) if repas else None,
+            "pct_bio": None if bio is None else round(min(100.0, 100 * bio), 2),
+            "pct_egalim": None if bio is None else round(min(100.0, 100 * (bio + (hors_bio or 0))), 2),
+            "annee": annee if bio is not None else None,
+            # Cuisine absente du registre et des déclarations : seul son SIRET est connu.
+            **ctx.provenance(url_td if td else REGISTRE, confiance=ctx.config.confiance * (1 if td or fiche else 0.8)),
+        })
+    return lignes
 
 
 def moyenne(cantines: list[dict[str, Any]], valeur: Any) -> float | None:

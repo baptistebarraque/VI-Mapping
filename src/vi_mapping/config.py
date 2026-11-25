@@ -265,6 +265,57 @@ class JaugeFamilles(_Jauge):
     mixite: BaremeMixite
 
 
+class BaremePatCommune(_Strict):
+    part_niveau: float
+    part_restauration: float
+    part_education: float
+    niveau_inconnu: Annotated[int, Field(ge=0, le=2)]
+
+
+class BaremeSoutiens(_Strict):
+    part_departement: float
+    part_interco: float
+    part_aap_mgp: float
+
+
+class BaremeCuisine(_Strict):
+    municipale: float
+    caisse_des_ecoles: float
+    sur_place_regie: float
+    intercommunale: float
+    autre_public: float
+    sur_place_concedee: float
+    privee: float
+
+
+class BaremeAssociations(_Strict):
+    nombre_plein: int
+    densite_plein_10k: float
+
+
+class BaremeEcolesCommune(_Strict):
+    eleves_plein: int
+
+
+CRITERES_COMMUNES = (
+    "pat", "soutiens", "cuisine", "cantine_bio", "producteurs", "associations", "communications", "ecoles",
+)
+
+
+class JaugeCommunes(_Jauge):
+    pat: BaremePatCommune
+    soutiens: BaremeSoutiens
+    cuisine: BaremeCuisine
+    associations: BaremeAssociations
+    ecoles: BaremeEcolesCommune
+
+    @model_validator(mode="after")
+    def _criteres(self) -> JaugeCommunes:
+        if set(self.sous_poids) != set(CRITERES_COMMUNES):
+            raise ValueError(f"communes.sous_poids : il faut exactement {CRITERES_COMMUNES}")
+        return self
+
+
 class ConfigJauges(_Strict):
     poids: dict[Literal["engagement", "periscolaire", "parents", "producteurs", "familles"], float]
     donnees_insuffisantes: DonneesInsuffisantes
@@ -274,6 +325,7 @@ class ConfigJauges(_Strict):
     parents: JaugeParents
     producteurs: JaugeProducteurs
     familles: JaugeFamilles
+    communes: JaugeCommunes
 
     @model_validator(mode="after")
     def _verifie(self) -> ConfigJauges:

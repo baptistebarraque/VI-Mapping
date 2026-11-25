@@ -19,7 +19,8 @@ source à chaque ligne, quand aucun jeu ouvert ne les donne. Chaque ligne en bas
 ## Données personnelles
 
 - Élus municipaux seulement (RNE) : nom, fonction, début de mandat, délégation. Aucune étiquette politique.
-- Aucun e-mail ni téléphone en base (`uv run vi verifier` le contrôle).
+- Aucun e-mail ni téléphone de personne en base. Seuls le standard et l'adresse générique des mairies (annuaire de
+  l'administration) et des écoles (ce.UAI@ac-….fr) sont gardés. `uv run vi verifier` le contrôle.
 - Adresses « chez M. ou Mme X » nettoyées. Exploitants individuels sans nom commercial anonymisés.
 - Familles : données agrégées par IRIS.
 
@@ -47,7 +48,7 @@ source à chaque ligne, quand aucun jeu ouvert ne les donne. Chaque ligne en bas
 | `rne` | [Répertoire national des élus](https://www.data.gouv.fr/datasets/repertoire-national-des-elus-1/) | Ministère de l'Intérieur | elu : nom, fonction, début de mandat | csv | annuelle | Licence Ouverte 2.0 |
 | `rna` | [Répertoire national des associations](https://www.data.gouv.fr/datasets/repertoire-national-des-associations/) | Ministère de l'Intérieur | asso_parents, relais_local (AMAP, épiceries, centres sociaux), asso_alimentation | csv | annuelle | Licence Ouverte 2.0 |
 | `sirene` | [Base Sirene, stock des établissements](https://www.data.gouv.fr/datasets/base-sirene-des-entreprises-et-de-leurs-etablissements-siren-siret/) | Insee | accueil_periscolaire, relais_local | csv | annuelle | Licence Ouverte 2.0 |
-| `sirene_unites` | [Base Sirene, stock des unités légales (Siren des associations)](https://www.data.gouv.fr/datasets/base-sirene-des-entreprises-et-de-leurs-etablissements-siren-siret/) | Insee | asso_parents : Siren ; cuisine_centrale : catégorie juridique | csv | annuelle | Licence Ouverte 2.0 |
+| `sirene_unites` | [Base Sirene, stock des unités légales (Siren des associations, nature des cuisines centrales)](https://www.data.gouv.fr/datasets/base-sirene-des-entreprises-et-de-leurs-etablissements-siren-siret/) | Insee | asso_parents : Siren ; cuisine_centrale : catégorie juridique | csv | annuelle | Licence Ouverte 2.0 |
 | `recherche_entreprises` | [API Recherche d'entreprises](https://recherche-entreprises.api.gouv.fr) | DINUM | accueil_periscolaire, gestionnaire_perisco | api | annuelle | Licence Ouverte 2.0 |
 | `osm` | [OpenStreetMap (extrait Île-de-France de Geofabrik)](https://download.geofabrik.de/europe/france/ile-de-france-latest.osm.pbf) | Contributeurs OpenStreetMap | accueil_periscolaire, relais_local | csv | annuelle | ODbL 1.0 |
 | `agence_bio` | [API Professionnels Bio](https://opendata.agencebio.org/api/gouv/operateurs/) | Agence Bio | producteur (dont vente à la restauration collective) | api | annuelle | Licence Ouverte 2.0 |

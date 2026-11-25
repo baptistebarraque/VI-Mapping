@@ -23,9 +23,14 @@ _EMAIL = r"[[:alnum:]_.+-]+ ?(@|\[at\]|\(at\)) ?[[:alnum:]-]+\.[[:alpha:]]{2,}"
 _TEL = r"(^|[^0-9])((\+|00)33[ .-]?(\(0\))?[ .-]?|0)[1-9]([ .-]?[0-9]{2}){4}([^0-9]|$)"
 _CHEZ = r"\m(chez|c/o)\M"
 
+# Coordonnées institutionnelles admises (standard et adresse générique) ; leur forme est contrôlée à part.
+CONTACTS_INSTITUTIONNELS = {
+    ("commune", "mairie_telephone"), ("commune", "mairie_email"), ("ecole", "telephone"), ("ecole", "email"),
+}
+
 # Tables sans texte collecté sur les personnes ou les lieux
 _HORS_TEXTE = ("spatial_ref_sys", "schema_migration", "collecte_run", "source_donnees", "modele_provenance",
-               "proximite", "jauge_ecole", "crawl_site")
+               "proximite", "jauge_ecole", "jauge_commune", "crawl_site")
 
 
 @dataclass(frozen=True)
@@ -85,6 +90,11 @@ _REQUETES: tuple[tuple[str, Gravite, str], ...] = (
         SELECT uai AS cle FROM ecole e WHERE NOT EXISTS (SELECT 1 FROM jauge_ecole j WHERE j.ecole_uai = e.uai)"""),
     ("Jauges calculées avec une autre configuration", "erreur", """
         SELECT ecole_uai AS cle FROM jauge_ecole WHERE config_hash <> %(empreinte)s"""),
+    ("Communes sans score calculé", "erreur", """
+        SELECT code_insee AS cle FROM commune c
+        WHERE NOT EXISTS (SELECT 1 FROM jauge_commune j WHERE j.code_insee = c.code_insee)"""),
+    ("Scores des communes calculés avec une autre configuration", "erreur", """
+        SELECT code_insee AS cle FROM jauge_commune WHERE config_hash <> %(empreinte)s"""),
     ("Jauges plus anciennes que la dernière collecte", "alerte", """
         SELECT min(j.ecole_uai) AS cle FROM jauge_ecole j
         HAVING min(j.collecte_le) < (SELECT max(r.fin) FROM collecte_run r JOIN source_donnees s ON s.code = r.source
@@ -101,6 +111,14 @@ _REQUETES: tuple[tuple[str, Gravite, str], ...] = (
         WHERE a.doublon_de IS NOT NULL
           AND NOT EXISTS (SELECT 1 FROM accueil_ecole m
                           WHERE (m.accueil_id, m.ecole_uai) = (a.doublon_de, l.ecole_uai))"""),
+    ("Coordonnées d'école qui ne sont pas institutionnelles", "erreur", r"""
+        SELECT uai AS cle FROM ecole
+        WHERE (email IS NOT NULL AND email !~ ('^ce\.' || lower(uai) || '@ac-[a-z-]+\.fr$'))
+           OR (telephone IS NOT NULL AND telephone !~ '^0[1-589]( [0-9]{2}){4}$')"""),
+    ("Contacts de mairie mal formés", "erreur", r"""
+        SELECT code_insee AS cle FROM commune
+        WHERE (mairie_email IS NOT NULL AND mairie_email !~ '^[^@ ]+@[^@ ]+\.[a-z]{2,}$')
+           OR (mairie_telephone IS NOT NULL AND mairie_telephone !~ '^0[1-9]( [0-9]{2}){4}$')"""),
     ("Adresses qui nomment une personne", "erreur", """
         SELECT 'asso ' || id AS cle FROM asso_parents WHERE siege ~* %(chez)s UNION ALL
         SELECT 'accueil ' || id FROM accueil_periscolaire WHERE adresse ~* %(chez)s UNION ALL
@@ -131,6 +149,8 @@ def contacts(conn: psycopg.Connection[Any]) -> Iterator[Constat]:
         trouves = []
         for x in colonnes:
             web = x["c"] in ("url", "site_web", "derniere_activite_url", "provenances")
+            if (x["t"], x["c"]) in CONTACTS_INSTITUTIONNELS:
+                continue
             if motif == _TEL and (web or x["c"] in ("id", "cle", "indices")):
                 continue
             c = _compter(conn, "", "erreur", sql.SQL(

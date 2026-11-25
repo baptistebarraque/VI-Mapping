@@ -26,7 +26,8 @@ source à chaque ligne, quand aucun jeu ouvert ne les donne. Chaque ligne en bas
 ## Données personnelles
 
 - Élus municipaux seulement (RNE) : nom, fonction, début de mandat, délégation. Aucune étiquette politique.
-- Aucun e-mail ni téléphone en base (`uv run vi verifier` le contrôle).
+- Aucun e-mail ni téléphone de personne en base. Seuls le standard et l'adresse générique des mairies (annuaire de
+  l'administration) et des écoles (ce.UAI@ac-….fr) sont gardés. `uv run vi verifier` le contrôle.
 - Adresses « chez M. ou Mme X » nettoyées. Exploitants individuels sans nom commercial anonymisés.
 - Familles : données agrégées par IRIS.
 """

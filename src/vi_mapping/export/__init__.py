@@ -13,6 +13,7 @@ from ..couverture import mesurer, rendu
 from . import meta as meta_
 from . import points, zones
 from .commun import Connexion, ecrire
+from .communes import communes as table_communes
 from .ecoles import ecoles
 from .fiches import Fiches
 
@@ -34,6 +35,7 @@ def exporter(conn: Connexion, dossier: Path, note: Callable[[str], None] = lambd
     communes = meta_.communes(conn)
     fichier("meta.json", meta_.meta(conn, idf, cfg, communes))
     fichier("ecoles.json", ecoles(conn, cfg, {c["code"]: i for i, c in enumerate(communes)}))
+    fichier("communes.json", table_communes(conn, communes))
     producteurs, rang_producteur = points.producteurs(conn, cfg)
     relais, rang_relais = points.relais(conn)
     fichier("points/producteurs.geojson", producteurs)

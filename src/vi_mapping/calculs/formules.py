@@ -233,3 +233,80 @@ def score(cfg: ConfigJauges, jauges: Mapping[str, float | None], poids: Mapping[
         [Critere(nom, jauges.get(nom), p[nom]) for nom in p],  # type: ignore[index]
         cfg.donnees_insuffisantes.part_min_connue_score,
     )
+
+
+# --------------------------------------------------------------------------- communes (étape 1 de la demande)
+@dataclass(frozen=True)
+class PatCommune:
+    nom: str
+    niveau: int | None            # 1 ou 2 ; None : reconnu sans niveau publié
+    restauration: bool | None     # axe restauration collective
+    education: bool | None        # axe éducation alimentaire
+
+
+def commune_pat(cfg: ConfigJauges, pats: Sequence[PatCommune]) -> tuple[float, str | None]:
+    """Meilleur PAT couvrant la commune ; 0 sans PAT (l'absence est connue : les PAT franciliens sont recensés)."""
+    b = cfg.communes.pat
+    total = b.part_niveau + b.part_restauration + b.part_education
+    notes = [
+        (100 * (b.part_niveau * (b.niveau_inconnu if p.niveau is None else p.niveau) / 2
+                + b.part_restauration * bool(p.restauration) + b.part_education * bool(p.education)) / total, p.nom)
+        for p in pats
+    ]
+    return max(notes, default=(0.0, None))
+
+
+def commune_soutiens(cfg: ConfigJauges, *, departement: int | None, interco: int | None, aap_mgp: bool) -> float:
+    """Scores 0 à 2 du référentiel ; un territoire absent du référentiel compte 0."""
+    b = cfg.communes.soutiens
+    total = b.part_departement + b.part_interco + b.part_aap_mgp
+    return 100 * (b.part_departement * (departement or 0) / 2 + b.part_interco * (interco or 0) / 2
+                  + b.part_aap_mgp * aap_mgp) / total
+
+
+def commune_cuisine(
+    cfg: ConfigJauges, *, type_centrale: str | None, satellites: int | None, sur_place: int | None,
+    part_regie: float | None, syndicat: bool = False,
+) -> tuple[float | None, str | None]:
+    """Cuisine centrale principale, sinon cuisines sur place (régie ou concédée), sinon syndicat de restauration."""
+    b = cfg.communes.cuisine
+    if type_centrale and type_centrale != "inconnu":
+        return getattr(b, type_centrale), type_centrale
+    if sur_place and sur_place >= (satellites or 0) and part_regie is not None:
+        return (b.sur_place_regie, "sur_place_regie") if part_regie >= 0.5 else (b.sur_place_concedee,
+                                                                                  "sur_place_concedee")
+    if syndicat:
+        return b.intercommunale, "syndicat"
+    return None, None
+
+
+def commune_associations(cfg: ConfigJauges, nombre: int, population: int | None) -> float:
+    b = cfg.communes.associations
+    densite = 1e4 * nombre / population if population else 0.0
+    return 50 * min(1.0, nombre / b.nombre_plein) + 50 * min(1.0, densite / b.densite_plein_10k)
+
+
+def commune_communications(
+    cfg: ConfigJauges, themes: Sequence[str] | None, themes_sans_date: Sequence[str] = ()
+) -> float | None:
+    """Même barème que le critère « web » de la jauge Engagement ; None si le site n'a pas été visité."""
+    if themes is None:
+        return None
+    w = cfg.engagement.web
+    seuls = [t for t in themes_sans_date if t not in themes]
+    return borne(100 * (len(themes) + w.poids_sans_date * len(seuls)) / w.themes_plein)
+
+
+def commune_producteurs(valeurs_ecoles: Iterable[float | None]) -> float | None:
+    """Moyenne de la jauge Producteurs des écoles de la commune (connues)."""
+    connues = [v for v in valeurs_ecoles if v is not None]
+    return round(sum(connues) / len(connues), 1) if connues else None
+
+
+def commune(cfg: ConfigJauges, valeurs: Mapping[str, float | None], details: Mapping[str, Any] | None = None) -> Jauge:
+    """Score d'une commune : moyenne pondérée de ses critères connus (config communes.sous_poids)."""
+    d = details or {}
+    return moyenne(
+        [Critere(nom, valeurs.get(nom), poids, d.get(nom)) for nom, poids in cfg.communes.sous_poids.items()],
+        cfg.donnees_insuffisantes.part_min_connue_jauge,
+    )

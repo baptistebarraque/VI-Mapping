@@ -233,7 +233,7 @@ sources:
     confiance: 0.75
 
   sirene_unites:
-    libelle: Base Sirene, stock des unités légales (Siren des associations)
+    libelle: Base Sirene, stock des unités légales (Siren des associations, nature des cuisines centrales)
     alimente: "asso_parents : Siren ; cuisine_centrale : catégorie juridique"
     producteur: Insee
     url: https://www.data.gouv.fr/datasets/base-sirene-des-entreprises-et-de-leurs-etablissements-siren-siret/
