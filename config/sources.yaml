@@ -7,11 +7,14 @@
 #                 Les domaines listés dans « hotes » sont refusés à tous les scrapers.
 # frequence : annuelle (open data) ou mensuelle (scraping)
 # confiance : valeur par défaut, affinée ligne par ligne par les connecteurs
+# alimente  : tables et champs remplis
+# docs/SOURCES.md est produit depuis ce fichier : `uv run vi sources --markdown > docs/SOURCES.md`
 
 sources:
   # ------------------------------------------------------------------ Open data et API
   ign_admin_express:
     libelle: ADMIN EXPRESS COG CARTO (communes, arrondissements, population Insee)
+    alimente: "commune : contour, population, superficie, densité"
     producteur: IGN / Insee
     url: https://data.geopf.fr/wfs/ows
     licence: Licence Ouverte 2.0
@@ -22,6 +25,7 @@ sources:
 
   banatic:
     libelle: Banatic, groupements de communes (EPCI et EPT)
+    alimente: "commune : EPCI, EPT, Siren"
     producteur: DGCL
     url: https://www.banatic.interieur.gouv.fr/consultation/api/export/pregenere/telecharger/11
     licence: Licence Ouverte 2.0
@@ -32,6 +36,7 @@ sources:
 
   annuaire_administration:
     libelle: Annuaire de l'administration (sites web des mairies)
+    alimente: "commune : site web de la mairie"
     producteur: DILA
     url: https://api-lannuaire.service-public.fr/api/explore/v2.1/catalog/datasets/api-lannuaire-administration
     licence: Licence Ouverte 2.0
@@ -42,6 +47,7 @@ sources:
 
   ma_cantine:
     libelle: ma cantine, registre national et télédéclarations
+    alimente: "commune : cantine (régie ou concédée, % bio, % EGalim)"
     producteur: Ministère de l'Agriculture
     url: https://www.data.gouv.fr/datasets/registre-national-des-cantines/
     licence: Licence Ouverte 2.0
@@ -52,6 +58,7 @@ sources:
 
   annuaire_education:
     libelle: Annuaire de l'éducation
+    alimente: "ecole : identité, adresse, secteur, éducation prioritaire, restauration"
     producteur: Ministère de l'Éducation nationale
     url: https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-annuaire-education
     licence: Licence Ouverte 2.0
@@ -62,6 +69,7 @@ sources:
 
   effectifs_ecoles:
     libelle: Effectifs d'élèves par école
+    alimente: "ecole : élèves, classes"
     producteur: Ministère de l'Éducation nationale (DEPP)
     url: https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-ecoles-effectifs-nb_classes
     licence: Licence Ouverte 2.0
@@ -72,6 +80,7 @@ sources:
 
   ips_ecoles:
     libelle: Indices de position sociale des écoles
+    alimente: "ecole : IPS"
     producteur: Ministère de l'Éducation nationale (DEPP)
     url: https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-ips-ecoles-ap2022
     licence: Licence Ouverte 2.0
@@ -82,6 +91,7 @@ sources:
 
   cites_educatives_etablissements:
     libelle: Établissements membres d'une cité éducative
+    alimente: "ecole : cité éducative"
     producteur: Ministère de l'Éducation nationale
     url: https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-cites_educatives
     licence: Licence Ouverte 2.0
@@ -92,6 +102,7 @@ sources:
 
   ign_iris:
     libelle: Contours IRIS
+    alimente: "territoire_social : contours"
     producteur: IGN / Insee
     url: https://data.geopf.fr/wfs/ows
     licence: Licence Ouverte 2.0
@@ -102,6 +113,7 @@ sources:
 
   insee_familles_iris:
     libelle: Recensement, familles par IRIS (API Melodi)
+    alimente: "territoire_social : familles avec enfants"
     producteur: Insee
     url: https://api.insee.fr/melodi/catalog/DS_RP_FAMILLE_COMP_IRIS
     licence: Licence Ouverte 2.0
@@ -112,6 +124,7 @@ sources:
 
   insee_filosofi_iris:
     libelle: Filosofi, revenus et pauvreté par IRIS
+    alimente: "territoire_social : revenu médian, taux de pauvreté"
     producteur: Insee
     url: https://www.insee.fr/fr/statistiques/8229323
     licence: Licence Ouverte 2.0
@@ -122,6 +135,7 @@ sources:
 
   insee_filosofi_communes:
     libelle: Filosofi, revenus par commune (communes non découpées en IRIS)
+    alimente: "territoire_social : revenu, pauvreté des communes non découpées"
     producteur: Insee
     url: https://api.insee.fr/melodi/catalog/DS_FILOSOFI_CC
     licence: Licence Ouverte 2.0
@@ -132,6 +146,7 @@ sources:
 
   anct_qpv:
     libelle: Quartiers prioritaires de la politique de la ville 2024
+    alimente: "dispositif : QPV"
     producteur: ANCT
     url: https://data.iledefrance.fr/api/explore/v2.1/catalog/datasets/qp-politiquedelaville-shp
     licence: Licence Ouverte 2.0
@@ -142,6 +157,7 @@ sources:
 
   cdc_qpv:
     libelle: Quartiers prioritaires 2024, complément des contours manquants
+    alimente: "dispositif : contours de QPV manquants"
     producteur: ANCT / Caisse des Dépôts
     url: https://opendata.caissedesdepots.fr/api/explore/v2.1/catalog/datasets/quartiers-prioritaires-de-la-politique-de-la-ville-au-1er-janvier-2024
     licence: Licence Ouverte 2.0
@@ -152,6 +168,7 @@ sources:
 
   anct_cites_educatives:
     libelle: Programme Cités éducatives (communes et QPV couverts)
+    alimente: "dispositif : cités éducatives"
     producteur: ANCT
     url: https://www.data.gouv.fr/datasets/programme-cites-educatives/
     licence: Licence Ouverte 2.0
@@ -162,6 +179,7 @@ sources:
 
   france_pat:
     libelle: Projets alimentaires territoriaux (PAT) et lauréats PNA
+    alimente: "dispositif : PAT, lauréats d'appels à projets"
     producteur: France PAT
     url: https://www.data.gouv.fr/datasets/pat-projets-alimentaires-territoriaux-description/
     licence: Licence Ouverte 2.0
@@ -172,6 +190,7 @@ sources:
 
   rne:
     libelle: Répertoire national des élus
+    alimente: "elu : nom, fonction, début de mandat"
     producteur: Ministère de l'Intérieur
     url: https://www.data.gouv.fr/datasets/repertoire-national-des-elus-1/
     licence: Licence Ouverte 2.0
@@ -182,6 +201,7 @@ sources:
 
   rna:
     libelle: Répertoire national des associations
+    alimente: "asso_parents, relais_local (AMAP, épiceries, centres sociaux)"
     producteur: Ministère de l'Intérieur
     url: https://www.data.gouv.fr/datasets/repertoire-national-des-associations/
     licence: Licence Ouverte 2.0
@@ -192,6 +212,7 @@ sources:
 
   sirene:
     libelle: Base Sirene, stock des établissements
+    alimente: "accueil_periscolaire, relais_local"
     producteur: Insee
     url: https://www.data.gouv.fr/datasets/base-sirene-des-entreprises-et-de-leurs-etablissements-siren-siret/
     licence: Licence Ouverte 2.0
@@ -202,6 +223,7 @@ sources:
 
   sirene_unites:
     libelle: Base Sirene, stock des unités légales (Siren des associations)
+    alimente: "asso_parents : Siren"
     producteur: Insee
     url: https://www.data.gouv.fr/datasets/base-sirene-des-entreprises-et-de-leurs-etablissements-siren-siret/
     licence: Licence Ouverte 2.0
@@ -212,6 +234,7 @@ sources:
 
   recherche_entreprises:
     libelle: API Recherche d'entreprises
+    alimente: "accueil_periscolaire, gestionnaire_perisco"
     producteur: DINUM
     url: https://recherche-entreprises.api.gouv.fr
     licence: Licence Ouverte 2.0
@@ -222,6 +245,7 @@ sources:
 
   osm:
     libelle: OpenStreetMap (extrait Île-de-France de Geofabrik)
+    alimente: "accueil_periscolaire, relais_local"
     producteur: Contributeurs OpenStreetMap
     url: https://download.geofabrik.de/europe/france/ile-de-france-latest.osm.pbf
     licence: ODbL 1.0
@@ -232,6 +256,7 @@ sources:
 
   agence_bio:
     libelle: API Professionnels Bio
+    alimente: "producteur"
     producteur: Agence Bio
     url: https://opendata.agencebio.org/api/gouv/operateurs/
     licence: Licence Ouverte 2.0
@@ -242,6 +267,7 @@ sources:
 
   ban:
     libelle: Base adresse nationale (géocodage)
+    alimente: "positions des adresses sans coordonnées"
     producteur: IGN / DINUM
     url: https://data.geopf.fr/geocodage/search/csv
     licence: Licence Ouverte 2.0
@@ -253,6 +279,7 @@ sources:
   # ------------------------------------------------------------------ Calculs
   rattachements:
     libelle: Rattachements automatiques (accueils, associations)
+    alimente: "accueil_ecole, asso_ecole, IRIS et QPV des écoles, doublons"
     producteur: Calcul
     url: config/idf.yaml
     licence: Sans objet
@@ -263,6 +290,7 @@ sources:
 
   osrm:
     libelle: Distances et temps par la route (OSRM sur OpenStreetMap)
+    alimente: "proximite"
     producteur: Calcul
     url: https://download.geofabrik.de/europe/france/ile-de-france-latest.osm.pbf
     licence: ODbL 1.0
@@ -273,6 +301,7 @@ sources:
 
   jauges:
     libelle: Jauges et score global
+    alimente: "jauge_ecole"
     producteur: Calcul
     url: config/jauges.yaml
     licence: Sans objet
@@ -284,6 +313,7 @@ sources:
   # ------------------------------------------------------------------ Scraping autorisé
   sites_mairies:
     libelle: Sites web des mairies (signaux, délégations, périscolaire)
+    alimente: "signal_web, elu : délégations, accueil_periscolaire"
     producteur: Communes
     url: https://www.service-public.fr
     licence: Faits extraits (URL, date, thème) ; aucun contenu reproduit
@@ -299,6 +329,7 @@ sources:
 
   fcpe_departements:
     libelle: FCPE 93 et 95, conseils locaux
+    alimente: "asso_parents : conseils locaux"
     producteur: FCPE 93 / FCPE 95
     url: https://fcpe93.fr
     licence: Faits extraits (nom, commune, site) ; aucun contenu reproduit
@@ -316,6 +347,7 @@ sources:
 
   sites_assos:
     libelle: Sites des associations de parents (date de dernière activité)
+    alimente: "asso_parents : dernière activité en ligne"
     producteur: Associations
     url: https://www.data.gouv.fr/datasets/repertoire-national-des-associations/
     licence: Faits extraits (date) ; aucun contenu reproduit
@@ -330,6 +362,7 @@ sources:
   # ------------------------------------------------------------------ Scraping verrouillé
   monenfant:
     libelle: monenfant.fr (accueils périscolaires)
+    alimente: "accueil_periscolaire, gestionnaire_perisco"
     producteur: Cnaf
     url: https://monenfant.fr
     licence: Usage personnel et non commercial
@@ -347,12 +380,13 @@ sources:
         exploitation commerciale et annoncent des poursuites pénales pour toute autre utilisation que la mise
         en relation des familles avec les structures d'accueil.
       anti_robot: Radware Bot Manager (redirection vers validate.perfdrive.com)
-      remplacement: [sirene, osm, sites_mairies]
+      remplacement: [osm, sirene, recherche_entreprises, sites_mairies]
       demarche: Demander à la Cnaf (Direction des politiques familiale et sociale) un accès ou un export.
     autorisation: null
 
   amap_idf:
     libelle: Carte du Réseau AMAP Île-de-France
+    alimente: "relais_local, producteur : membre d'une AMAP"
     producteur: Réseau AMAP IdF
     url: https://amap-idf.org/les-amap/trouver-une-amap-en-idf
     licence: Reproduction interdite
@@ -373,6 +407,7 @@ sources:
 
   fcpe_paris:
     libelle: FCPE Paris, conseils locaux
+    alimente: "asso_parents"
     producteur: FCPE 75
     url: https://www.fcpe75.org/sites-des-conseils-locaux/
     licence: Reproduction interdite sans accord écrit
@@ -392,6 +427,7 @@ sources:
 
   peep_national:
     libelle: PEEP, associations locales
+    alimente: "asso_parents"
     producteur: PEEP
     url: https://peep.asso.fr
     licence: Usage personnel et privé

@@ -6,7 +6,8 @@ from typing import Any
 
 import pytest
 
-from vi_mapping.config import config_idf, config_jauges, config_sources
+from vi_mapping import registre
+from vi_mapping.config import RACINE, config_idf, config_jauges, config_sources
 from vi_mapping.sources import agence_bio, charger
 from vi_mapping.sources.base import CALCULS, REGISTRE, a_collecter, ordre
 
@@ -73,3 +74,8 @@ def test_reglages_par_defaut_des_jauges() -> None:
     assert (c.producteurs.minutes_plein, c.producteurs.nombre_plein) == (15, 5)
     assert c.engagement.web.fenetre_mois == 24 and c.parents.fenetre_activite_mois == 12
     assert c.periscolaire.distance_max_m == 300
+
+
+def test_docs_sources_a_jour() -> None:
+    """docs/SOURCES.md suit config/sources.yaml."""
+    assert (RACINE / "docs" / "SOURCES.md").read_text("utf-8") == registre.markdown()

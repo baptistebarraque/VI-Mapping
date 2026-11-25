@@ -28,8 +28,15 @@ def migrer() -> None:
 
 
 @app.command()
-def sources() -> None:
+def sources(
+    markdown: Annotated[bool, typer.Option("--markdown", help="Registre pour docs/SOURCES.md")] = False,
+) -> None:
     """Liste les sources, leur statut et la dernière collecte réussie."""
+    if markdown:
+        from .registre import markdown as registre
+
+        typer.echo(registre(), nl=False)
+        return
     charger()
     t = Table("code", "méthode", "fréquence", "statut", "dernier succès", "libellé")
     with connexion() as conn:

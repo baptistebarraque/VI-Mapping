@@ -18,7 +18,6 @@ from ..config import ConfigIdf, dossier_donnees
 from ..outils.http import ClientHttp
 
 PLAFOND_TABLE = 4_000_000  # cases par matrice ; au-delà OSRM refuserait la requête
-ETAPES = (("osrm-contract", []),)
 
 
 def _paquet() -> Path:

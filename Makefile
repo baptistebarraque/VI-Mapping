@@ -5,7 +5,7 @@ aide:
 	@grep -E '^[a-z]+:.*##' $(MAKEFILE_LIST) | sed -E 's/:.*## /\t/' | expand -t 14
 
 installer: ## installe les dépendances Python et web
-	uv sync --frozen
+	uv sync --frozen --extra route
 	cd web && npm ci
 
 base: ## crée ou met à jour le schéma de la base

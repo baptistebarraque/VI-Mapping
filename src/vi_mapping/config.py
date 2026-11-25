@@ -137,6 +137,7 @@ class Autorisation(_Strict):
 
 class SourceConfig(_Strict):
     libelle: str
+    alimente: str  # tables et champs remplis
     producteur: str
     url: str
     licence: str
