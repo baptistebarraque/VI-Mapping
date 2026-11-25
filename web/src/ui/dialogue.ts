@@ -70,6 +70,7 @@ function methode(meta: Meta): HTMLElement {
       h('li', {}, 'Chaque jauge va de 0 à 100 : moyenne de ses critères connus, pondérée par leur sous-poids.'),
       h('li', {}, 'Un critère ou une jauge sans donnée sort de la moyenne. Il ne compte pas 0.'),
       h('li', {}, `Le score s’affiche si les jauges connues pèsent au moins ${nombre(100 * meta.part_min_score)} % du total.`),
+      h('li', {}, 'À score égal, l’école la mieux documentée passe devant.'),
       h('li', {}, 'Une école peu documentée peut avoir un bon score sur peu de critères : regardez « n/5 jauges ».'),
       h('li', {}, 'Une absence dans les sources ouvertes n’est pas une absence sur le terrain.')),
     tableau(['Jauge', 'Poids par défaut', 'Critères (sous-poids)'], JAUGES.map((j) => [

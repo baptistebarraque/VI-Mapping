@@ -1,25 +1,30 @@
 /**
- * Couleurs, choisies par rôle et vérifiées (séparation en vision normale et daltonienne, contraste).
- * Écoles : une rampe bleue du clair au foncé. Autres points : deux familles de couleur, distinguées entre elles par
- * la forme — orange pour la vie scolaire (accueils, associations), vert pour l'alimentation (producteurs, relais).
+ * Couleurs de la charte Vraiment irrésistibles (brochure d'octobre 2026), choisies par rôle.
+ * Écoles : une rampe verte du clair au foncé. Autres points : deux familles de couleur, distinguées entre elles par
+ * la forme — violet pour la vie scolaire (accueils, associations), rouge pour l'alimentation (producteurs, relais).
+ * Rampe des écoles et couple violet-rouge vérifiés (vision normale et daltonienne). Les couleurs des cinq jauges
+ * (style.css) ne se suffisent pas à elles seules : l'ordre est fixe, et le nom est écrit à côté ou dans l'infobulle.
  */
 
 import type { Coloration, VariableIris } from './etat';
 
-export const RAMPE_ECOLES = ['#86b6ef', '#5598e7', '#2a78d6', '#1c5cab', '#104281'] as const;
+export const RAMPE_ECOLES = ['#7fc475', '#52a94f', '#2f8a3c', '#176a2f', '#0b4722'] as const;
 export const BORNES_SCORE = [50, 60, 70, 80] as const;
 export const BORNES_JAUGE = [20, 40, 60, 80] as const;
 export const bornesDe = (c: Coloration): readonly number[] => (c === 'score' ? BORNES_SCORE : BORNES_JAUGE);
 
-export const INCONNU = '#898781';
-export const SURFACE = '#fcfcfb';
-export const ENCRE = '#0b0b0b';
-export const ENCRE_2 = '#52514e';
-export const VIE_SCOLAIRE = '#eb6834';
-export const ALIMENTATION = '#1baf7a';
+export const INCONNU = '#8f877d';
+export const SURFACE = '#ffffff';
+export const ENCRE = '#1d1b1a';
+export const ENCRE_2 = '#5c5650';
+export const VIE_SCOLAIRE = '#574f7a';
+export const ALIMENTATION = '#ee2c30';
+/** Zones : violet des collectivités pour les PAT, rose des écoles pour les cités éducatives. */
+export const ZONE_PAT = '#574f7a';
+export const ZONE_CITE = '#ed1e79';
 
-/** Rampe orange (deuxième échelle séquentielle) pour les IRIS. */
-export const RAMPE_IRIS = ['#ffdacd', '#fcb69c', '#f7906b', '#e96632', '#be4b19'] as const;
+/** Rampe jaune, couleur des familles (deuxième échelle séquentielle) pour les IRIS. */
+export const RAMPE_IRIS = ['#fff0a8', '#ffdc4a', '#eebb00', '#bb8b00', '#836000'] as const;
 export const OPACITE_IRIS = 0.6; // le fond de plan reste lisible dessous
 export const BORNES_IRIS: Record<VariableIris, readonly number[]> = {
   familles: [200, 400, 600, 800],

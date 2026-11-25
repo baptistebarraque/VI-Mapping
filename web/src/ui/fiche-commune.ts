@@ -2,7 +2,7 @@
 
 import type { Modele } from '../modele';
 import { JAUGES, type Dispositif, type Fiche, type FicheCommune, type FicheEcole, type Meta } from '../types';
-import { bloc, definition, etiquette, listeRepliee, metre, provenance, tableSources, vide } from './commun';
+import { anneau, bloc, definition, etiquette, listeRepliee, metre, provenance, tableSources, vide, volet } from './commun';
 import { h, lien } from './dom';
 import {
   date, LIBELLE_DISPOSITIF, LIBELLE_GESTION, LIBELLE_GESTIONNAIRE, LIBELLE_JAUGE, LIBELLE_PAGE, LIBELLE_THEME,
@@ -99,9 +99,9 @@ export function ficheCommune(code: string, fiche: Fiche, ctx: ContexteFiche): HT
       provenance(c.p, meta),
     ),
     blocCantine(c, meta),
-    bloc('Dispositifs et élus', listeDispositifs(c, ctx), listeElus(c, meta)),
+    volet('Dispositifs et élus', null, listeDispositifs(c, ctx), listeElus(c, meta)),
     blocSignaux(c, meta),
-    c.gestionnaires?.length ? bloc('Gestionnaires périscolaires', h('ul', { classe: 'liste' }, c.gestionnaires.map((g) => h(
+    c.gestionnaires?.length ? volet('Gestionnaires périscolaires', c.gestionnaires.length, h('ul', { classe: 'liste' }, c.gestionnaires.map((g) => h(
       'li', {}, h('b', {}, g.nom), h('span', { classe: 'sous' },
         `${LIBELLE_GESTIONNAIRE[g.type] ?? g.type} · Siren ${g.siren} · ${pluriel(g.n, 'accueil')}`),
     )))) : null,
@@ -116,7 +116,7 @@ export function resumeEcoles(toutes: number[], modele: Modele, sinon: string): H
   return h(
     'div', {},
     h('div', { classe: 'heros' },
-      h('span', { classe: 'chiffre' }, moyenne === null ? '–' : nombre(moyenne)),
+      anneau(moyenne),
       h('div', {}, h('b', {}, 'Score moyen des écoles sur 100'),
         h('span', { classe: 'sous' }, pluriel(toutes.length, 'école'), ', toutes confondues'))),
     h('div', { classe: 'jauges' }, JAUGES.map((j) => {
@@ -126,7 +126,7 @@ export function resumeEcoles(toutes: number[], modele: Modele, sinon: string): H
       return h('div', { classe: 'jauge simple' },
         h('span', { classe: 'nom' }, LIBELLE_JAUGE[j], h('span', { classe: 'sous' }, ` ${n}/${toutes.length} écoles`)),
         h('span', { classe: v === null ? 'valeur insuffisant' : 'valeur' }, v === null ? 'données insuffisantes' : nombre(v)),
-        metre(v, LIBELLE_JAUGE[j]));
+        metre(v, LIBELLE_JAUGE[j], j));
     })),
   );
 }
@@ -154,8 +154,8 @@ function blocSignaux(c: FicheCommune, meta: Meta): HTMLElement {
   ));
   const etat = c.visite ? `${LIBELLE_VISITE[c.visite.statut] ?? c.visite.statut} le ${date(c.visite.date)}`
     : c.site ? 'site pas encore visité' : 'aucun site connu';
-  return bloc(
-    'Signaux du site de la mairie',
+  return volet(
+    'Signaux du site de la mairie', c.nb_signaux,
     h('p', { classe: 'note' }, etat.charAt(0).toUpperCase() + etat.slice(1),
       c.nb_signaux > signaux.length && ` · ${c.nb_signaux} signaux, les plus récents affichés`),
     signaux.length ? listeRepliee(signaux, 5) : vide('Aucun signal.'),
@@ -168,7 +168,7 @@ export function blocEcoles(liste: number[], ctx: ContexteFiche): HTMLElement | n
     (a, b) => (modele.scores[b] ?? -1) - (modele.scores[a] ?? -1) || modele.t.nom[a].localeCompare(modele.t.nom[b], 'fr'),
   );
   if (!ecoles.length) return null;
-  return bloc('Écoles', listeRepliee(ecoles.map((i) => {
+  return volet('Écoles', ecoles.length, listeRepliee(ecoles.map((i) => {
     const s = modele.scores[i];
     return h('li', { classe: 'proche' },
       h('button', { type: 'button', classe: 'lien fort', onclick: () => ctx.ouvrirEcole(i) }, modele.t.nom[i]),

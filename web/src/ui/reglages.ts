@@ -4,7 +4,8 @@ import {
   filtresVides, type Coloration, type Couche, type Etat, type Magasin, type Secteur, type VariableIris,
 } from '../etat';
 import { JAUGES, TYPES_ECOLE, type Meta, type Mode, type NomJauge, type ProprietesPat } from '../types';
-import { ALIMENTATION, ENCRE_2, INCONNU, RAMPE_ECOLES, RAMPE_IRIS, SURFACE, VIE_SCOLAIRE } from '../couleurs';
+import { ENCRE_2, INCONNU, RAMPE_ECOLES, RAMPE_IRIS, SURFACE, ZONE_CITE, ZONE_PAT } from '../couleurs';
+import { pastille } from './commun';
 import { h, identifiant, remplacer, type Enfant } from './dom';
 import { COURT_JAUGE, LIBELLE_COLORATION, LIBELLE_COUCHE, LIBELLE_IRIS } from './format';
 import { rond, symbole, zone } from './symboles';
@@ -15,7 +16,7 @@ interface Curseur {
 }
 
 function curseur(
-  libelle: string,
+  libelle: Enfant,
   o: { min: number; max: number; pas: number; valeur: number; format: (x: number) => string; change: (x: number) => void },
 ): Curseur {
   const id = identifiant('curseur');
@@ -163,7 +164,7 @@ export function panneauReglages(meta: Meta, m: Magasin, pats: ProprietesPat[], a
     min: 0, max: 5, pas: 1, valeur: e().filtres.connuesMin, format: (x) => `${x} sur 5`,
     change: (x) => m.filtrer({ connuesMin: x }),
   });
-  const seuils = JAUGES.map((j) => suivi(curseur(COURT_JAUGE[j], {
+  const seuils = JAUGES.map((j) => suivi(curseur([pastille(j), COURT_JAUGE[j]], {
     min: 0, max: 100, pas: 5, valeur: e().filtres.seuils[j], format: (x) => (x === 0 ? 'aucun' : `≥ ${x}`),
     change: (x) => m.filtrer({ seuils: { ...e().filtres.seuils, [j]: x } }),
   }), () => e().filtres.seuils[j]));
@@ -174,17 +175,27 @@ export function panneauReglages(meta: Meta, m: Magasin, pats: ProprietesPat[], a
     garder.checked = e().filtres.garderInconnues;
   });
 
+  const avance = h(
+    'details', { classe: 'replie avance' },
+    h('summary', {}, 'Plus de filtres'),
+    h('div', { classe: 'champ taille' }, h('span', { classe: 'libelle' }, 'Élèves'),
+      taille('elevesMin', 'de'), taille('elevesMax', 'à')),
+    suivi(connues, () => e().filtres.connuesMin),
+    h('fieldset', {}, h('legend', {}, 'Seuil minimal par jauge'), seuils,
+      h('label', { classe: 'case' }, garder, ' Garder les écoles dont la jauge est inconnue')),
+  );
+  majs.push(() => { // un filtre actif ne reste jamais caché
+    const f = e().filtres;
+    if (f.elevesMin !== null || f.elevesMax !== null || f.connuesMin > 0 || JAUGES.some((j) => f.seuils[j] > 0)) avance.open = true;
+  });
+
   const filtres = section(
     'Filtres', true,
     h('div', { classe: 'champ' }, h('span', { classe: 'libelle' }, 'Départements'), departements.el),
     h('div', { classe: 'champ' }, h('label', { classe: 'libelle', for: commune.id }, 'Commune'), commune, listeCommunes),
     h('div', { classe: 'champ' }, h('span', { classe: 'libelle' }, 'Secteur'), secteur.el),
     h('div', { classe: 'champ' }, h('span', { classe: 'libelle' }, 'Type'), types.el),
-    h('div', { classe: 'champ taille' }, h('span', { classe: 'libelle' }, 'Élèves'),
-      taille('elevesMin', 'de'), taille('elevesMax', 'à')),
-    suivi(connues, () => e().filtres.connuesMin),
-    h('fieldset', {}, h('legend', {}, 'Seuil minimal par jauge'), seuils,
-      h('label', { classe: 'case' }, garder, ' Garder les écoles dont la jauge est inconnue')),
+    avance,
     h('button', {
       type: 'button', classe: 'discret',
       onclick: () => {
@@ -203,7 +214,7 @@ export function panneauReglages(meta: Meta, m: Magasin, pats: ProprietesPat[], a
   const poids = JAUGES.map((j) => {
     const part = h('span', { classe: 'part' });
     parts.set(j, part);
-    const c = curseur(COURT_JAUGE[j], {
+    const c = curseur([pastille(j), COURT_JAUGE[j]], {
       min: 0, max: 100, pas: 5, valeur: e().poids[j], format: String,
       change: (x) => {
         m.modifier('poids', { ...e().poids, [j]: x });
@@ -216,7 +227,7 @@ export function panneauReglages(meta: Meta, m: Magasin, pats: ProprietesPat[], a
   });
   majs.push(majParts);
   const sectionPoids = section(
-    'Poids du score', true, poids,
+    'Poids du score', false, poids,
     note('Score = moyenne pondérée des jauges connues. Une jauge inconnue ne compte pas 0 : elle sort de la moyenne.'),
     h('button', {
       type: 'button', classe: 'discret',
@@ -262,8 +273,8 @@ export function panneauReglages(meta: Meta, m: Magasin, pats: ProprietesPat[], a
     producteurs: () => symbole('producteurs'),
     relais: () => symbole('relais'),
     communes: () => zone(INCONNU, 'none'),
-    pat: () => zone(ALIMENTATION, `${ALIMENTATION}22`),
-    cites: () => zone(VIE_SCOLAIRE, `${VIE_SCOLAIRE}22`),
+    pat: () => zone(ZONE_PAT, `${ZONE_PAT}22`),
+    cites: () => zone(ZONE_CITE, `${ZONE_CITE}22`),
     qpv: () => zone(ENCRE_2, 'none', true),
     iris: () => zone(SURFACE, RAMPE_IRIS[2]),
   };
