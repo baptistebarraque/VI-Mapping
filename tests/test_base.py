@@ -18,6 +18,7 @@ from vi_mapping.couverture import mesurer, rendu
 from vi_mapping.couverture.champs import TABLES
 from vi_mapping.db import ChuteAnormale, enrichir, migrer, point, purger_absents, upsert
 from vi_mapping.export import zones
+from vi_mapping.sauvegarde import TABLES as TABLES_SAUVEES
 from vi_mapping.scrapers.campagne import plafond
 from vi_mapping.scrapers.sites_mairies import a_visiter
 from vi_mapping.sources.base import Contexte, sources_dues
@@ -255,6 +256,12 @@ def test_echantillon_sans_contact(conn: Conn, monkeypatch: pytest.MonkeyPatch) -
     assert plafond(ctx, "asso_parents", 1000) == maximum
     monkeypatch.setenv("VI_CONTACT", "https://exemple.fr/robot")
     assert plafond(ctx, "commune", 1000) == 1000
+
+
+def test_sauvegarde_couvre_toutes_les_tables_metier(conn: Conn) -> None:
+    tables = {r["tablename"] for r in conn.execute("SELECT tablename FROM pg_tables WHERE schemaname = 'public'")}
+    assert tables - set(TABLES_SAUVEES) == {
+        "spatial_ref_sys", "schema_migration", "source_donnees", "modele_provenance", "geocodage_cache"}
 
 
 # ------------------------------------------------------------------ relance de l'analyse d'une école
