@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+from dataclasses import asdict
 from pathlib import Path
 from typing import Annotated
 
@@ -105,6 +107,31 @@ def maj(
     if echecs:
         console.print(f"[red]Échecs : {', '.join(echecs)}[/red]")
         raise typer.Exit(1)
+
+
+@app.command()
+def analyser(
+    uai: Annotated[str, typer.Argument(help="Code UAI de l'école")],
+) -> None:
+    """Relance l'analyse d'une école : site de sa mairie, calculs, contrôles et export. Finit par un bilan en JSON."""
+    from .analyse import EcoleInconnue, relancer
+
+    charger()
+    with connexion() as verrou:
+        verrou.autocommit = True
+        pris = verrou.execute("SELECT pg_try_advisory_lock(hashtext('vi maj')) AS pris").fetchone()
+        if not pris or not pris["pris"]:
+            console.print("[yellow]Une mise à jour est déjà en cours.[/yellow]")
+            raise typer.Exit(1)
+        try:
+            bilan = relancer(uai)
+        except EcoleInconnue:
+            raise typer.BadParameter(f"école inconnue : {uai}") from None
+        if not afficher_controles():
+            console.print("[red]Contrôles en erreur : export non refait.[/red]")
+            raise typer.Exit(1)
+        exporter(None)
+    typer.echo(json.dumps(asdict(bilan)))
 
 
 def afficher_controles() -> bool:

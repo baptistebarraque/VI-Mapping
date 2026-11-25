@@ -63,7 +63,7 @@ def mesurer(conn: psycopg.Connection[Any]) -> Rapport:
         mesures.append(Mesure(table, total, concernees, remplies))
     sources = conn.execute(
         """SELECT s.code, s.libelle, s.methode::text, s.frequence, s.statut, s.verification,
-                  max(r.fin) FILTER (WHERE r.statut = 'succes') AS collecte
+                  max(r.fin) FILTER (WHERE r.statut = 'succes' AND NOT r.parametres ? 'communes') AS collecte
            FROM source_donnees s LEFT JOIN collecte_run r ON r.source = s.code
            GROUP BY s.code ORDER BY s.statut, s.code""").fetchall()
     visites = conn.execute(

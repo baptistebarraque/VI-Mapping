@@ -9,6 +9,7 @@ import psycopg
 import pytest
 
 from vi_mapping import verifications
+from vi_mapping.analyse import EcoleInconnue, sites
 from vi_mapping.calculs.doublons import Groupes
 from vi_mapping.calculs.jauges import calculer as calculer_jauges
 from vi_mapping.calculs.rattachements import rattacher
@@ -18,6 +19,7 @@ from vi_mapping.couverture.champs import TABLES
 from vi_mapping.db import ChuteAnormale, enrichir, migrer, point, purger_absents, upsert
 from vi_mapping.export import zones
 from vi_mapping.scrapers.campagne import plafond
+from vi_mapping.scrapers.sites_mairies import a_visiter
 from vi_mapping.sources.base import Contexte, sources_dues
 
 Conn = psycopg.Connection[dict[str, Any]]
@@ -253,3 +255,37 @@ def test_echantillon_sans_contact(conn: Conn, monkeypatch: pytest.MonkeyPatch) -
     assert plafond(ctx, "asso_parents", 1000) == maximum
     monkeypatch.setenv("VI_CONTACT", "https://exemple.fr/robot")
     assert plafond(ctx, "commune", 1000) == 1000
+
+
+# ------------------------------------------------------------------ relance de l'analyse d'une école
+def test_sites_a_revoir(conn: Conn) -> None:
+    commune(conn)
+    upsert(conn, "ecole", [ecole()], ["uai"])
+    assert sites(conn, "0930001A", T0) == ([], [])  # la commune n'a pas de site
+    conn.execute("UPDATE commune SET site_web = 'https://exemple.fr/'")
+    assert sites(conn, "0930001A", T0) == (["93048"], [])
+    conn.execute("""INSERT INTO crawl_site (hote, objet_type, objet_id, url_depart, statut, visite_le)
+                    VALUES ('exemple.fr', 'commune', '93048', 'https://exemple.fr/', 'ok', %s)""", (T0,))
+    assert sites(conn, "0930001A", T0) == ([], ["93048"])
+    assert sites(conn, "0930001A", T0 + timedelta(days=1)) == (["93048"], [])
+    with pytest.raises(EcoleInconnue):
+        sites(conn, "0000000X", T0)
+
+
+def test_visite_limitee_a_une_commune(conn: Conn) -> None:
+    commune(conn)
+    upsert(conn, "commune", [{
+        "code_insee": "94080", "nom": "Vincennes", "departement": "94", "geom": CARRE, "population": 1,
+        "superficie_km2": 1.0, **prov("ign_admin_express")}], ["code_insee"])
+    conn.execute("UPDATE commune SET site_web = 'https://' || code_insee || '.fr/'")
+    assert len(a_visiter(contexte(conn, "sites_mairies"))) == 2
+    assert [c.commune for c in a_visiter(contexte(conn, "sites_mairies", communes=["94080"]))] == ["94080"]
+
+
+def test_collecte_ciblee_ne_repousse_pas_la_campagne(conn: Conn) -> None:
+    from vi_mapping.sources import charger
+
+    charger()
+    conn.execute("""INSERT INTO collecte_run (source, debut, fin, statut, parametres)
+                    VALUES ('sites_mairies', now(), now(), 'succes', '{"communes": ["93048"]}')""")
+    assert "sites_mairies" in sources_dues(conn)

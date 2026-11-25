@@ -129,8 +129,10 @@ def calculer_tout(*, options: dict[str, Any] | None = None) -> list[str]:
 
 
 def dernier_succes(conn: psycopg.Connection[Any], code: str) -> datetime | None:
+    """Une collecte limitée à quelques communes (« vi analyser ») ne vaut pas collecte de la source."""
     r = conn.execute(
-        "SELECT max(fin) AS f FROM collecte_run WHERE source = %s AND statut = 'succes'", (code,)
+        "SELECT max(fin) AS f FROM collecte_run WHERE source = %s AND statut = 'succes' "
+        "AND NOT parametres ? 'communes'", (code,)
     ).fetchone()
     return r["f"] if r else None
 
