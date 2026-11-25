@@ -227,11 +227,17 @@ def urls_sitemap(site: SiteWeb, aujourdhui: date) -> list[tuple[str, date | None
     return urls[:URLS_MAX]
 
 
+# Une liste d'élus cite les délégations (« alimentation durable ») : ce n'est pas une action de la commune.
+_LISTE_ELUS = re.compile(r"\b(vos|nos|les) elus?\b|\belues?\b|\btrombinoscope\b|\bequipe municipale\b")
+
+
 def signaux(cible: Cible, pages: list[tuple[str, Contenu]]) -> list[dict[str, Any]]:
     """Thèmes attestés, page par page. Un thème présent partout dans le texte est un habillage : écarté."""
     presence: Counter[str] = Counter()
     analyses = []
     for url, c in pages:
+        if _LISTE_ELUS.search(normaliser(c.titre)):
+            continue
         corps = themes.themes_de(c.texte)
         entete = themes.themes_de(f"{c.titres} {themes.mots_url(url)}")
         presence.update(corps.keys())
