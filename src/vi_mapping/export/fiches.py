@@ -50,12 +50,14 @@ class Fiches:
     def _acteurs(self) -> None:
         c = self.conn
         self.accueils = {r["id"]: r for r in c.execute(
-            """SELECT a.*, g.nom AS gestionnaire_nom, g.type AS gestionnaire_type
+            """SELECT a.*, ST_X(a.geom) AS lon, ST_Y(a.geom) AS lat, g.nom AS gestionnaire_nom,
+                      g.type AS gestionnaire_type
                FROM accueil_periscolaire a LEFT JOIN gestionnaire_perisco g ON g.siren = a.gestionnaire_siren
                WHERE a.doublon_de IS NULL""")}
         self.liens_accueils = par(c.execute(
             "SELECT * FROM accueil_ecole ORDER BY ecole_uai, distance_m, accueil_id").fetchall(), "ecole_uai")
-        self.assos = {r["id"]: r for r in c.execute("SELECT * FROM asso_parents WHERE doublon_de IS NULL")}
+        self.assos = {r["id"]: r for r in c.execute(
+            "SELECT *, ST_X(geom) AS lon, ST_Y(geom) AS lat FROM asso_parents WHERE doublon_de IS NULL")}
         self.liens_assos = par(c.execute(
             "SELECT * FROM asso_ecole ORDER BY ecole_uai, confiance DESC, asso_id").fetchall(), "ecole_uai")
         self.gestionnaires = par(c.execute(
@@ -192,7 +194,8 @@ class Fiches:
         return sans_vide({
             "nom": a["nom"], "adresse": a["adresse"], "soir": a["accueil_soir"], "mercredi": a["accueil_mercredi"],
             "horaires": a["horaires"], "gestionnaire": a["gestionnaire_nom"] or a["exploitant"],
-            "gestionnaire_type": a["gestionnaire_type"], "siren": a["gestionnaire_siren"], "p": prov(a),
+            "gestionnaire_type": a["gestionnaire_type"], "siren": a["gestionnaire_siren"], "xy": _position(a),
+            "p": prov(a),
         })
 
     @staticmethod
@@ -200,8 +203,13 @@ class Fiches:
         return sans_vide({
             "nom": a["nom"], "siege": a["siege"], "federation": a["federation"], "site": a["site_web"],
             "rna": a["rna"], "siren": a["siren"], "creation": a["date_creation"], "activite": a["derniere_activite"],
-            "activite_url": a["derniere_activite_url"], "p": prov(a), "pg": prov_groupes(a["provenances"]),
+            "activite_url": a["derniere_activite_url"], "xy": _position(a), "p": prov(a),
+            "pg": prov_groupes(a["provenances"]),
         })
+
+
+def _position(r: dict[str, Any]) -> list[float] | None:
+    return None if r["lon"] is None else [round(r["lon"], 5), round(r["lat"], 5)]
 
 
 def _distance(r: dict[str, Any]) -> tuple[float, float | None]:
