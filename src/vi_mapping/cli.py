@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Annotated
 
 import typer
@@ -92,3 +93,19 @@ def jauges() -> None:
     charger()
     if executer("jauges") == "echec":
         raise typer.Exit(1)
+
+
+@app.command()
+def exporter(
+    dossier: Annotated[Path | None, typer.Option(help="Dossier de destination (web/public/donnees)")] = None,
+) -> None:
+    """Écrit les fichiers JSON lus par la carte."""
+    from .export import dossier_export
+    from .export import exporter as ecrire_export
+
+    destination = dossier or dossier_export()
+    with connexion() as conn:
+        tailles = ecrire_export(conn, destination, lambda m: console.print(f"  [dim]export[/dim] {m}"))
+    for nom, octets in tailles.items():
+        console.print(f"  {nom:28} {octets / 1e6:8.2f} Mo")
+    console.print(f"[green]ok[/green] {destination}")

@@ -6,6 +6,8 @@ from collections import defaultdict
 from datetime import date
 from typing import Any
 
+import psycopg
+
 from ..config import ConfigJauges, config_jauges
 from ..db import upsert
 from ..outils.texte import normaliser
@@ -18,6 +20,30 @@ def il_y_a(mois: int, jour: date) -> date:
     """Date `mois` mois avant `jour` (fin de mois ramenée au 28)."""
     total = jour.year * 12 + jour.month - 1 - mois
     return date(total // 12, total % 12 + 1, min(jour.day, 28))
+
+
+def distances_producteurs(
+    conn: psycopg.Connection[Any], cfg: ConfigJauges
+) -> dict[str, list[tuple[float | None, float | None]]]:
+    """(km, minutes) des producteurs utiles à la jauge de chaque école.
+
+    Les 5 plus proches en km et les 5 plus proches en minutes suffisent, quel que soit le rayon : le nombre est
+    plafonné à 5 et seul le plus proche compte ensuite.
+    """
+    n = cfg.producteurs.nombre_plein
+    resultat: dict[str, list[tuple[float | None, float | None]]] = defaultdict(list)
+    for r in conn.execute(
+        """SELECT ecole_uai, km, minutes FROM (
+             SELECT ecole_uai, coalesce(km_route, km_vol_oiseau) AS km, minutes,
+                    row_number() OVER (PARTITION BY ecole_uai
+                                       ORDER BY coalesce(km_route, km_vol_oiseau), cible_id) AS rang_km,
+                    row_number() OVER (PARTITION BY ecole_uai ORDER BY minutes NULLS LAST, cible_id) AS rang_min
+             FROM proximite x JOIN producteur p ON p.id = x.cible_id
+             WHERE cible_type = 'producteur' AND p.adresse_type = ANY(%s)
+           ) t WHERE rang_km <= %s OR rang_min <= %s""", (list(cfg.producteurs.adresses), n, n),
+    ):
+        resultat[r["ecole_uai"]].append((r["km"], r["minutes"]))
+    return resultat
 
 
 class Donnees:
@@ -98,20 +124,7 @@ class Donnees:
                 float(r["confiance"]), r["federation"], None if activite is None else activite >= depuis))
 
     def _producteurs(self) -> None:
-        """Les 5 plus proches en km et les 5 plus proches en minutes suffisent (nombre plafonné à 5)."""
-        n = self.cfg.producteurs.nombre_plein
-        self.producteurs: dict[str, list[tuple[float | None, float | None]]] = defaultdict(list)
-        for r in self.ctx.conn.execute(
-            """SELECT ecole_uai, km, minutes FROM (
-                 SELECT ecole_uai, coalesce(km_route, km_vol_oiseau) AS km, minutes,
-                        row_number() OVER (PARTITION BY ecole_uai
-                                           ORDER BY coalesce(km_route, km_vol_oiseau), cible_id) AS rang_km,
-                        row_number() OVER (PARTITION BY ecole_uai ORDER BY minutes NULLS LAST, cible_id) AS rang_min
-                 FROM proximite x JOIN producteur p ON p.id = x.cible_id
-                 WHERE cible_type = 'producteur' AND p.adresse_type = ANY(%s)
-               ) t WHERE rang_km <= %s OR rang_min <= %s""", (list(self.cfg.producteurs.adresses), n, n),
-        ):
-            self.producteurs[r["ecole_uai"]].append((r["km"], r["minutes"]))
+        self.producteurs = distances_producteurs(self.ctx.conn, self.cfg)
         calcule = self.ctx.conn.execute("SELECT EXISTS (SELECT 1 FROM proximite) AS oui").fetchone()
         self.proximite_calculee = bool(calcule and calcule["oui"])
 
