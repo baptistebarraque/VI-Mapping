@@ -396,6 +396,19 @@ summary {
   justify-content: space-between;
   gap: 12px;
 }
+.premiers {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  color: var(--encre-2);
+}
+.premiers .puce {
+  color: var(--encre);
+}
+.premiers input {
+  width: 76px;
+}
 .compte {
   color: var(--encre-2);
 }

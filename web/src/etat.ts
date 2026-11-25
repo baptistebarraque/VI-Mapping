@@ -20,7 +20,11 @@ export interface Filtres {
   seuils: ParJauge<number>;
   garderInconnues: boolean; // jauge inconnue : garder l'école malgré un seuil
   connuesMin: number; // nombre minimal de jauges connues, sur 5
+  premiers: number | null; // ne garder que le début du classement ; null : tout
 }
+
+export const PREMIERS_DEFAUT = 50;
+export const PREMIERS_MAX = 9999;
 
 export type Selection = { type: 'ecole'; uai: string } | { type: 'commune'; code: string } | null;
 
@@ -42,7 +46,7 @@ const parJauge = <T>(f: (j: NomJauge) => T): ParJauge<T> =>
 export function filtresVides(): Filtres {
   return {
     departements: [], commune: null, secteur: 'tous', types: [], elevesMin: null, elevesMax: null,
-    seuils: parJauge(() => 0), garderInconnues: false, connuesMin: 0,
+    seuils: parJauge(() => 0), garderInconnues: false, connuesMin: 0, premiers: null,
   };
 }
 
@@ -119,6 +123,7 @@ export function versAdresse(e: Etat, meta: Meta): string {
   poser('seuils', seuils(e), seuils(defaut));
   poser('inconnues', e.filtres.garderInconnues ? '1' : '', '');
   poser('connues', String(e.filtres.connuesMin), '0');
+  poser('premiers', String(e.filtres.premiers ?? ''), '');
   poser('couches', couches(e), couches(defaut));
   poser('couleur', e.coloration, defaut.coloration);
   poser('iris', e.iris, defaut.iris);
@@ -154,6 +159,8 @@ export function depuisAdresse(hash: string, meta: Meta): Etat {
   f.garderInconnues = p.get('inconnues') === '1';
   const connues = Number(p.get('connues') ?? 0);
   f.connuesMin = dans(connues, 0, 5) ? connues : 0;
+  const premiers = Number(p.get('premiers'));
+  f.premiers = Number.isInteger(premiers) && dans(premiers, 1, PREMIERS_MAX) ? premiers : null;
   if (p.has('couches')) {
     const actives = new Set((p.get('couches') ?? '').split('-'));
     for (const c of COUCHES) e.couches[c] = actives.has(c);

@@ -84,6 +84,13 @@ describe('filtres', () => {
     expect(uai({ seuils, garderInconnues: true }).sort()).toEqual(['1', '2', '3', '4']);
   });
 
+  test('début du classement, après les autres filtres', () => {
+    const complet = uai({ commune: '93048' });
+    expect(uai({ commune: '93048', premiers: 2 })).toEqual(complet.slice(0, 2));
+    expect(m.nbFiltrees).toBe(3);
+    expect(uai({ premiers: 100 })).toHaveLength(4);
+  });
+
   test('nombre de jauges connues', () => {
     expect(uai({ connuesMin: 5 })).toEqual(['1']);
     expect(uai({ connuesMin: 4 }).sort()).toEqual(['1', '4']);

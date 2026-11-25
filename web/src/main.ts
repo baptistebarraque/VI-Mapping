@@ -54,6 +54,7 @@ async function demarrer(app: HTMLElement): Promise<void> {
     modele,
     (i) => choisir({ type: 'ecole', uai: table.uai[i] }, true),
     () => telecharger(classementCsv(modele), `classement-ecoles-${meta.genere_le.slice(0, 10)}.csv`),
+    { lire: () => etat.filtres.premiers, changer: (premiers) => magasin.filtrer({ premiers }) },
   );
   const droite = h('aside', { classe: 'droite', 'aria-label': 'Classement et fiches' }, classement.el, panneauFiche);
   const reglages = panneauReglages(meta, magasin, (code) => {
