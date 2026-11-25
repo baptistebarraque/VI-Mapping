@@ -44,6 +44,7 @@ class Producteurs(_Strict):
     prefixes_fruits: list[str]
     activites_maraichage: list[str]
     activites_fruits: list[str]
+    activites_exclues: list[str]
     categories_vente_directe: list[str]
     confiance_adresse: dict[Literal["lieu_activite", "lieu_vente", "siege"], Part]
 

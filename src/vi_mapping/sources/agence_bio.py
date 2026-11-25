@@ -6,6 +6,7 @@ de personnes physiques : un exploitant individuel sans nom commercial est anonym
 
 from __future__ import annotations
 
+import re
 from collections.abc import Iterator
 from typing import Any
 
@@ -36,12 +37,37 @@ MOTS_ENTREPRISE = {
 }
 
 
+# « FERME DE LA RUE DUPONT Marie » : raison sociale d'un exploitant individuel, suivie de son nom et de son prénom
+_NOM_PRENOM = re.compile(r"^(?P<avant>.*?)\s*(?P<nom>[^\W\d_a-zà-ÿ][^\Wa-zà-ÿ\d_]+)\s+"
+                         r"(?P<prenom>[A-ZÀ-Ý][a-zà-ÿ'’]+(?:[ -][A-ZÀ-Ý][a-zà-ÿ'’]+)*)$")
+_FORMES = {"ei", "eurl", "earl", "scea", "gaec", "sarl", "sas", "sasu", "sa", "sci", "snc", "la", "le", "les", "de"}
+_PARTICULES = {"de", "du", "des", "d", "la", "le", "les", "l", "aux", "van", "der", "di", "ben", "el", "saint", "von"}
+
+
+def sans_exploitant(brut: str | None) -> str | None:
+    """Retire « NOM Prénom » en fin de raison sociale ; None s'il faut anonymiser."""
+    texte = propre(brut)
+    m = _NOM_PRENOM.match(texte) if texte else None
+    if texte is None or m is None or not re.search(r"[A-ZÀ-Ý]{2}", m["nom"]):
+        return texte
+    avant = m["avant"].split()
+    while avant and normaliser(avant[-1]) in _PARTICULES:
+        avant.pop()
+    mots = [normaliser(x) for x in avant]
+    if not mots or normaliser(m["nom"]) in mots:
+        return None
+    # Le dernier mot doit être un nom commun ou un lieu-dit, sinon c'est peut-être un nom de famille composé.
+    sur = mots[-1] in MOTS_ENTREPRISE or (len(mots) >= 2 and mots[-2] in _PARTICULES)
+    return " ".join(avant) if sur and set(mots) & MOTS_ENTREPRISE else None
+
+
 def nom_public(operateur: dict[str, Any]) -> str | None:
     """Nom commercial sans nom de personne physique, ou None s'il faut anonymiser."""
     gerant = {m for m in normaliser(operateur.get("gerant")).split() if len(m) > 1}
-    for brut in (operateur.get("denominationcourante"), operateur.get("raisonSociale")):
+    for source in (operateur.get("denominationcourante"), operateur.get("raisonSociale")):
+        brut = sans_exploitant(source)
         mots = normaliser(brut).split()
-        if not mots or mots[0] in {"m", "mr", "mme", "mlle", "monsieur", "madame"}:
+        if not set(mots) - _FORMES or mots[0] in {"m", "mr", "mme", "mlle", "monsieur", "madame"}:
             continue
         communs = gerant & set(mots)
         if gerant and (communs == gerant or len(communs) >= 2):
@@ -82,6 +108,12 @@ def vente_directe(operateur: dict[str, Any], c: Producteurs) -> bool | None:
     if {k["nom"] for k in operateur.get("categories") or []} & set(c.categories_vente_directe):
         return True
     return (operateur.get("venteAnnuaire") or {}).get("venteParticuliers")
+
+
+def est_agricole(operateur: dict[str, Any], c: Producteurs) -> bool:
+    """Faux pour un restaurateur dont la seule « production » est de la transformation."""
+    noms = {propre(a["nom"]) for a in operateur.get("annuaireActivites") or []}
+    return not noms or not noms <= set(c.activites_exclues)
 
 
 def meilleure_adresse(operateur: dict[str, Any], communes: set[str]) -> tuple[str, dict[str, Any]] | None:
@@ -148,7 +180,7 @@ def collecter(ctx: Contexte) -> Compteurs:
             "etat_bio": etat if etat != "inconnu" else etat_bio(tous, c),
             "vente_directe": directe,
             "membre_amap": None,  # l'API ne le dit pas ; la carte du Réseau AMAP IdF est verrouillée
-            "eligible": etat != "inconnu" and (maraichage or fruits) and bool(directe),
+            "eligible": etat != "inconnu" and (maraichage or fruits) and bool(directe) and est_agricole(o, c),
             # Siège d'un exploitant individuel : souvent son domicile, on s'en tient à la ville.
             "adresse": ville if nom is None and type_adresse == "siege" else propre(f"{rue}, {ville}".strip(" ,")),
             "adresse_type": type_adresse,

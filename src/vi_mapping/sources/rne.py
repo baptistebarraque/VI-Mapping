@@ -29,8 +29,12 @@ def lire(ctx: Contexte, ressource: Ressource) -> Iterator[dict[str, str]]:
 
 
 def jour(texte: str) -> date | None:
-    m = re.fullmatch(r"(\d{2})/(\d{2})/(\d{4})", texte.strip())
-    return date(int(m[3]), int(m[2]), int(m[1])) if m else None
+    """« 2026-03-15 » ou « 15/03/2026 » selon les millésimes."""
+    if m := re.fullmatch(r"(\d{4})-(\d{2})-(\d{2})", texte.strip()):
+        return date(int(m[1]), int(m[2]), int(m[3]))
+    if m := re.fullmatch(r"(\d{2})/(\d{2})/(\d{4})", texte.strip()):
+        return date(int(m[3]), int(m[2]), int(m[1]))
+    return None
 
 
 def communes_du_secteur(libelle: str) -> list[str]:

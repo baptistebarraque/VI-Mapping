@@ -32,6 +32,7 @@ producteurs:
   prefixes_fruits: ["01.21.11", "01.22", "01.23", "01.24", "01.25"]   # raisin de table, fruits, baies
   activites_maraichage: [Maraîchage, Culture de pommes de terre]
   activites_fruits: [Arboriculture]
+  activites_exclues: [Restaurant - Traiteur - Restauration rapide]   # si c'est la seule activité
   categories_vente_directe: [Vente aux consommateurs]
   # Confiance selon l'adresse disponible : le siège n'est pas forcément la ferme.
   confiance_adresse: {lieu_activite: 0.95, lieu_vente: 0.85, siege: 0.6}
