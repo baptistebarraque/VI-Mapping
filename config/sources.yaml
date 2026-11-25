@@ -3,7 +3,8 @@
 # statut :
 #   ouverte     : open data / API publique, ou site dont robots.txt et CGU permettent la collecte
 #   verrouillee : CGU ou anti-robot l'interdisent ; le moteur refuse de lancer la collecte tant que
-#                 « autorisation » n'est pas renseignée (date, référence de l'accord écrit)
+#                 « autorisation » n'est pas renseignée (date, référence de l'accord écrit).
+#                 Les domaines listés dans « hotes » sont refusés à tous les scrapers.
 # frequence : annuelle (open data) ou mensuelle (scraping)
 # confiance : valeur par défaut, affinée ligne par ligne par les connecteurs
 
@@ -326,6 +327,7 @@ sources:
     frequence: mensuelle
     statut: verrouillee
     confiance: 0.9
+    hotes: [monenfant.fr, caf.fr]
     verification:
       le: 2026-11-25
       robots: "autorisé (Disallow vide)"
@@ -348,6 +350,7 @@ sources:
     frequence: mensuelle
     statut: verrouillee
     confiance: 0.95
+    hotes: [amap-idf.org]
     verification:
       le: 2026-11-25
       robots: "autorisé (Disallow vide)"
@@ -367,6 +370,7 @@ sources:
     frequence: mensuelle
     statut: verrouillee
     confiance: 0.8
+    hotes: [fcpe75.org, fcpe.asso.fr]
     verification:
       le: 2026-11-25
       robots: autorisé
@@ -385,6 +389,7 @@ sources:
     frequence: mensuelle
     statut: verrouillee
     confiance: 0.8
+    hotes: [peep.asso.fr]
     verification:
       le: 2026-11-25
       robots: "autorisé (Disallow vide)"

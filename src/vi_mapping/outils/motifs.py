@@ -7,6 +7,8 @@ from __future__ import annotations
 
 import re
 
+from .texte import normaliser
+
 # ----------------------------------------------------------------- accueils périscolaires
 ACCUEIL = re.compile(
     r"\b(centres?|accueils?|ctre|cent|espaces?) ((municipal|municipaux|intercommunal|communal) )?"
@@ -20,7 +22,7 @@ PAS_ACCUEIL = re.compile(
     r"\bbase de loisirs?\b|\bequestre|\bponey|\bnautique|\bkarting|\bsports? et loisirs\b|\bfrance loisirs\b"
     r"|\bhalte garderie\b|\bcreche\b|\bmulti accueil\b|\bpetite enfance\b|\bp et t\b|\bpostes? et tele"
     r"|\bbois du\b|\bcour\b|\bparking\b|\bnautisme\b|\bseniors?\b|\bpersonnes agees\b|\btroisieme age\b|\b3eme age\b"
-    r"|\bferme du centre de loisirs\b|\barret\b|\bcomite d entreprise\b|\bville de paris loisirs\b"
+    r"|\bferme du centre de loisirs\b|\bomep\b|\barret\b|\bcomite d entreprise\b|\bville de paris loisirs\b"
 )
 SOIR = re.compile(r"\bperi ?scolaires?\b|\bgarderie\b|\bsoir\b|\bpost ?scolaire\b|\balae\b")
 MERCREDI = re.compile(r"\bmercredis?\b")
@@ -126,3 +128,33 @@ def niveau_scolaire(titre: str, objet: str) -> str:
     if premier:
         return "premier_degre"
     return "second_degre" if second else "indetermine"
+
+
+# ----------------------------------------------------------------- noms d'écoles
+_GENERIQUE_ECOLE = re.compile(
+    r"ecoles?|maternelles?|elementaires?|primaires?|polyvalentes?|publiques?|privees?|prive|groupes?|scolaires?"
+    r"|application|annexe|degre|rpi|rpid|rpic|intercommunale?|regroupement|pedagogique|bilingue|catholique|institution"
+    r"|ensemble|cours|communale?|[a-z]|e ?[em] ?(p ?)?u?|eppu|eepu|empu|epu|epp?|premier|1er"
+    r"|et|de|du|des|la|le|les|au|aux|en|sur|sous|\d+(er|e|eme)?"
+)
+_ADRESSE_FINALE = re.compile(
+    r"\s\d{1,4}\s*(?:bis|ter|quater|[a-d])?,?\s+(?:rue|avenue|av|boulevard|bd|place|allée|allee|chemin|impasse|square|route"
+    r"|cours|passage|quai|sentier|villa|voie|cité|cite)\b.*$", re.I)
+_TYPE_VOIE = re.compile(r"^(?:rue|avenue|boulevard|place|allée|impasse|square|route|passage|quai)\s+", re.I)
+
+
+def nom_propre(nom: str) -> str:
+    """Nom propre d'une école, casse conservée : « Ecole maternelle Paul Bert » → « Paul Bert ».
+
+    Les écoles parisiennes portent leur adresse (« Carpeaux 5 rue Carpeaux ») : elle est retirée.
+    """
+    court = _ADRESSE_FINALE.sub("", nom)
+    for texte in (court, nom):
+        mots = [m for m in re.split(r"[\s,;/()]+|(?<=\b[dlDL])['’]", texte) if normaliser(m)]
+        while mots and _GENERIQUE_ECOLE.fullmatch(normaliser(mots[0])):
+            mots.pop(0)
+        while mots and _GENERIQUE_ECOLE.fullmatch(normaliser(mots[-1])):
+            mots.pop()
+        if mots:
+            return re.sub(r"\b([dlDL]) (?=\w)", r"\1'", _TYPE_VOIE.sub("", " ".join(mots))).strip(" -–.")
+    return ""

@@ -143,6 +143,7 @@ class SourceConfig(_Strict):
     frequence: Literal["mensuelle", "annuelle"]
     statut: Literal["ouverte", "verrouillee"]
     confiance: Part
+    hotes: list[str] = []  # domaines couverts, refusés par tous les scrapers si la source est verrouillée
     verification: Verification | None = None
     autorisation: Autorisation | None = None
 
@@ -292,6 +293,12 @@ def config_idf() -> ConfigIdf:
 @lru_cache
 def config_sources() -> dict[str, SourceConfig]:
     return {code: SourceConfig.model_validate(s) for code, s in _yaml("sources.yaml")["sources"].items()}
+
+
+@lru_cache
+def hotes_verrouilles() -> frozenset[str]:
+    """Domaines qu'aucun scraper ne doit visiter (CGU), sous-domaines compris."""
+    return frozenset(h for s in config_sources().values() if s.verrouillee for h in s.hotes)
 
 
 @lru_cache
