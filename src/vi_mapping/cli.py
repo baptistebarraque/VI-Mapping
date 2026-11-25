@@ -9,11 +9,11 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
-from .config import RACINE, config_sources
+from .config import RACINE, config_sources, dossier_donnees
 from .db import connexion
 from .db import migrer as appliquer_migrations
 from .sources import charger
-from .sources.base import REGISTRE, a_collecter, dernier_succes, executer, ordre, sources_dues
+from .sources.base import REGISTRE, a_collecter, calculer_tout, dernier_succes, executer, ordre, sources_dues
 
 app = typer.Typer(no_args_is_help=True, add_completion=False, help="Collecte et carte V.i, Île-de-France.")
 console = Console()
@@ -49,8 +49,9 @@ def collecter(
     dus: Annotated[bool, typer.Option("--dus", help="Seulement celles arrivées à échéance")] = False,
     limite: Annotated[int | None, typer.Option(help="Nombre maximal de sites (scrapers)")] = None,
     forcer: Annotated[bool, typer.Option("--forcer", help="Accepter une forte baisse du nombre de lignes")] = False,
+    sans_calcul: Annotated[bool, typer.Option("--sans-calcul", help="Ne pas recalculer ensuite")] = False,
 ) -> None:
-    """Collecte une ou plusieurs sources (idempotent)."""
+    """Collecte une ou plusieurs sources (idempotent), puis refait rattachements, distances et jauges."""
     charger()
     if tout:
         choix = ordre(a_collecter())
@@ -64,8 +65,61 @@ def collecter(
         choix = ordre([c for c in codes if c in REGISTRE]) + [c for c in codes if c not in REGISTRE]
     options = {"forcer": True} if forcer else {}
     echecs = [c for c in choix if executer(c, limite=limite, options=options) == "echec"]
+    if choix and not sans_calcul:
+        echecs += calculer_tout()
     if echecs:
         console.print(f"[red]Échecs : {', '.join(echecs)}[/red]")
+        raise typer.Exit(1)
+
+
+@app.command()
+def maj(
+    limite: Annotated[int | None, typer.Option(help="Nombre maximal de sites (scrapers)")] = None,
+) -> None:
+    """Mise à jour planifiée : sources arrivées à échéance, calculs, contrôles, rapport de couverture et export."""
+    charger()
+    with connexion() as verrou:
+        verrou.autocommit = True
+        pris = verrou.execute("SELECT pg_try_advisory_lock(hashtext('vi maj')) AS pris").fetchone()
+        if not pris or not pris["pris"]:
+            console.print("[yellow]Une mise à jour est déjà en cours.[/yellow]")
+            raise typer.Exit(1)
+        choix = sources_dues(verrou)
+        console.print(f"Sources à échéance : {', '.join(choix) or 'aucune'}")
+        echecs = [c for c in choix if executer(c, limite=limite) == "echec"]
+        echecs += calculer_tout()
+        if not afficher_controles():
+            # La carte garde son dernier export valable.
+            console.print("[red]Contrôles en erreur : rapport et export non refaits.[/red]")
+            raise typer.Exit(1)
+        # Hors du dépôt : une tâche planifiée ne doit pas modifier de fichier versionné.
+        couverture(dossier_donnees() / "rapports")
+        exporter(None)
+    if echecs:
+        console.print(f"[red]Échecs : {', '.join(echecs)}[/red]")
+        raise typer.Exit(1)
+
+
+def afficher_controles() -> bool:
+    from .verifications import verifier as controles
+
+    t = Table("contrôle", "résultat", "exemples")
+    valide = True
+    with connexion() as conn:
+        for c in controles(conn):
+            couleur = "green" if c.conforme else "red" if c.gravite == "erreur" else "yellow"
+            etat = "ok" if c.conforme else f"{c.gravite} : {c.nombre}"
+            t.add_row(c.nom, f"[{couleur}]{etat}[/{couleur}]", ", ".join(c.exemples))
+            valide = valide and (c.conforme or c.gravite != "erreur")
+    console.print(t)
+    return valide
+
+
+@app.command()
+def verifier() -> None:
+    """Contrôle la base : données personnelles, périmètre, provenance, cohérence des calculs."""
+    charger()
+    if not afficher_controles():
         raise typer.Exit(1)
 
 

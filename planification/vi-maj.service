@@ -1,0 +1,9 @@
+# systemd, unité utilisateur : copier les deux fichiers dans ~/.config/systemd/user/, adapter le chemin, puis
+#   systemctl --user enable --now vi-maj.timer
+[Unit]
+Description=Mise à jour des données de la carte
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/chemin/vers/planification/maj.sh

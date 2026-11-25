@@ -41,7 +41,7 @@ Produit par `vi couverture` le 25/11/2026. Taux de remplissage de chaque champ, 
 | Élus municipaux | 27 874 | 735 | 8 855 | 5 314 | 4 334 | 1 485 | 1 594 | 1 730 | 3 827 |
 | Signaux des sites de mairies | 617 | 40 | 20 | 46 | 48 | 129 | 172 | 115 | 47 |
 | Dispositifs | 384 | 25 | 37 | 35 | 65 | 26 | 91 | 56 | 56 |
-| Producteurs bio | 713 | 55 | 266 | 148 | 153 | 22 | 11 | 24 | 34 |
+| Producteurs bio | 711 | 55 | 266 | 147 | 153 | 22 | 11 | 24 | 33 |
 | Paires école-cible à moins de 50 km | 4 554 128 | 561 247 | 552 205 | 610 780 | 614 048 | 483 337 | 677 758 | 511 940 | 542 813 |
 | Jauges des écoles | 6 563 | 724 | 1 084 | 958 | 835 | 627 | 896 | 648 | 791 |
 
@@ -96,7 +96,7 @@ Table `accueil_periscolaire`.
 | Accueil du mercredi | 11 % | 8 % | 4 % | 9 % | 6 % | 36 % | 13 % | 12 % | 6 % |
 | Horaires | 2 % | 8 % | 4 % | 0 % | 2 % | 4 % | 0 % | 0 % | 0 % |
 | Gestionnaire | 35 % | 77 % | 52 % | 49 % | 26 % | 22 % | 14 % | 45 % | 42 % |
-| Rattaché à une école \* | 79 % | 77 % | 78 % | 69 % | 66 % | 96 % | 93 % | 69 % | 79 % |
+| Rattaché à une école \* | 79 % | 77 % | 78 % | 69 % | 67 % | 96 % | 93 % | 69 % | 79 % |
 
 Pourquoi c'est incomplet :
 
@@ -224,7 +224,7 @@ Table `producteur`.
 | Vente directe | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % |
 | Membre d'une AMAP | 0 % | 0 % | 0 % | 0 % | 0 % | 0 % | 0 % | 0 % | 0 % |
 | Adresse du lieu d'activité | 91 % | 35 % | 98 % | 99 % | > 99 % | 59 % | 64 % | 92 % | 85 % |
-| Pris en compte (critères de la jauge) \* | 38 % | 31 % | 34 % | 36 % | 40 % | 36 % | 55 % | 54 % | 62 % |
+| Pris en compte (critères de la jauge) \* | 38 % | 31 % | 34 % | 37 % | 40 % | 36 % | 55 % | 54 % | 64 % |
 
 Pourquoi c'est incomplet :
 

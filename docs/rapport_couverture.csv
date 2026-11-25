@@ -233,11 +233,11 @@ accueil_periscolaire;gestionnaire;Gestionnaire;rempli;92;55;12;0,2182
 accueil_periscolaire;gestionnaire;Gestionnaire;rempli;93;107;15;0,1402
 accueil_periscolaire;gestionnaire;Gestionnaire;rempli;94;51;23;0,4510
 accueil_periscolaire;gestionnaire;Gestionnaire;rempli;95;62;26;0,4194
-accueil_periscolaire;rattache;Rattaché à une école;part;IdF;523;414;0,7916
+accueil_periscolaire;rattache;Rattaché à une école;part;IdF;523;415;0,7935
 accueil_periscolaire;rattache;Rattaché à une école;part;75;13;10;0,7692
 accueil_periscolaire;rattache;Rattaché à une école;part;77;83;65;0,7831
 accueil_periscolaire;rattache;Rattaché à une école;part;78;67;46;0,6866
-accueil_periscolaire;rattache;Rattaché à une école;part;91;85;56;0,6588
+accueil_periscolaire;rattache;Rattaché à une école;part;91;85;57;0,6706
 accueil_periscolaire;rattache;Rattaché à une école;part;92;55;53;0,9636
 accueil_periscolaire;rattache;Rattaché à une école;part;93;107;100;0,9346
 accueil_periscolaire;rattache;Rattaché à une école;part;94;51;35;0,6863
@@ -566,69 +566,69 @@ dispositif;axe_education_alimentaire;Volet éducation alimentaire (PAT);rempli;9
 dispositif;axe_education_alimentaire;Volet éducation alimentaire (PAT);rempli;93;2;2;1,0000
 dispositif;axe_education_alimentaire;Volet éducation alimentaire (PAT);rempli;94;2;2;1,0000
 dispositif;axe_education_alimentaire;Volet éducation alimentaire (PAT);rempli;95;3;3;1,0000
-producteur;siret;Siret;rempli;IdF;713;705;0,9888
+producteur;siret;Siret;rempli;IdF;711;703;0,9887
 producteur;siret;Siret;rempli;75;55;55;1,0000
 producteur;siret;Siret;rempli;77;266;266;1,0000
-producteur;siret;Siret;rempli;78;148;147;0,9932
+producteur;siret;Siret;rempli;78;147;146;0,9932
 producteur;siret;Siret;rempli;91;153;151;0,9869
 producteur;siret;Siret;rempli;92;22;22;1,0000
 producteur;siret;Siret;rempli;93;11;10;0,9091
 producteur;siret;Siret;rempli;94;24;21;0,8750
-producteur;siret;Siret;rempli;95;34;33;0,9706
-producteur;numero_bio;Numéro bio;rempli;IdF;713;713;1,0000
+producteur;siret;Siret;rempli;95;33;32;0,9697
+producteur;numero_bio;Numéro bio;rempli;IdF;711;711;1,0000
 producteur;numero_bio;Numéro bio;rempli;75;55;55;1,0000
 producteur;numero_bio;Numéro bio;rempli;77;266;266;1,0000
-producteur;numero_bio;Numéro bio;rempli;78;148;148;1,0000
+producteur;numero_bio;Numéro bio;rempli;78;147;147;1,0000
 producteur;numero_bio;Numéro bio;rempli;91;153;153;1,0000
 producteur;numero_bio;Numéro bio;rempli;92;22;22;1,0000
 producteur;numero_bio;Numéro bio;rempli;93;11;11;1,0000
 producteur;numero_bio;Numéro bio;rempli;94;24;24;1,0000
-producteur;numero_bio;Numéro bio;rempli;95;34;34;1,0000
-producteur;activites;Activités;rempli;IdF;713;711;0,9972
+producteur;numero_bio;Numéro bio;rempli;95;33;33;1,0000
+producteur;activites;Activités;rempli;IdF;711;709;0,9972
 producteur;activites;Activités;rempli;75;55;54;0,9818
 producteur;activites;Activités;rempli;77;266;266;1,0000
-producteur;activites;Activités;rempli;78;148;148;1,0000
+producteur;activites;Activités;rempli;78;147;147;1,0000
 producteur;activites;Activités;rempli;91;153;153;1,0000
 producteur;activites;Activités;rempli;92;22;21;0,9545
 producteur;activites;Activités;rempli;93;11;11;1,0000
 producteur;activites;Activités;rempli;94;24;24;1,0000
-producteur;activites;Activités;rempli;95;34;34;1,0000
-producteur;vente_directe;Vente directe;rempli;IdF;713;713;1,0000
+producteur;activites;Activités;rempli;95;33;33;1,0000
+producteur;vente_directe;Vente directe;rempli;IdF;711;711;1,0000
 producteur;vente_directe;Vente directe;rempli;75;55;55;1,0000
 producteur;vente_directe;Vente directe;rempli;77;266;266;1,0000
-producteur;vente_directe;Vente directe;rempli;78;148;148;1,0000
+producteur;vente_directe;Vente directe;rempli;78;147;147;1,0000
 producteur;vente_directe;Vente directe;rempli;91;153;153;1,0000
 producteur;vente_directe;Vente directe;rempli;92;22;22;1,0000
 producteur;vente_directe;Vente directe;rempli;93;11;11;1,0000
 producteur;vente_directe;Vente directe;rempli;94;24;24;1,0000
-producteur;vente_directe;Vente directe;rempli;95;34;34;1,0000
-producteur;membre_amap;Membre d'une AMAP;rempli;IdF;713;0;0,0000
+producteur;vente_directe;Vente directe;rempli;95;33;33;1,0000
+producteur;membre_amap;Membre d'une AMAP;rempli;IdF;711;0;0,0000
 producteur;membre_amap;Membre d'une AMAP;rempli;75;55;0;0,0000
 producteur;membre_amap;Membre d'une AMAP;rempli;77;266;0;0,0000
-producteur;membre_amap;Membre d'une AMAP;rempli;78;148;0;0,0000
+producteur;membre_amap;Membre d'une AMAP;rempli;78;147;0;0,0000
 producteur;membre_amap;Membre d'une AMAP;rempli;91;153;0;0,0000
 producteur;membre_amap;Membre d'une AMAP;rempli;92;22;0;0,0000
 producteur;membre_amap;Membre d'une AMAP;rempli;93;11;0;0,0000
 producteur;membre_amap;Membre d'une AMAP;rempli;94;24;0;0,0000
-producteur;membre_amap;Membre d'une AMAP;rempli;95;34;0;0,0000
-producteur;lieu;Adresse du lieu d'activité;rempli;IdF;713;649;0,9102
+producteur;membre_amap;Membre d'une AMAP;rempli;95;33;0;0,0000
+producteur;lieu;Adresse du lieu d'activité;rempli;IdF;711;647;0,9100
 producteur;lieu;Adresse du lieu d'activité;rempli;75;55;19;0,3455
 producteur;lieu;Adresse du lieu d'activité;rempli;77;266;261;0,9812
-producteur;lieu;Adresse du lieu d'activité;rempli;78;148;146;0,9865
+producteur;lieu;Adresse du lieu d'activité;rempli;78;147;145;0,9864
 producteur;lieu;Adresse du lieu d'activité;rempli;91;153;152;0,9935
 producteur;lieu;Adresse du lieu d'activité;rempli;92;22;13;0,5909
 producteur;lieu;Adresse du lieu d'activité;rempli;93;11;7;0,6364
 producteur;lieu;Adresse du lieu d'activité;rempli;94;24;22;0,9167
-producteur;lieu;Adresse du lieu d'activité;rempli;95;34;29;0,8529
-producteur;eligible;Pris en compte (critères de la jauge);part;IdF;713;270;0,3787
+producteur;lieu;Adresse du lieu d'activité;rempli;95;33;28;0,8485
+producteur;eligible;Pris en compte (critères de la jauge);part;IdF;711;270;0,3797
 producteur;eligible;Pris en compte (critères de la jauge);part;75;55;17;0,3091
 producteur;eligible;Pris en compte (critères de la jauge);part;77;266;90;0,3383
-producteur;eligible;Pris en compte (critères de la jauge);part;78;148;54;0,3649
+producteur;eligible;Pris en compte (critères de la jauge);part;78;147;54;0,3673
 producteur;eligible;Pris en compte (critères de la jauge);part;91;153;61;0,3987
 producteur;eligible;Pris en compte (critères de la jauge);part;92;22;8;0,3636
 producteur;eligible;Pris en compte (critères de la jauge);part;93;11;6;0,5455
 producteur;eligible;Pris en compte (critères de la jauge);part;94;24;13;0,5417
-producteur;eligible;Pris en compte (critères de la jauge);part;95;34;21;0,6176
+producteur;eligible;Pris en compte (critères de la jauge);part;95;33;21;0,6364
 proximite;km_route;Distance par la route;rempli;IdF;4554128;4554128;1,0000
 proximite;km_route;Distance par la route;rempli;75;561247;561247;1,0000
 proximite;km_route;Distance par la route;rempli;77;552205;552205;1,0000

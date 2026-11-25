@@ -21,7 +21,8 @@ console = Console()
 
 Compteurs = dict[str, int]
 Statut = Literal["succes", "echec", "ignoree"]
-DUREE = {"mensuelle": timedelta(days=28), "annuelle": timedelta(days=360)}
+# Un peu moins que la période : une collecte planifiée le même jour chaque mois (février compris) reste due.
+DUREE = {"mensuelle": timedelta(days=27), "annuelle": timedelta(days=360)}
 
 
 @dataclass
@@ -117,6 +118,14 @@ def ordre(codes: Iterable[str]) -> list[str]:
     for c in demandes:
         visiter(c)
     return vus
+
+
+CALCULS = ("rattachements", "osrm", "jauges")  # dans cet ordre, après toute collecte
+
+
+def calculer_tout(*, options: dict[str, Any] | None = None) -> list[str]:
+    """Rattachements, distances, jauges ; rend les étapes en échec. Une étape ratée n'arrête pas les suivantes."""
+    return [c for c in CALCULS if executer(c, options=options) == "echec"]
 
 
 def dernier_succes(conn: psycopg.Connection[Any], code: str) -> datetime | None:

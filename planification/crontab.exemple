@@ -1,0 +1,4 @@
+# Chaque lundi à 3 h. Seules les sources arrivées à échéance sont collectées :
+# chaque mois pour le scraping, chaque année pour l'open data. Un échec est repris la semaine suivante.
+# Remplacer /chemin/vers par le dossier du dépôt, puis : crontab planification/crontab.exemple
+0 3 * * 1  /chemin/vers/planification/maj.sh
