@@ -251,6 +251,17 @@ export class Carte {
     if (c) this.cadrer(c.bbox, this.cachee());
   }
 
+  /** Ensemble de communes (retenues à l'étape 1) : cadre qui les contient toutes. */
+  allerCommunes(codes: string[]): void {
+    const choisies = this.modele.meta.communes.filter((c) => codes.includes(c.code));
+    if (!choisies.length) return;
+    const e: Emprise = [
+      Math.min(...choisies.map((c) => c.bbox[0])), Math.min(...choisies.map((c) => c.bbox[1])),
+      Math.max(...choisies.map((c) => c.bbox[2])), Math.max(...choisies.map((c) => c.bbox[3])),
+    ];
+    this.cadrer(e, this.etat.selection === null ? 0 : this.cachee());
+  }
+
   allerDepartement(dep: string): void {
     const e = empriseDepartement(this.modele.meta, dep);
     if (e) this.cadrer(e, this.etat.selection === null ? 0 : this.cachee());

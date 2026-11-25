@@ -11,6 +11,7 @@ aide à repérer les communautés scolaires les plus favorables.
 
 | Document | Contenu |
 |---|---|
+| [docs/UTILISATION.md](docs/UTILISATION.md) | utiliser la carte : étape communes, puis écoles |
 | [docs/SOURCES.md](docs/SOURCES.md) | sources, licences, règles du robot, sources verrouillées |
 | [docs/METHODE.md](docs/METHODE.md) | rattachements, jauges, limites connues |
 | [docs/rapport_couverture.md](docs/rapport_couverture.md) | taux de remplissage par champ et par département |

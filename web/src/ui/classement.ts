@@ -23,6 +23,7 @@ export class Classement {
     private choisir: (i: number) => void,
     exporter: () => void,
     private premiers: { lire: () => number | null; changer: (n: number | null) => void },
+    private retenues: () => number = () => 0,
   ) {
     const id = identifiant('premiers');
     this.limiter = h('button', {
@@ -62,6 +63,8 @@ export class Classement {
       this.entete, h('b', {}, pluriel(visibles.length, 'école')),
       limite === null ? ` sur ${nombre(n)}` : ` sur ${pluriel(this.modele.nbFiltrees, 'filtrée')}`,
       sans > 0 && ` · ${nombre(sans)} sans score`,
+      this.retenues() > 0 && h('span', { classe: 'sous' },
+        `Seulement les écoles des ${pluriel(this.retenues(), 'commune retenue', 'communes retenues')} à l’étape 1`),
     );
     this.affichees = 0;
     remplacer(this.liste);

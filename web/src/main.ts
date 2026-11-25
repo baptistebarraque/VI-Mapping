@@ -65,12 +65,16 @@ async function demarrer(app: HTMLElement): Promise<void> {
     (i) => choisir({ type: 'ecole', uai: table.uai[i] }, true),
     () => telecharger(classementCsv(modele), `classement-ecoles-${meta.genere_le.slice(0, 10)}.csv`),
     { lire: () => etat.filtres.premiers, changer: (premiers) => magasin.filtrer({ premiers }) },
+    () => etat.filtres.retenues.length,
   );
   const classementCommunes = new ClassementCommunes(
     communes,
     (code) => choisir({ type: 'commune', code }, true),
     { lire: () => etat.filtres.retenues, changer: (retenues) => magasin.filtrer({ retenues }) },
-    () => magasin.modifier('etape', 'ecoles'),
+    () => {
+      magasin.modifier('etape', 'ecoles');
+      carte.allerCommunes(etat.filtres.retenues);
+    },
     () => telecharger(classementCommunesCsv(communes, etat.filtres.retenues),
       `classement-communes-${meta.genere_le.slice(0, 10)}.csv`),
   );
