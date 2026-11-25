@@ -60,3 +60,18 @@ def feature_point(lon: float, lat: float, proprietes: dict[str, Any]) -> dict[st
         "geometry": {"type": "Point", "coordinates": [round(lon, 5), round(lat, 5)]},
         "properties": sans_vide(proprietes),
     }
+
+
+# Fiche principale d'un accueil ; le gestionnaire manquant vient d'un de ses doublons (autre source, même lieu).
+ACCUEILS = """
+    SELECT a.*, ST_X(a.geom) AS lon, ST_Y(a.geom) AS lat, coalesce(g.nom, a.exploitant, d.nom) AS gestionnaire,
+           CASE WHEN a.exploitant IS NULL OR g.siren IS NOT NULL THEN coalesce(g.type, d.type) END AS gestionnaire_type,
+           CASE WHEN a.exploitant IS NULL OR g.siren IS NOT NULL THEN coalesce(g.siren, d.siren) END AS siren
+    FROM accueil_periscolaire a
+    LEFT JOIN gestionnaire_perisco g ON g.siren = a.gestionnaire_siren
+    LEFT JOIN LATERAL (
+      SELECT coalesce(h.nom, b.exploitant) AS nom, h.type, h.siren
+      FROM accueil_periscolaire b LEFT JOIN gestionnaire_perisco h ON h.siren = b.gestionnaire_siren
+      WHERE b.doublon_de = a.id AND coalesce(h.nom, b.exploitant) IS NOT NULL
+      ORDER BY h.siren IS NULL, b.id LIMIT 1) d ON true
+    WHERE a.doublon_de IS NULL"""

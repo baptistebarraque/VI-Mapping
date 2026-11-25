@@ -58,4 +58,14 @@ def rattacher(ctx: Contexte) -> Compteurs:
         })
     upsert(ctx.conn, "accueil_ecole", lignes, ["accueil_id", "ecole_uai"])
     ctx.conn.execute("DELETE FROM accueil_ecole WHERE collecte_le < %s", (ctx.debut,))
+    # La carte n'affiche que la fiche principale : elle reprend les écoles liées à ses doublons.
+    compte["repris"] = ctx.conn.execute(
+        """INSERT INTO accueil_ecole (accueil_id, ecole_uai, motif, distance_m, source, url, methode, collecte_le,
+                                      confiance)
+           SELECT DISTINCT ON (a.doublon_de, l.ecole_uai) a.doublon_de, l.ecole_uai, l.motif, l.distance_m,
+                  l.source, l.url, l.methode, l.collecte_le, l.confiance
+           FROM accueil_ecole l JOIN accueil_periscolaire a ON a.id = l.accueil_id
+           WHERE a.doublon_de IS NOT NULL
+           ORDER BY a.doublon_de, l.ecole_uai, l.confiance DESC, l.distance_m
+           ON CONFLICT DO NOTHING""").rowcount
     return {f"accueil_ecole_{k}": v for k, v in compte.items()}

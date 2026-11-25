@@ -6,7 +6,7 @@ from collections import defaultdict
 from collections.abc import Iterable, Iterator
 from typing import Any
 
-from .commun import Connexion, prov, prov_groupes, sans_vide
+from .commun import ACCUEILS, Connexion, prov, prov_groupes, sans_vide
 
 SIGNAUX_MAX = 40
 RELAIS_PAR_TYPE = 10
@@ -49,11 +49,7 @@ class Fiches:
 
     def _acteurs(self) -> None:
         c = self.conn
-        self.accueils = {r["id"]: r for r in c.execute(
-            """SELECT a.*, ST_X(a.geom) AS lon, ST_Y(a.geom) AS lat, g.nom AS gestionnaire_nom,
-                      g.type AS gestionnaire_type
-               FROM accueil_periscolaire a LEFT JOIN gestionnaire_perisco g ON g.siren = a.gestionnaire_siren
-               WHERE a.doublon_de IS NULL""")}
+        self.accueils = {r["id"]: r for r in c.execute(ACCUEILS)}
         self.liens_accueils = par(c.execute(
             "SELECT * FROM accueil_ecole ORDER BY ecole_uai, distance_m, accueil_id").fetchall(), "ecole_uai")
         self.assos = {r["id"]: r for r in c.execute(
@@ -193,8 +189,8 @@ class Fiches:
     def _accueil(a: dict[str, Any]) -> dict[str, Any]:
         return sans_vide({
             "nom": a["nom"], "adresse": a["adresse"], "soir": a["accueil_soir"], "mercredi": a["accueil_mercredi"],
-            "horaires": a["horaires"], "gestionnaire": a["gestionnaire_nom"] or a["exploitant"],
-            "gestionnaire_type": a["gestionnaire_type"], "siren": a["gestionnaire_siren"], "xy": _position(a),
+            "horaires": a["horaires"], "gestionnaire": a["gestionnaire"],
+            "gestionnaire_type": a["gestionnaire_type"], "siren": a["siren"], "xy": _position(a),
             "p": prov(a),
         })
 

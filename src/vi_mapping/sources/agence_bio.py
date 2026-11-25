@@ -125,6 +125,14 @@ def meilleure_adresse(operateur: dict[str, Any], communes: set[str]) -> tuple[st
     return None
 
 
+def pres_de(ctx: Contexte, a: dict[str, Any], ecart_m: int = 2000) -> bool:
+    """La position donnée par l'API est-elle dans la commune de l'adresse, ou juste à côté ?"""
+    r = ctx.conn.execute(
+        "SELECT ST_DWithin(geom::geography, ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography, %s) AS oui "
+        "FROM commune WHERE code_insee = %s", (a["long"], a["lat"], ecart_m, a["codeCommune"])).fetchone()
+    return bool(r and r["oui"])
+
+
 def operateurs(ctx: Contexte) -> Iterator[dict[str, Any]]:
     vus: set[int] = set()
     for dep in ctx.idf.departements:
@@ -148,7 +156,8 @@ def collecter(ctx: Contexte) -> Compteurs:
     communes = {r["code_insee"]: r["nom"] for r in ctx.conn.execute("SELECT code_insee, nom FROM commune")}
     lignes: list[dict[str, Any]] = []
     a_geocoder: dict[str, Adresse] = {}
-    compte = {"operateurs": 0, "non_certifies": 0, "hors_idf": 0, "noms_anonymises": 0, "sans_position": 0}
+    compte = {"operateurs": 0, "non_certifies": 0, "hors_idf": 0, "noms_anonymises": 0, "repositionnes": 0,
+              "sans_position": 0}
     for o in operateurs(ctx):
         compte["operateurs"] += 1
         if not any(k["etatCertification"] in c.certifications_actives for k in o["certificats"]):
@@ -166,7 +175,8 @@ def collecter(ctx: Contexte) -> Compteurs:
         rue = adresse_sans_personne(titre(a["lieu"])) or ""
         ville = propre(f"{a['codePostal']} {titre(a['ville'])}")
         id_ = f"agencebio:{o['numeroBio']}"
-        if a.get("lat") is None or a.get("long") is None:
+        if a.get("lat") is None or a.get("long") is None or not pres_de(ctx, a):
+            compte["repositionnes"] += a.get("lat") is not None
             a_geocoder[id_] = Adresse(rue or str(a["ville"]), str(a["codePostal"]), a["codeCommune"])
         lignes.append({
             "id": id_,

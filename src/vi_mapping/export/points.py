@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from ..config import ConfigJauges
-from .commun import Connexion, collection, feature_point, prov
+from .commun import ACCUEILS, Connexion, collection, feature_point, prov
 
 
 def accueils(conn: Connexion) -> dict[str, Any]:
@@ -13,13 +13,11 @@ def accueils(conn: Connexion) -> dict[str, Any]:
         feature_point(r["lon"], r["lat"], {
             "id": r["id"], "nom": r["nom"], "adresse": r["adresse"], "commune": r["commune"],
             "soir": r["accueil_soir"], "mercredi": r["accueil_mercredi"], "horaires": r["horaires"],
-            "gestionnaire": r["gestionnaire"] or r["exploitant"], "ecoles": r["ecoles"], **prov(r),
+            "gestionnaire": r["gestionnaire"], "ecoles": r["ecoles"], **prov(r),
         })
         for r in conn.execute(
-            """SELECT a.*, ST_X(a.geom) AS lon, ST_Y(a.geom) AS lat, g.nom AS gestionnaire,
-                      (SELECT count(*) FROM accueil_ecole l WHERE l.accueil_id = a.id) AS ecoles
-               FROM accueil_periscolaire a LEFT JOIN gestionnaire_perisco g ON g.siren = a.gestionnaire_siren
-               WHERE a.doublon_de IS NULL ORDER BY a.id""")
+            f"""SELECT a.*, (SELECT count(*) FROM accueil_ecole l WHERE l.accueil_id = a.id) AS ecoles
+                FROM ({ACCUEILS}) a ORDER BY a.id""")
     )
 
 
