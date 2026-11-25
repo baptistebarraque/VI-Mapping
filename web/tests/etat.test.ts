@@ -32,8 +32,15 @@ describe('adresse', () => {
   });
 
   test.each([
+    { type: 'commune', code: '93048' }, { type: 'pat', id: 'pat:1441' },
+  ] as const)('sélection : %o', (selection) => {
+    const e: Etat = { ...etatInitial(meta), selection };
+    expect(depuisAdresse(`#${versAdresse(e, meta)}`, meta)).toEqual(e);
+  });
+
+  test.each([
     '#poids=1-2', '#poids=-5-1-1-1-1', '#poids=500-0-0-0-0', '#rayon=999-45-ou', '#rayon=8-20-autre', '#dep=99',
-    '#commune=00000', '#secteur=x', '#types=7', '#eleves=abc', '#seuils=1', '#connues=12', '#premiers=0', '#premiers=2.5', '#couleur=x', '#iris=x',
+    '#commune=00000', '#secteur=x', '#types=7', '#eleves=abc', '#seuils=1', '#connues=12', '#premiers=0', '#pat=x', '#premiers=2.5', '#couleur=x', '#iris=x',
   ])('valeur invalide ignorée : %s', (hash) => {
     expect(depuisAdresse(hash, meta)).toEqual(etatInitial(meta));
   });

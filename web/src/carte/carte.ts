@@ -9,7 +9,7 @@ import {
 } from 'maplibre-gl';
 import urlWorker from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 
-import { adresse, chargerZone } from '../donnees';
+import { adresse, chargerPats, chargerZone } from '../donnees';
 import { COUCHES, type Couche, type Etat } from '../etat';
 import type { Modele } from '../modele';
 import type { CollectionPoints, ProprietesProducteur, ProprietesRelais } from '../types';
@@ -17,7 +17,7 @@ import { infobulle, popupGroupe, popupPoint, type TypePoint } from '../ui/infobu
 import { imageHachures, imageSymbole, type Symbole } from '../ui/symboles';
 import { ENCRE_2 } from '../couleurs';
 import { couleurEcole, couleurIris, GROUPES, IDENTIFIANT, MARQUES, SOURCES, ZONES, type NomSource } from './couches';
-import { empriseDepartement, type Emprise } from './emprise';
+import { empriseDepartement, empriseZone, type Emprise } from './emprise';
 import type { Fond } from './fond';
 
 setWorkerUrl(urlWorker);
@@ -42,6 +42,7 @@ export interface Lien {
 interface Rappels {
   ecole: (i: number) => void;
   commune: (code: string) => void;
+  pat: (id: string) => void;
 }
 
 export class Carte {
@@ -136,7 +137,8 @@ export class Carte {
       else if (couche === 'relais') await this.source('relais').setData(this.relais);
       else if (couche === 'accueils' || couche === 'assos') {
         await this.source(couche).setData(adresse(`points/${couche}.geojson`));
-      } else await this.source(couche).setData(await chargerZone(couche));
+      } else if (couche === 'pat') await this.source('pat').setData(await chargerPats());
+      else await this.source(couche).setData(await chargerZone(couche));
     } catch (e) {
       this.chargees.delete(couche);
       console.error(`Couche ${couche} non chargée :`, e);
@@ -208,6 +210,13 @@ export class Carte {
     this.gl.setFilter('communes-choisie', ['in', ['get', 'code'], ['literal', codes]]);
   }
 
+  /** Périmètre du PAT choisi, montré même si la couche des PAT est masquée. */
+  async choisirPat(id: string | null): Promise<void> {
+    await this.prete;
+    if (id !== null) void this.charger('pat');
+    for (const c of ['pat-choisi', 'pat-choisi-trait']) this.gl.setFilter(c, ['==', ['get', 'id'], id ?? '']);
+  }
+
   /** Hauteur de carte cachée par la fiche (petits écrans, où elle s'ouvre par-dessus). */
   private cachee(): number {
     return window.innerWidth <= PETIT_ECRAN ? this.gl.getContainer().clientHeight * PART_FICHE : 0;
@@ -228,6 +237,12 @@ export class Carte {
   allerDepartement(dep: string): void {
     const e = empriseDepartement(this.modele.meta, dep);
     if (e) this.cadrer(e, this.etat.selection === null ? 0 : this.cachee());
+  }
+
+  async allerPat(id: string): Promise<void> {
+    const zone = (await chargerPats()).features.find((f) => f.properties.id === id);
+    const e = zone && empriseZone(zone.geometry);
+    if (e) this.cadrer(e, this.cachee());
   }
 
   private cadrer(emprise: Emprise, cachee: number): void {
@@ -289,6 +304,13 @@ export class Carte {
     return this.gl.queryRenderedFeatures(e.point, { layers: ['communes'] })[0] ?? null;
   }
 
+  /** PAT dont le nom, affiché sur la carte, est sous le pointeur. */
+  private patSous(e: MapMouseEvent): string | null {
+    if (!this.etat.couches.pat || !this.gl.getLayer('pat-nom')) return null;
+    const f = this.gl.queryRenderedFeatures(e.point, { layers: ['pat-nom'] })[0];
+    return f ? String(f.properties.id) : null;
+  }
+
   private marquer(source: string | null, id?: number | string): void {
     if (this.survolee) {
       if (this.survolee.source === source && this.survolee.id === id) return;
@@ -315,6 +337,11 @@ export class Carte {
       return;
     }
     this.bulle.remove();
+    if (this.patSous(e) !== null) {
+      curseur.cursor = 'pointer';
+      this.marquer(null);
+      return;
+    }
     const commune = this.communeSous(e);
     curseur.cursor = commune ? 'pointer' : '';
     this.marquer(commune ? 'communes' : null, commune?.id);
@@ -330,6 +357,11 @@ export class Carte {
     this.bulle.remove();
     this.fenetre.remove();
     if (!groupe.length) {
+      const pat = this.patSous(e);
+      if (pat !== null) {
+        this.rappels.pat(pat);
+        return;
+      }
       const commune = this.communeSous(e);
       if (commune) this.rappels.commune(commune.properties.code as string);
       return;

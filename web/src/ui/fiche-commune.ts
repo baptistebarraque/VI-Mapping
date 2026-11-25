@@ -1,7 +1,7 @@
 /** Fiche d'une collectivité : identité, cantine, dispositifs, élus, signaux du site, écoles. */
 
 import type { Modele } from '../modele';
-import { JAUGES, type Fiche, type FicheCommune, type FicheEcole, type Meta } from '../types';
+import { JAUGES, type Dispositif, type Fiche, type FicheCommune, type FicheEcole, type Meta } from '../types';
 import { bloc, definition, etiquette, listeRepliee, metre, provenance, tableSources, vide } from './commun';
 import { h, lien } from './dom';
 import {
@@ -45,13 +45,19 @@ export function listeElus(c: FicheCommune, meta: Meta, court = false): HTMLEleme
   );
 }
 
-export function listeDispositifs(c: FicheCommune, meta: Meta, ecole?: FicheEcole): HTMLElement {
+/** Nom d'un PAT, qui ouvre sa fiche et montre son périmètre sur la carte. */
+export const boutonPat = (d: Dispositif, texte: string, ctx: ContexteFiche): HTMLElement => h('button', {
+  type: 'button', classe: 'lien fort', title: 'Voir ce PAT sur la carte', onclick: () => ctx.ouvrirPat(d.id),
+}, texte);
+
+export function listeDispositifs(c: FicheCommune, ctx: ContexteFiche, ecole?: FicheEcole): HTMLElement {
+  const { meta } = ctx.modele;
   // Pour une école : PAT et appels à projets de la commune ; QPV et cité éducative sont les siens propres.
   const liste = (c.dispositifs ?? []).filter((d) => !ecole || d.type === 'pat' || d.type === 'laureat_aap');
   const laureats = new Set(liste.filter((d) => d.type === 'laureat_aap').map((d) => d.id.split(':')[1]));
   const lignes = liste.filter((d) => d.type !== 'laureat_aap').map((d) => h(
     'li', {},
-    h('b', {}, d.nom), ' ', etiquette(LIBELLE_DISPOSITIF[d.type]),
+    d.type === 'pat' ? boutonPat(d, d.nom, ctx) : h('b', {}, d.nom), ' ', etiquette(LIBELLE_DISPOSITIF[d.type]),
     h('span', { classe: 'sous' }, [
       d.type === 'pat' && (d.axe ? 'axe éducation alimentaire' : 'sans axe éducation alimentaire'),
       d.type === 'pat' && laureats.has(d.id.split(':')[1]) && 'lauréat de l’appel à projets du PNA',
@@ -67,13 +73,14 @@ export function ficheCommune(code: string, fiche: Fiche, ctx: ContexteFiche): HT
   const { modele } = ctx;
   const { meta } = modele;
   const c = fiche.commune;
+  const ecoles = modele.parCommune.get(code) ?? [];
   return h(
     'article', { classe: 'fiche' },
     h('p', { classe: 'surtitre' }, c.type === 'arrondissement' ? 'Arrondissement' : 'Commune'),
     h('h2', {}, c.nom),
     h('p', { classe: 'lieu' }, [meta.departements[c.dep], c.ept ?? c.epci].filter(Boolean).join(' · '),
       c.mere && [' · ', h('button', { type: 'button', classe: 'lien', onclick: () => c.mere && ctx.ouvrirCommune(c.mere.code) }, c.mere.nom)]),
-    resumeEcoles(code, modele),
+    resumeEcoles(ecoles, modele, 'Aucune école du périmètre dans cette commune.'),
     bloc(
       'Collectivité',
       definition(
@@ -92,21 +99,20 @@ export function ficheCommune(code: string, fiche: Fiche, ctx: ContexteFiche): HT
       provenance(c.p, meta),
     ),
     blocCantine(c, meta),
-    bloc('Dispositifs et élus', listeDispositifs(c, meta), listeElus(c, meta)),
+    bloc('Dispositifs et élus', listeDispositifs(c, ctx), listeElus(c, meta)),
     blocSignaux(c, meta),
     c.gestionnaires?.length ? bloc('Gestionnaires périscolaires', h('ul', { classe: 'liste' }, c.gestionnaires.map((g) => h(
       'li', {}, h('b', {}, g.nom), h('span', { classe: 'sous' },
         `${LIBELLE_GESTIONNAIRE[g.type] ?? g.type} · Siren ${g.siren} · ${pluriel(g.n, 'accueil')}`),
     )))) : null,
-    blocEcoles(code, ctx),
+    blocEcoles(ecoles, ctx),
     tableSources(meta, c),
   );
 }
 
-function resumeEcoles(code: string, modele: Modele): HTMLElement {
-  const toutes = modele.parCommune.get(code) ?? [];
+export function resumeEcoles(toutes: number[], modele: Modele, sinon: string): HTMLElement {
   const moyenne = modele.moyenne(toutes.map((i) => modele.scores[i]));
-  if (!toutes.length) return vide('Aucune école du périmètre dans cette commune.');
+  if (!toutes.length) return vide(sinon);
   return h(
     'div', {},
     h('div', { classe: 'heros' },
@@ -156,9 +162,9 @@ function blocSignaux(c: FicheCommune, meta: Meta): HTMLElement {
   );
 }
 
-function blocEcoles(code: string, ctx: ContexteFiche): HTMLElement | null {
+export function blocEcoles(liste: number[], ctx: ContexteFiche): HTMLElement | null {
   const { modele } = ctx;
-  const ecoles = [...(modele.parCommune.get(code) ?? [])].sort(
+  const ecoles = [...liste].sort(
     (a, b) => (modele.scores[b] ?? -1) - (modele.scores[a] ?? -1) || modele.t.nom[a].localeCompare(modele.t.nom[b], 'fr'),
   );
   if (!ecoles.length) return null;

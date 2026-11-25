@@ -5,7 +5,7 @@ import { dansRayon, jaugeProducteurs } from '../jauges';
 import type { Modele } from '../modele';
 import {
   EDUCATION_PRIORITAIRE, JAUGES, SECTEURS, TYPES_ECOLE,
-  type CollectionPoints, type Critere, type Fiche, type FicheEcole, type NomJauge, type ProprietesProducteur,
+  type CollectionPoints, type Critere, type Dispositif, type Fiche, type FicheEcole, type NomJauge, type ProprietesProducteur,
   type ProprietesRelais,
 } from '../types';
 import { bloc, definition, etiquette, listeRepliee, metre, provenance, tableSources, vide } from './commun';
@@ -14,7 +14,7 @@ import {
   date, dixieme, euros, km, LIBELLE_ADRESSE, LIBELLE_CRITERE, LIBELLE_GESTIONNAIRE, LIBELLE_JAUGE, LIBELLE_RELAIS,
   LIBELLE_THEME, metres, minutes, nombre, ouiNonInconnu, pluriel, pourcent,
 } from './format';
-import { listeDispositifs, listeElus } from './fiche-commune';
+import { boutonPat, listeDispositifs, listeElus } from './fiche-commune';
 
 export interface ContexteFiche {
   modele: Modele;
@@ -23,6 +23,7 @@ export interface ContexteFiche {
   relais: CollectionPoints<ProprietesRelais>;
   ouvrirCommune: (code: string) => void;
   ouvrirEcole: (i: number) => void;
+  ouvrirPat: (id: string) => void;
   voir: (xy: [number, number]) => void;
 }
 
@@ -64,11 +65,11 @@ export function ficheEcole(i: number, fiche: Fiche, ctx: ContexteFiche): HTMLEle
           rang >= 0 && s !== null && `${nombre(rang + 1)}${rang === 0 ? 're' : 'e'} sur ${pluriel(modele.visibles.length, 'école filtrée', 'écoles filtrées')} · `,
           `${connues} jauges connues sur 5`),
         h('span', { classe: 'sous' }, `${pourcent(100 * t.confiance[i])} des critères renseignés`))),
-    h('div', { classe: 'jauges' }, JAUGES.map((j) => jauge(j, i, f, ctx))),
+    h('div', { classe: 'jauges' }, JAUGES.map((j) => jauge(j, i, f, fiche, ctx))),
     identite(i, f, ctx),
     blocAccueils(f, fiche, ctx),
     blocAssos(f, fiche, ctx),
-    bloc('Élus et dispositifs', listeElus(fiche.commune, meta, true), listeDispositifs(fiche.commune, meta, f)),
+    bloc('Élus et dispositifs', listeElus(fiche.commune, meta, true), listeDispositifs(fiche.commune, ctx, f)),
     blocProducteurs(f, ctx),
     blocRelais(f, ctx),
     tableSources(meta, f, (f.accueils ?? []).map((a) => fiche.accueils?.[a.id]),
@@ -78,11 +79,17 @@ export function ficheEcole(i: number, fiche: Fiche, ctx: ContexteFiche): HTMLEle
 }
 
 // ------------------------------------------------------------------ jauges
-function jauge(j: NomJauge, i: number, f: FicheEcole, ctx: ContexteFiche): HTMLElement {
+function jauge(j: NomJauge, i: number, f: FicheEcole, fiche: Fiche, ctx: ContexteFiche): HTMLElement {
   const { modele, etat } = ctx;
   const v = modele.valeur(j, i);
   const total = JAUGES.reduce((x, k) => x + etat.poids[k], 0);
   const part = total ? Math.round((100 * etat.poids[j]) / total) : 0;
+  const pat = (c: Critere): Dispositif | undefined => c.code !== 'pat' ? undefined
+    : fiche.commune.dispositifs?.find((d) => d.type === 'pat' && d.nom === c.detail);
+  const explication = (c: Critere): Enfant => {
+    const d = pat(c);
+    return d ? boutonPat(d, d.nom, ctx) : expliquer(c, ctx);
+  };
   const criteres = j === 'producteurs' ? criteresProducteurs(i, ctx) : f.jauges[j].criteres;
   return h(
     'details', { classe: 'jauge' },
@@ -94,7 +101,7 @@ function jauge(j: NomJauge, i: number, f: FicheEcole, ctx: ContexteFiche): HTMLE
       'li', {},
       h('span', { classe: 'nom' }, LIBELLE_CRITERE[c.code] ?? c.code),
       h('span', { classe: 'valeur' }, c.valeur === undefined ? 'inconnu' : nombre(c.valeur)),
-      h('span', { classe: 'sous' }, expliquer(c, ctx)),
+      h('span', { classe: 'sous' }, explication(c)),
     ))),
     h('p', { classe: 'note' }, `Pèse ${part} % du score.`),
   );
