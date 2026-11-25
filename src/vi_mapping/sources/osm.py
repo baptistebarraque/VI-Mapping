@@ -81,7 +81,7 @@ def collecter(ctx: Contexte) -> Compteurs:
         type_ = None
         if not accueil:
             type_ = motifs.type_relais(nom)
-            if type_ is None and tags.get("amenity") == "social_centre":
+            if type_ is None and tags.get("amenity") == "social_centre" and motifs.centre_social_osm(nom):
                 type_ = "centre_social"
             if type_ is None and tags.get("tourism") == "zoo" and tags.get("zoo") == "petting_zoo":
                 type_ = "ferme_pedagogique"

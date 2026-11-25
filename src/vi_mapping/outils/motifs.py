@@ -23,6 +23,8 @@ PAS_ACCUEIL = re.compile(
     r"|\bhalte garderie\b|\bcreche\b|\bmulti accueil\b|\bpetite enfance\b|\bp et t\b|\bpostes? et tele"
     r"|\bbois du\b|\bcour\b|\bparking\b|\bnautisme\b|\bseniors?\b|\bpersonnes agees\b|\btroisieme age\b|\b3eme age\b"
     r"|\bferme du centre de loisirs\b|\bomep\b|\barret\b|\bcomite d entreprise\b|\bville de paris loisirs\b"
+    r"|\bsci\b|\banciens\b|\bsyndic?\w* cadre\b|\bconfed\w*\b|\bpour les parents\b|\benseignement francais\b"
+    r"|\b(maison|my) alae\b|\bloisirs? gan\b"
 )
 SOIR = re.compile(r"\bperi ?scolaires?\b|\bgarderie\b|\bsoir\b|\bpost ?scolaire\b|\balae\b")
 MERCREDI = re.compile(r"\bmercredis?\b")
@@ -56,12 +58,24 @@ PAS_CENTRE_SOCIAL = re.compile(
     r"|\bressources humaines\b|\bformation\b|\bsecurite sociale\b|\bimmigrant"
 )
 
+# Objets OSM « social_centre » : la balise couvre aussi des CCAS, des foyers et des PMI
+CENTRE_SOCIAL_OSM = re.compile(
+    r"\bmaisons? (de|du|des|pour|d) (quartiers?|tous|la vie|citoyennete|familles?|habitants?|la famille)\b"
+    r"|\bvie (sociale|locale)\b|\bsocio ?culturel(le)?s?\b|\bsociaux?\b.*\bculturels?\b|\bcentre de quartier\b"
+    r"|\b(csc|mjc|csx)\b|\bespace (familles?|social)\b"
+)
+
 RELAIS = {
     "distribution_amap": (AMAP, PAS_AMAP),
     "epicerie_solidaire": (EPICERIE, None),
     "ferme_pedagogique": (FERME, None),
     "centre_social": (CENTRE_SOCIAL, PAS_CENTRE_SOCIAL),
 }
+
+
+def centre_social_osm(nom: str) -> bool:
+    """Nom qui confirme la balise « social_centre » d'OpenStreetMap."""
+    return bool(CENTRE_SOCIAL_OSM.search(nom)) and not PAS_CENTRE_SOCIAL.search(nom)
 
 
 def type_relais(nom: str) -> str | None:
