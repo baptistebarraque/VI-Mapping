@@ -34,8 +34,9 @@ make carte                    # exporte les données et ouvre la carte en local
 make site                     # carte prête à déposer sur un serveur web, dans web/dist
 ```
 
-Une première collecte télécharge quelques gigaoctets (Sirene, RNA, OpenStreetMap) et prend environ une heure, scraping
-compris. Les suivantes ne reprennent que ce qui a changé.
+Compter 1 Go de téléchargements, 5 Go de base, un quart d'heure hors scraping (distances par la route comprises), et
+environ deux heures pour visiter tous les sites de mairies, à 2 secondes par page. Les fichiers inchangés ne sont pas
+téléchargés à nouveau, les sites vus depuis moins de 25 jours pas visités à nouveau.
 
 | Commande | Rôle |
 |---|---|

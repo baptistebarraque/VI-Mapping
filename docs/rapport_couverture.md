@@ -262,9 +262,9 @@ Pourquoi c'est incomplet :
 
 ## Visite des sites web
 
-- Sites de mairies (120) : visité 114, protégé contre les robots (abandon) 3, sans page exploitable 1, en erreur 1, injoignable 1.
+- Sites de mairies (120) : visité 114, protégé contre les robots (abandon) 3, injoignable 1, en erreur 1, sans page exploitable 1.
 - Sites d'associations (119) : visité 69, injoignable 36, refusé par ses CGU 7, en erreur 5, refusé par robots.txt 2.
-- Sites de fédérations (2) : visité 2.
+- Sites de fédérations (2) : visité 1, injoignable 1.
 
 ## Sources collectées
 
