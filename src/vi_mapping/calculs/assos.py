@@ -1,7 +1,7 @@
 """Rattachement association de parents ↔ école, avec un score de confiance de 0 à 1.
 
-Indices : nom propre de l'école dans le nom ou l'objet de l'association, nom de la commune, proximité du siège,
-école unique dans la commune. Les poids sont dans config/idf.yaml.
+Indices : nom propre ou adresse de l'école dans le nom ou l'objet de l'association, nom de la commune, proximité du
+siège, école unique dans la commune. Les poids sont dans config/idf.yaml.
 """
 
 from __future__ import annotations
@@ -15,7 +15,7 @@ from typing import Any
 from ..config import RattachementAsso
 from ..db import upsert
 from ..outils import motifs
-from ..outils.noms import distinctifs, fort, radical, radicaux
+from ..outils.noms import cle_adresse, developper, distinctifs, fort, numeros_cites, radical, radicaux
 from ..outils.texte import normaliser
 from ..sources.base import Compteurs, Contexte
 
@@ -38,6 +38,7 @@ class Ecole:
     mots: tuple[str, ...]
     x: float | None
     y: float | None
+    adresse: tuple[str, str] | None = None  # (numéro, voie)
 
 
 @dataclass(frozen=True)
@@ -54,6 +55,7 @@ class Asso:
     x: float | None
     y: float | None
     listee_par_commune: bool = False
+    adresses: str = ""  # titre et objet, voies développées ; vide si aucun numéro
 
 
 @dataclass
@@ -105,6 +107,9 @@ def confiance(
     indices: dict[str, Any] = {}
     score = 0.0
     nom = max(nom_present(ecole.mots, asso.titre_r), 0.9 * nom_present(ecole.mots, asso.objet_r))
+    adresse = adresse_citee(asso, ecole)
+    if adresse:
+        nom = 1.0  # « l'école du 15 rue de Monceau » désigne l'école aussi sûrement que son nom
     if nom:
         indices["nom_ecole"] = round(nom, 2)
         score += r.poids.nom_ecole * nom
@@ -131,9 +136,26 @@ def confiance(
     if incompatible(asso, ecole):
         indices["niveau_ou_secteur"] = "different"
         score *= 0.5
+    if adresse is not None:
+        indices["adresse"] = "meme" if adresse else "autre_numero"
+        score *= 1 if adresse else 0.5
     if asso.confiance < 0.6 and not nom:
         return Lien(0.0, indices)  # objet vague : le nom de l'école est indispensable
     return Lien(round(min(score, 1.0), 2), indices)
+
+
+def adresse_citee(asso: Asso, ecole: Ecole) -> bool | None:
+    """L'association cite-t-elle l'adresse de l'école ? False : même rue, autre numéro ; None : on ne peut rien dire."""
+    if not asso.adresses or ecole.adresse is None:
+        return None
+    numeros = numeros_cites(asso.adresses, ecole.adresse[1])
+    if not numeros:
+        return None
+    numero = int(ecole.adresse[0])
+    if numero in numeros:
+        return True
+    # « groupe scolaire du 67 » : l'école du 65 en fait souvent partie
+    return None if any(abs(numero - n) <= 2 for n in numeros) else False
 
 
 def incompatible(asso: Asso, ecole: Ecole) -> bool:
@@ -181,9 +203,11 @@ def rattacher(ctx: Contexte) -> Compteurs:
         if re.search(r"\bconservatoires?\b|\becoles? (de |d )?(musique|danse)", titre):
             compte["assos_hors_perimetre"] += 1
             continue
+        texte = f"{a['nom']} {a['objet'] or ''}"
         asso = Asso(a["id"], a["commune"], titre, objet, radicaux(a["nom"]), radicaux(a["objet"] or ""),
                     a["niveau"], float(a["confiance"]), a["federation"], a["x"], a["y"],
-                    a["source"] == "fcpe_departements")
+                    a["source"] == "fcpe_departements",
+                    developper(texte) if re.search(r"\d", texte) else "")
         communale = bool(_LES_ECOLES.search(titre)) and len(par_commune[a["commune"]]) <= ECOLES_PETITE_COMMUNE
         candidats = {e.uai: e for e in par_commune[a["commune"]]}
         candidats.update({u: ecoles[u] for u in voisines[a["id"]]})
@@ -223,7 +247,12 @@ def rattacher(ctx: Contexte) -> Compteurs:
 
 
 def departager(liens: list[tuple[Lien, Ecole]]) -> list[tuple[Lien, Ecole]]:
-    """Si l'association nomme une école, les écoles seulement voisines du siège sont écartées."""
+    """Si l'association nomme une école, les écoles seulement voisines du siège sont écartées.
+
+    Si elle donne l'adresse d'une école, ses homonymes de la même rue le sont aussi.
+    """
+    if any(x[0].indices.get("adresse") == "meme" for x in liens):
+        liens = [x for x in liens if x[0].indices.get("adresse") != "autre_numero"]
     nommees = [x for x in liens if x[0].indices.get("nom_ecole", 0) >= 0.7]
     if not nommees:
         return liens
@@ -246,8 +275,9 @@ def groupe_unique(liste: list[Ecole]) -> bool:
 def lire_ecoles(ctx: Contexte) -> dict[str, Ecole]:
     return {
         e["uai"]: Ecole(e["uai"], e["commune"], e["type"], e["secteur"] != "public",
-                        tuple(radical(m) for m in distinctifs(e["nom"])), e["x"], e["y"])
+                        tuple(radical(m) for m in distinctifs(e["nom"])), e["x"], e["y"], cle_adresse(e["adresse"]))
         for e in ctx.conn.execute(
-            "SELECT uai, commune, type, secteur, nom, ST_X(geom_l93) AS x, ST_Y(geom_l93) AS y FROM ecole ORDER BY uai"
+            "SELECT uai, commune, type, secteur, nom, adresse, ST_X(geom_l93) AS x, ST_Y(geom_l93) AS y "
+            "FROM ecole ORDER BY uai"
         )
     }

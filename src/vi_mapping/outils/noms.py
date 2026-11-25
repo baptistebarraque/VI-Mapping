@@ -104,6 +104,28 @@ def cle_adresse(adresse: str | None) -> tuple[str, str] | None:
     return (m[1], " ".join(cles)) if cles else None
 
 
+_NUMEROS = r"((?:\d{1,4}(?: ?(?:bis|ter|quater|[a-d]))?(?: et| ou| a)? )+)"
+_LIAISON = r"(?:(?:de|du|des|d|la|le|les|l) )*"
+
+
+def developper(texte: str) -> str:
+    """Texte normalisé dont les abréviations de voie sont développées (« bd » → « boulevard »)."""
+    return " ".join(_ABREGES.get(m, m) for m in normaliser(texte).split())
+
+
+def numeros_cites(texte: str, voie: str) -> set[int]:
+    """Numéros de rue cités devant une voie (clé de `cle_adresse`) dans un texte passé par `developper`.
+
+    « des écoles du 3 et 3 bis rue d'Alésia » et « rue alesia » → {3}
+    """
+    type_, _, nom = voie.partition(" ")
+    if not nom:
+        return set()
+    suite = " ".join(re.escape(m) for m in nom.split()).replace(" ", f" {_LIAISON}")
+    trouves = re.findall(rf"{_NUMEROS}{_LIAISON}{re.escape(type_)} {_LIAISON}{suite}\b", texte)
+    return {int(n) for t in trouves for n in re.findall(r"\d+", t)}
+
+
 def meme_adresse(a: tuple[str, str] | None, b: tuple[str, str] | None) -> bool:
     return bool(a and b) and a[0] == b[0] and fuzz.ratio(a[1], b[1]) >= 90  # type: ignore[index]
 
