@@ -16,12 +16,17 @@ describe('adresse', () => {
 
   test('aller-retour', () => {
     const e: Etat = {
+      etape: 'ecoles',
       poids: { engagement: 0, periscolaire: 10, parents: 20, producteurs: 30, familles: 40 },
+      poidsCommunes: {
+        pat: 30, soutiens: 0, cuisine: 20, cantine_bio: 10, producteurs: 20, associations: 10, communications: 5,
+        ecoles: 5,
+      },
       rayon: { km: 8, minutes: 20, mode: 'minutes' },
       filtres: {
         ...filtresVides(), departements: ['75', '93'], commune: '93048', secteur: 'prive', types: [0, 2],
         elevesMin: 50, elevesMax: null, seuils: { ...filtresVides().seuils, parents: 30 }, garderInconnues: true,
-        connuesMin: 3, premiers: 50,
+        connuesMin: 3, premiers: 50, retenues: ['75112', '93048'], criteresMin: 5,
       },
       couches: { ...etatInitial(meta).couches, qpv: true, communes: false },
       coloration: 'familles',
@@ -32,7 +37,8 @@ describe('adresse', () => {
   });
 
   test.each([
-    { type: 'commune', code: '93048' }, { type: 'pat', id: 'pat:1441' },
+    { type: 'commune', code: '93048' }, { type: 'pat', id: 'pat:1441' }, { type: 'pat', id: 'referentiel:PAT14' },
+    { type: 'acteur', nature: 'accueil', id: 'projet:93048:a' }, { type: 'acteur', nature: 'elu', id: '93048:rne:93048:12' },
   ] as const)('sélection : %o', (selection) => {
     const e: Etat = { ...etatInitial(meta), selection };
     expect(depuisAdresse(`#${versAdresse(e, meta)}`, meta)).toEqual(e);
@@ -41,6 +47,7 @@ describe('adresse', () => {
   test.each([
     '#poids=1-2', '#poids=-5-1-1-1-1', '#poids=500-0-0-0-0', '#rayon=999-45-ou', '#rayon=8-20-autre', '#dep=99',
     '#commune=00000', '#secteur=x', '#types=7', '#eleves=abc', '#seuils=1', '#connues=12', '#premiers=0', '#pat=x', '#premiers=2.5', '#couleur=x', '#iris=x',
+    '#acteur=x:1', '#acteur=accueil', '#acteur=accueil:', '#fiche=00000',
   ])('valeur invalide ignorée : %s', (hash) => {
     expect(depuisAdresse(hash, meta)).toEqual(etatInitial(meta));
   });

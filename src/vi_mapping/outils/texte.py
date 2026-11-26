@@ -13,6 +13,7 @@ _CHEZ = re.compile(
     r"|\b(?:m|mr|mme|mlle|monsieur|madame|mademoiselle)\b\.?\s+[^,;]*",
     re.I,
 )
+_UNE_ADRESSE = re.compile(r"[\w.+'-]+@[\w-]+(\.[\w-]+)*\.[a-z]{2,}", re.I)
 _ESPACES = re.compile(r"\s+")
 
 
@@ -51,6 +52,38 @@ def sans_contact(texte: str | None) -> str | None:
     if texte is None:
         return None
     return propre(_TEL.sub("", _EMAIL.sub("", texte)))
+
+
+def premier_email(texte: str | None) -> str | None:
+    """Première adresse e-mail valable d'une liste (« a@x.fr ; b@y.fr »), nominative ou non."""
+    for email in re.split(r"[;,\s]+", texte or ""):
+        if _UNE_ADRESSE.fullmatch(email):
+            return email.lower()
+    return None
+
+
+def telephone(texte: str | None) -> str | None:
+    """Premier numéro français d'un champ, chiffres groupés par deux (« 01 34 33 44 00 ») ; numéro court à part."""
+    for brut in re.split(r"[;,/]|\bet\b", str(texte or "")):
+        chiffres = re.sub(r"\D", "", re.sub(r"^\s*(?:\+|00)\s*33\s*(?:\(0\)|0)?", "0", brut))
+        if len(chiffres) == 10 and re.match(r"0[1-9]", chiffres):
+            return " ".join(chiffres[i:i + 2] for i in range(0, 10, 2))
+        if re.fullmatch(r"3\d{3}", chiffres):
+            return f"{chiffres[:2]} {chiffres[2:]}"
+    return None
+
+
+# Délégué à la protection des données : un contact réservé aux droits des personnes, pas une adresse de service
+_RESERVEE = re.compile(r"(?:^|[._-])(?:dpo|dpd|rgpd|cnil)(?:[._@-]|$)")
+
+
+def email_de_contact(texte: str | None) -> str | None:
+    """Première adresse du champ, hors délégué à la protection des données."""
+    for morceau in re.split(r"[;,\s]+", texte or ""):
+        email = premier_email(morceau)
+        if email and not _RESERVEE.search(email):
+            return email
+    return None
 
 
 def contient_contact(texte: str | None) -> bool:

@@ -71,6 +71,7 @@ export class Modele {
     const c = this.meta.communes[t.commune[i]];
     if (f.departements.length && !f.departements.includes(c.dep)) return false;
     if (f.commune && c.code !== f.commune && c.mere !== f.commune) return false;
+    if (f.retenues.length && !f.retenues.includes(c.code) && !(c.mere && f.retenues.includes(c.mere))) return false;
     if (f.secteur !== 'tous' && (t.secteur[i] === 0) !== (f.secteur === 'public')) return false;
     if (f.types.length && !f.types.includes(t.type[i])) return false;
     const eleves = t.eleves[i];

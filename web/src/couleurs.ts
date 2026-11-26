@@ -23,6 +23,12 @@ export const ALIMENTATION = '#ee2c30';
 export const ZONE_PAT = '#574f7a';
 export const ZONE_CITE = '#ed1e79';
 
+/** Rampe violette, couleur des collectivités, pour le score des communes (étape 1) : mêmes bornes que les écoles. */
+export const RAMPE_COMMUNES = ['#dad6e8', '#b7b0d0', '#9188b4', '#6d6496', '#453d66'] as const;
+export const OPACITE_COMMUNES = 0.6;
+/** Communes retenues à l'étape 1. */
+export const COLLECTIVITE = '#574f7a';
+
 /** Rampe jaune, couleur des familles (deuxième échelle séquentielle) pour les IRIS. */
 export const RAMPE_IRIS = ['#fff0a8', '#ffdc4a', '#eebb00', '#bb8b00', '#836000'] as const;
 export const OPACITE_IRIS = 0.6; // le fond de plan reste lisible dessous

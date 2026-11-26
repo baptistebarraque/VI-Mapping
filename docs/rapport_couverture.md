@@ -14,12 +14,17 @@ Produit par `vi couverture` le 25/11/2026. Taux de remplissage de chaque champ, 
 |---|---:|---:|---:|
 | Producteurs bio : membre d'une AMAP | 0 % | 0 % (75) | 0 % (95) |
 | Accueils périscolaires : horaires | 2 % | 0 % (78) | 8 % (75) |
+| Accueils périscolaires : e-mail | 2 % | 0 % (75) | 10 % (77) |
 | Associations de parents d'élèves (1er degré) : dernière activité en ligne | 2 % | 1 % (78) | 5 % (93) |
+| Relais locaux : e-mail | 3 % | 0 % (91) | 9 % (92) |
 | Élus municipaux : délégation des adjoints | 4 % | < 1 % (77) | 14 % (92) |
 | Associations de parents d'élèves (1er degré) : site web | 4 % | 2 % (77) | 6 % (92) |
+| Relais locaux : téléphone | 6 % | 3 % (93) | 13 % (77) |
 | Accueils périscolaires : accueil du mercredi | 11 % | 4 % (77) | 36 % (92) |
 | Accueils périscolaires : accueil du soir | 12 % | 5 % (93) | 20 % (92) |
 | Relais locaux : site web | 14 % | 6 % (95) | 26 % (92) |
+| Producteurs bio : téléphone | 25 % | 18 % (92) | 45 % (93) |
+| Producteurs bio : e-mail | 30 % | 27 % (92) | 55 % (93) |
 | Jauges des écoles : parents | 34 % | 21 % (93) | 46 % (75) |
 | Accueils périscolaires : gestionnaire | 35 % | 14 % (93) | 77 % (75) |
 | Communes et arrondissements : cantine : % bio | 36 % | 23 % (77) | 100 % (75) |
@@ -37,12 +42,12 @@ Produit par `vi couverture` le 25/11/2026. Taux de remplissage de chaque champ, 
 | Gestionnaires périscolaires | 136 | 9 | 22 | 28 | 22 | 10 | 14 | 20 | 15 |
 | Associations de parents d'élèves (1er degré) | 3 030 | 500 | 609 | 384 | 397 | 264 | 241 | 273 | 362 |
 | Quartiers IRIS | 5 265 | 992 | 762 | 683 | 507 | 616 | 614 | 530 | 561 |
-| Relais locaux | 625 | 85 | 85 | 66 | 70 | 77 | 115 | 61 | 66 |
+| Relais locaux | 617 | 83 | 85 | 65 | 68 | 77 | 113 | 61 | 65 |
 | Élus municipaux | 27 874 | 735 | 8 855 | 5 314 | 4 334 | 1 485 | 1 594 | 1 730 | 3 827 |
 | Signaux des sites de mairies | 617 | 40 | 20 | 46 | 48 | 129 | 172 | 115 | 47 |
-| Dispositifs | 384 | 25 | 37 | 35 | 65 | 26 | 91 | 56 | 56 |
+| Dispositifs | 429 | 28 | 40 | 38 | 71 | 40 | 109 | 66 | 59 |
 | Producteurs bio | 711 | 55 | 266 | 147 | 153 | 22 | 11 | 24 | 33 |
-| Paires école-cible à moins de 50 km | 4 554 128 | 561 247 | 552 205 | 610 780 | 614 048 | 483 337 | 677 758 | 511 940 | 542 813 |
+| Paires école-cible à moins de 50 km | 4 506 494 | 555 455 | 546 993 | 603 854 | 607 782 | 478 321 | 670 590 | 506 756 | 536 743 |
 | Jauges des écoles | 6 563 | 724 | 1 084 | 958 | 835 | 627 | 896 | 648 | 791 |
 
 ## Communes et arrondissements
@@ -56,6 +61,9 @@ Table `commune`.
 | Population | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % |
 | Densité | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % |
 | Site web de la mairie | 87 % | 100 % | 79 % | 92 % | 92 % | 100 % | 100 % | 100 % | 89 % |
+| E-mail de la mairie | 93 % | 19 % | > 99 % | 97 % | 96 % | 75 % | 72 % | 70 % | 90 % |
+| Mairie joignable par écrit | 99 % | 81 % | > 99 % | > 99 % | > 99 % | 97 % | 92 % | 96 % | 98 % |
+| Téléphone de la mairie | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % |
 | Cantine : régie ou concédée | 59 % | 95 % | 46 % | 67 % | 67 % | 86 % | 85 % | 87 % | 56 % |
 | Cantine : % bio | 36 % | 100 % | 23 % | 37 % | 51 % | 72 % | 56 % | 55 % | 30 % |
 | Cantine : % EGalim | 36 % | 100 % | 23 % | 37 % | 51 % | 72 % | 56 % | 55 % | 30 % |
@@ -75,6 +83,8 @@ Table `ecole`.
 | Nom | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % |
 | Adresse | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % |
 | Position | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % |
+| E-mail | > 99 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | > 99 % |
+| Téléphone | 98 % | 100 % | 97 % | 95 % | 99 % | > 99 % | 96 % | > 99 % | 97 % |
 | Nombre d'élèves | > 99 % | > 99 % | > 99 % | > 99 % | 100 % | > 99 % | > 99 % | 100 % | > 99 % |
 | Nombre de classes | > 99 % | > 99 % | > 99 % | > 99 % | 100 % | > 99 % | > 99 % | 100 % | > 99 % |
 | IPS (hors maternelles) | 94 % | 97 % | 86 % | 95 % | 93 % | 97 % | 97 % | 98 % | 95 % |
@@ -95,12 +105,14 @@ Table `accueil_periscolaire`.
 | Accueil du soir | 12 % | 8 % | 8 % | 15 % | 16 % | 20 % | 5 % | 14 % | 10 % |
 | Accueil du mercredi | 11 % | 8 % | 4 % | 9 % | 6 % | 36 % | 13 % | 12 % | 6 % |
 | Horaires | 2 % | 8 % | 4 % | 0 % | 2 % | 4 % | 0 % | 0 % | 0 % |
+| E-mail | 2 % | 0 % | 10 % | 0 % | 0 % | 2 % | < 1 % | 0 % | 0 % |
 | Gestionnaire | 35 % | 77 % | 52 % | 49 % | 26 % | 22 % | 14 % | 45 % | 42 % |
 | Rattaché à une école \* | 79 % | 77 % | 78 % | 69 % | 67 % | 96 % | 93 % | 69 % | 79 % |
 
 Pourquoi c'est incomplet :
 
 - accueil du soir, accueil du mercredi, horaires, gestionnaire : monenfant.fr verrouillée ; restent OSM, Sirene, l'API Recherche d'entreprises et les sites de mairies.
+- e-mail : rarement renseigné dans OpenStreetMap.
 
 ## Gestionnaires périscolaires
 
@@ -122,12 +134,12 @@ Table `asso_parents`.
 | Numéro RNA | 99 % | 100 % | 100 % | 100 % | 100 % | 100 % | 87 % | 100 % | 97 % |
 | Siren | 43 % | 35 % | 47 % | 42 % | 50 % | 39 % | 39 % | 44 % | 43 % |
 | Siège | 99 % | 100 % | 100 % | 100 % | 100 % | 100 % | 87 % | 100 % | 97 % |
-| Position du siège | 88 % | 95 % | 82 % | 84 % | 87 % | 94 % | 84 % | 95 % | 89 % |
+| Position du siège | 87 % | 94 % | 81 % | 83 % | 85 % | 93 % | 84 % | 94 % | 89 % |
 | Fédération reconnue \* | 24 % | 30 % | 15 % | 23 % | 27 % | 26 % | 31 % | 27 % | 22 % |
 | Date de création | 99 % | 100 % | 100 % | 100 % | 100 % | 100 % | 87 % | 100 % | 97 % |
 | Site web | 4 % | 4 % | 2 % | 3 % | 4 % | 6 % | 6 % | 3 % | 5 % |
 | Dernière activité en ligne | 2 % | 2 % | 1 % | 1 % | 2 % | 2 % | 5 % | 2 % | 3 % |
-| Rattachée à une école \* | 59 % | 60 % | 62 % | 59 % | 58 % | 58 % | 58 % | 59 % | 58 % |
+| Rattachée à une école \* | 59 % | 60 % | 62 % | 59 % | 58 % | 57 % | 58 % | 59 % | 58 % |
 
 Pourquoi c'est incomplet :
 
@@ -160,13 +172,16 @@ Table `relais_local`.
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | Type | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % |
 | Nom | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % |
-| Adresse | 82 % | 86 % | 91 % | 77 % | 74 % | 81 % | 83 % | 80 % | 77 % |
+| Adresse | 81 % | 86 % | 91 % | 77 % | 74 % | 81 % | 82 % | 80 % | 77 % |
 | Position | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % |
-| Site web | 14 % | 15 % | 14 % | 21 % | 14 % | 26 % | 8 % | 8 % | 6 % |
+| E-mail | 3 % | 1 % | 5 % | 6 % | 0 % | 9 % | 3 % | 0 % | 0 % |
+| Téléphone | 6 % | 7 % | 13 % | 5 % | 4 % | 9 % | 3 % | 3 % | 5 % |
+| Site web | 14 % | 16 % | 15 % | 22 % | 12 % | 26 % | 8 % | 8 % | 6 % |
 
 Pourquoi c'est incomplet :
 
 - adresse : souvent absente d'OpenStreetMap.
+- e-mail, téléphone : rarement renseigné dans OSM.
 - site web : rarement renseigné dans OSM et le RNA.
 
 ## Élus municipaux
@@ -208,8 +223,8 @@ Table `dispositif`.
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | Type | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % |
 | Périmètre | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % |
-| Contour | > 99 % | 100 % | 100 % | 100 % | 98 % | 100 % | 100 % | 100 % | 100 % |
-| Année | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % |
+| Contour | > 99 % | 100 % | 100 % | 100 % | 99 % | 100 % | 100 % | 100 % | 100 % |
+| Année | 90 % | 89 % | 92 % | 92 % | 92 % | 65 % | 85 % | 85 % | 95 % |
 | Volet éducation alimentaire (PAT) | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % |
 
 ## Producteurs bio
@@ -220,6 +235,8 @@ Table `producteur`.
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | Siret | 99 % | 100 % | 100 % | > 99 % | 99 % | 100 % | 91 % | 88 % | 97 % |
 | Numéro bio | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % |
+| E-mail | 30 % | 35 % | 28 % | 29 % | 29 % | 27 % | 55 % | 38 % | 30 % |
+| Téléphone | 25 % | 22 % | 22 % | 28 % | 27 % | 18 % | 45 % | 25 % | 27 % |
 | Activités | > 99 % | 98 % | 100 % | 100 % | 100 % | 95 % | 100 % | 100 % | 100 % |
 | Vente directe | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % |
 | Membre d'une AMAP | 0 % | 0 % | 0 % | 0 % | 0 % | 0 % | 0 % | 0 % | 0 % |
@@ -228,6 +245,7 @@ Table `producteur`.
 
 Pourquoi c'est incomplet :
 
+- e-mail, téléphone : publié au choix du producteur dans l'annuaire bio.
 - membre d'une AMAP : absent de l'API ; carte du Réseau AMAP IdF verrouillée.
 
 ## Paires école-cible à moins de 50 km
@@ -273,9 +291,9 @@ Pourquoi c'est incomplet :
 | API Professionnels Bio | api | annuelle | 25/11/2026 |
 | Programme Cités éducatives (communes et QPV couverts) | csv | annuelle | 25/11/2026 |
 | Quartiers prioritaires de la politique de la ville 2024 | api | annuelle | 25/11/2026 |
-| Annuaire de l'administration (sites web des mairies) | api | annuelle | 25/11/2026 |
+| Annuaire de l'administration (contacts des mairies, des départements et de la région) | api | annuelle | 25/11/2026 |
 | Annuaire de l'éducation | api | annuelle | 25/11/2026 |
-| Banatic, groupements de communes (EPCI et EPT) | csv | annuelle | 25/11/2026 |
+| Banatic, groupements de communes (EPCI, EPT, syndicats de restauration) | csv | annuelle | 25/11/2026 |
 | Quartiers prioritaires 2024, complément des contours manquants | api | annuelle | 25/11/2026 |
 | Établissements membres d'une cité éducative | api | annuelle | 25/11/2026 |
 | Effectifs d'élèves par école | api | annuelle | 25/11/2026 |
@@ -290,10 +308,11 @@ Pourquoi c'est incomplet :
 | ma cantine, registre national et télédéclarations | csv | annuelle | 25/11/2026 |
 | OpenStreetMap (extrait Île-de-France de Geofabrik) | csv | annuelle | 25/11/2026 |
 | API Recherche d'entreprises | api | annuelle | 25/11/2026 |
+| Référentiel V.i (PAT DRIAAF, soutiens territoriaux, lauréats AAP MGP, syndicats de restauration) | csv | annuelle | 25/11/2026 |
 | Répertoire national des associations | csv | annuelle | 25/11/2026 |
 | Répertoire national des élus | csv | annuelle | 25/11/2026 |
 | Base Sirene, stock des établissements | csv | annuelle | 25/11/2026 |
-| Base Sirene, stock des unités légales (Siren des associations) | csv | annuelle | 25/11/2026 |
+| Base Sirene, stock des unités légales (Siren des associations, nature des cuisines centrales) | csv | annuelle | 25/11/2026 |
 | Sites des associations de parents (date de dernière activité) | scraping | mensuelle | 25/11/2026 |
 | Sites web des mairies (signaux, délégations, périscolaire) | scraping | mensuelle | 25/11/2026 |
 

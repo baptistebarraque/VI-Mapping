@@ -1,7 +1,7 @@
 -- Modèle de données métier. Coordonnées en WGS84 (EPSG:4326) ;
 -- geom_l93 (EPSG:2154, Lambert 93) sert aux calculs métriques.
 --
--- Aucune colonne e-mail ni téléphone. Seules personnes nommées : les élus (RNE).
+-- Contacts professionnels publiés : voir 007 et 008. Seules personnes nommées : les élus (RNE).
 
 CREATE TABLE commune (
     code_insee              char(5) PRIMARY KEY,

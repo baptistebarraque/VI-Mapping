@@ -1,6 +1,6 @@
 /** Briques partagées par les fiches : jauge, provenance, blocs. */
 
-import type { Meta, NomJauge, Provenance } from '../types';
+import type { Meta, NomJauge, ParCritere, Provenance } from '../types';
 import { h, lien, type Enfant } from './dom';
 import { date, dixieme, LIBELLE_METHODE, nombre } from './format';
 
@@ -21,6 +21,12 @@ export function metre(valeur: number | null, libelle: string, jauge: NomJauge): 
 /** Pastille de la couleur d'une jauge : collectivités, écoles, parents, producteurs, familles. */
 export const pastille = (j: NomJauge): HTMLElement => h('i', { classe: `pastille j-${j}`, 'aria-hidden': 'true' });
 
+/** Couleur d'un critère communal : celle de l'acteur qu'il décrit. */
+export const ACTEUR_CRITERE: ParCritere<NomJauge> = {
+  pat: 'engagement', soutiens: 'engagement', cuisine: 'engagement', cantine_bio: 'engagement',
+  communications: 'engagement', producteurs: 'producteurs', associations: 'parents', ecoles: 'periscolaire',
+};
+
 /** Score dans un anneau rempli à sa hauteur. */
 export const anneau = (score: number | null): HTMLElement => h(
   'span', { classe: 'anneau', style: `--score:${score ?? 0}` },
@@ -35,9 +41,10 @@ export function nomSource(code: string, meta: Meta): string {
 export function provenance(p: Provenance | undefined, meta: Meta, prefixe = ''): HTMLElement | null {
   if (!p) return null;
   const s = meta.sources[p.s];
+  const nom = nomSource(p.s, meta).replace(/ \([^)]*\)$/, ''); // précision laissée au tableau des sources
   return h(
     'p', { classe: 'provenance' },
-    prefixe, lien(p.u, nomSource(p.s, meta)) ?? nomSource(p.s, meta),
+    prefixe, lien(p.u, nom) ?? nom,
     s && ` · ${LIBELLE_METHODE[s.methode]}`, ` · ${date(p.d)} · confiance ${dixieme(p.c)}`,
   );
 }
@@ -56,9 +63,11 @@ export function volet(titre: string, compte: number | null, ...contenu: Enfant[]
 }
 
 export const vide = (texte: string): HTMLElement => h('p', { classe: 'vide' }, texte);
+
 export const etiquette = (texte: string): HTMLElement => h('span', { classe: 'etiquette' }, texte);
 
-export function definition(...paires: ([string, Enfant] | null | false | undefined)[]): HTMLElement {
+export type Paire = [string, Enfant] | null | false | undefined | '' | 0;
+export function definition(...paires: Paire[]): HTMLElement {
   return h('dl', { classe: 'definition' }, paires.map((p) => p && [h('dt', {}, p[0]), h('dd', {}, p[1])]));
 }
 

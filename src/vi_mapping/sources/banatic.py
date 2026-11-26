@@ -1,26 +1,52 @@
-"""Intercommunalités : nom de l'EPCI et établissement public territorial (EPT) de chaque commune."""
+"""Intercommunalités : EPCI et établissement public territorial (EPT) de chaque commune, contact de leur siège.
+
+Les syndicats de restauration collective sont gardés avec leurs communes membres.
+"""
 
 from __future__ import annotations
 
 import io
+import re
+from typing import Any
 
 import openpyxl
 from psycopg.types.json import Jsonb
 
+from ..db import upsert
+from ..outils.texte import email_de_contact, normaliser, propre, site_web, telephone
 from .base import Compteurs, Contexte, connecteur
 
 FISCALITE_PROPRE = {"CC", "CA", "CU", "METRO", "MET69"}
+_RESTAURATION = re.compile(r"\b(restauration|repas|cantines?|cuisines?)\b")
+_AUTRE_RESTAURATION = re.compile(r"\b(riviere|rivieres|berges|milieux|patrimoine|terrains|eau|eaux|bassin)\b")
+
+
+def est_restauration(nom: str) -> bool:
+    """« SI pour la restauration des villes » oui, « restauration des rivières » non."""
+    n = normaliser(nom)
+    return bool(_RESTAURATION.search(n)) and not _AUTRE_RESTAURATION.search(n)
+
+
+def contact(valeurs: dict[str, Any]) -> dict[str, str | None]:
+    """Contact du siège d'un groupement ; « a@x.fr et b@x.fr » : la première adresse."""
+    return {
+        "telephone": telephone(valeurs["Téléphone du siège"]) or telephone(valeurs["Téléphone administrative"]),
+        "email": email_de_contact(propre(valeurs["Courriel du siège"])),
+        "site_web": site_web(propre(valeurs["Site internet du siège"])),
+    }
 
 
 @connecteur("banatic", depend_de=["ign_admin_express"])
 def collecter(ctx: Contexte) -> Compteurs:
-    # Lecture en mémoire : le fichier contient des coordonnées de service dont on n'a pas l'usage.
     contenu = ctx.http.get(ctx.config.url).content
     feuille = openpyxl.load_workbook(io.BytesIO(contenu), read_only=True).worksheets[0]
     lignes = feuille.iter_rows(values_only=True)
     entete = [str(c).strip() for c in next(lignes)]
     i_siren, i_nom = entete.index("N° SIREN"), entete.index("Nom du groupement")
     i_nature, i_membre = entete.index("Nature juridique"), entete.index("Siren membre")
+    codes = {r["siren"]: r["code_insee"] for r in ctx.conn.execute(
+        "SELECT siren, code_insee FROM commune WHERE siren IS NOT NULL")}
+    organismes: dict[str, dict[str, Any]] = {}
 
     epci: dict[str, tuple[str, str]] = {}
     ept: dict[str, tuple[str, str]] = {}
@@ -32,6 +58,17 @@ def collecter(ctx: Contexte) -> Compteurs:
             epci[membre] = groupement
         elif nature == "EPT":
             ept[membre] = groupement
+        type_ = ("epci" if nature in FISCALITE_PROPRE else "ept" if nature == "EPT"
+                 else "syndicat_restauration" if est_restauration(groupement[1]) else None)
+        if type_ is None or membre not in codes:
+            continue
+        valeurs = dict(zip(entete, ligne, strict=False))
+        fiche = organismes.setdefault(groupement[0], {
+            "siren": groupement[0], "type": type_, "nom": groupement[1],
+            "departement": str(valeurs["Département"] or "")[:2] or None, "communes": [], **contact(valeurs),
+            "formulaire": None, **ctx.provenance(),
+        })
+        fiche["communes"] = sorted({*fiche["communes"], codes[membre]})
     if not epci:
         raise RuntimeError("aucun EPCI à fiscalité propre lu : format Banatic modifié ?")
 
@@ -48,4 +85,10 @@ def collecter(ctx: Contexte) -> Compteurs:
         n_ept += ctx.conn.execute(
             "UPDATE commune SET ept_siren = %s, ept_nom = %s WHERE siren = %s", (code, nom, siren)
         ).rowcount
-    return {"communes_avec_epci": n_epci, "communes_avec_ept": n_ept}
+    upsert(ctx.conn, "organisme", organismes.values(), ["siren"])
+    return {
+        "communes_avec_epci": n_epci, "communes_avec_ept": n_ept, "organismes": len(organismes),
+        "organismes_avec_email": sum(o["email"] is not None for o in organismes.values()),
+        "syndicats_restauration": sum(o["type"] == "syndicat_restauration" for o in organismes.values()),
+        "supprimes": ctx.purger("organisme"),
+    }

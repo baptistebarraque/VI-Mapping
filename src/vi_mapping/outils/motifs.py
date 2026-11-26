@@ -172,3 +172,42 @@ def nom_propre(nom: str) -> str:
         if mots:
             return re.sub(r"\b([dlDL]) (?=\w)", r"\1'", _TYPE_VOIE.sub("", " ".join(mots))).strip(" -–.")
     return ""
+
+
+# ----------------------------------------------------------------- associations d'alimentation durable
+# Dans l'ordre de priorité : une association qui fait de l'éducation alimentaire ET un jardin est classée éducation.
+ALIMENTATION = {
+    "education_alimentaire": re.compile(
+        r"\beducation (alimentaire|au gout|nutritionnelle|a l alimentation)\b|\bbien manger\b|\bmanger (sain|mieux)\b"
+        r"|\b(alimentation|nutrition) (saine|durable|equilibree|responsable)\b"
+        # « ateliers de cuisine », « restauration collective » écartés : loisirs, restaurants d'entreprise
+        r"|\brestauration scolaire\b|\bcantines? (scolaires?|bio|durables?)\b|\bclasses? du gout\b"
+    ),
+    "amap_circuits_courts": re.compile(
+        r"\bamaps?\b|\bcircuits? courts?\b|\bproducteurs? locaux\b|\bagriculture paysanne\b|\bvente directe\b"
+        r"|\bpaniers? (de legumes|bio|paysans?|solidaires?)\b|\bgroupements? d achats?\b|\bsupermarches? cooperatifs?\b"
+        r"|\bepiceries? (cooperative|participative)s?\b|\bcooperative alimentaire\b"
+    ),
+    "jardins_agriculture_urbaine": re.compile(
+        r"\bjardins? (partages?|familiaux|ouvriers|collectifs?|solidaires?|pedagogiques?|potagers?|d insertion"
+        r"|communautaires?|nourriciers?)\b|\bagriculture urbaine\b|\bfermes? urbaines?\b|\bpotagers?\b|\bpermaculture\b"
+        r"|\bmaraichage\b|\bcompostage\b"
+    ),
+    "solidarite_anti_gaspi": re.compile(
+        r"\b(gaspillage|gaspi) alimentaire\b|\banti ?gaspi\b|\baide alimentaire\b|\bbanques? alimentaires?\b"
+        r"|\bepiceries? (sociales?|solidaires?)\b|\bdistributions? (alimentaires?|de repas|de denrees|de colis)\b"
+        r"|\binvendus alimentaires\b|\b(precarite|insecurite) alimentaire\b|\bfrigos? solidaires?\b"
+    ),
+}
+PAS_ALIMENTATION = re.compile(r"\bjardins? d enfants\b|\bjardin d eveil\b|\bjardin des plantes\b")
+
+
+def categorie_alimentation(titre: str, objet: str) -> tuple[str, float] | None:
+    """Catégorie d'alimentation durable (titre, puis objet) et confiance du classement, ou None."""
+    for texte, confiance in ((titre, 0.7), (objet, 0.5)):
+        if PAS_ALIMENTATION.search(texte):
+            continue
+        for categorie, motif in ALIMENTATION.items():
+            if motif.search(texte):
+                return categorie, confiance
+    return None

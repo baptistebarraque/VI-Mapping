@@ -25,6 +25,8 @@ export class Classement {
     private choisir: (i: number) => void,
     exporter: () => void,
     private premiers: { lire: () => number | null; changer: (n: number | null) => void },
+    private retenues: () => number = () => 0,
+    contacts: () => void = () => {},
   ) {
     const id = identifiant('premiers');
     this.limiter = h('button', {
@@ -45,7 +47,9 @@ export class Classement {
     this.suite = h('button', { type: 'button', classe: 'discret', onclick: () => this.ajouter() }, 'Afficher la suite');
     this.el = h(
       'div', { classe: 'panneau-classement' },
-      h('div', { classe: 'barre' }, this.entete, h('button', { type: 'button', classe: 'discret', onclick: exporter }, 'Exporter en CSV')),
+      h('div', { classe: 'barre' }, this.entete,
+        h('button', { type: 'button', classe: 'discret', onclick: contacts }, 'Contacts'),
+        h('button', { type: 'button', classe: 'discret', onclick: exporter }, 'Exporter en CSV')),
       h('div', { classe: 'premiers' }, this.limiter, this.nombre, h('label', { for: id }, 'premières')),
       h('ul', { classe: 'cle', 'aria-label': 'Les cinq barres' },
         JAUGES.map((j) => h('li', {}, pastille(j), COURT_JAUGE[j]))),
@@ -63,6 +67,8 @@ export class Classement {
       this.entete, h('b', {}, pluriel(visibles.length, 'école')),
       limite === null ? visibles.length < n && ` sur ${nombre(n)}` : ` sur ${pluriel(this.modele.nbFiltrees, 'filtrée')}`,
       sans > 0 && ` · ${nombre(sans)} sans score`,
+      this.retenues() > 0 && h('span', { classe: 'sous' },
+        `Seulement les écoles des ${pluriel(this.retenues(), 'commune retenue', 'communes retenues')} à l’étape 1`),
     );
     this.affichees = 0;
     remplacer(this.liste);

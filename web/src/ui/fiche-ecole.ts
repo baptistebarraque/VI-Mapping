@@ -1,32 +1,22 @@
 /** Fiche d'une école : identité, jauges, acteurs liés, producteurs et relais dans le rayon, sources. */
 
-import type { Etat } from '../etat';
 import { dansRayon, jaugeProducteurs } from '../jauges';
-import type { Modele } from '../modele';
+import type { Cible } from '../etat';
 import {
-  EDUCATION_PRIORITAIRE, JAUGES, SECTEURS, TYPES_ECOLE,
-  type CollectionPoints, type Critere, type Dispositif, type Fiche, type FicheEcole, type NomJauge, type ProprietesProducteur,
-  type ProprietesRelais,
+  EDUCATION_PRIORITAIRE, JAUGES, SECTEURS, TYPES_ECOLE, type Critere, type Fiche, type FicheEcole, type NomJauge,
 } from '../types';
-import { anneau, bloc, definition, etiquette, listeRepliee, metre, provenance, tableSources, vide, volet } from './commun';
+import {
+  anneau, bloc, definition, etiquette, listeRepliee, metre, provenance, tableSources, vide, volet,
+} from './commun';
+import { blocContact } from './contact';
+import { boutonActeur, boutonCommune, montrerBloc, type ContexteFiche } from './contexte';
 import { h, lien, type Enfant } from './dom';
 import {
-  date, dixieme, euros, km, LIBELLE_ADRESSE, LIBELLE_CRITERE, LIBELLE_GESTIONNAIRE, LIBELLE_JAUGE, LIBELLE_RELAIS,
-  LIBELLE_THEME, metres, minutes, nombre, ouiNonInconnu, pluriel, pourcent,
+  date, dixieme, euros, km, LIBELLE_ADRESSE, LIBELLE_CRITERE, LIBELLE_GESTIONNAIRE, LIBELLE_JAUGE, LIBELLE_NATURE,
+  LIBELLE_RELAIS, LIBELLE_THEME, metres, minutes, MOTIF_RATTACHEMENT, nombre, ouiNonInconnu, pluriel, pourcent,
 } from './format';
-import { boutonPat, listeDispositifs, listeElus } from './fiche-commune';
+import { listeDispositifs, listeElus } from './fiche-commune';
 import { blocRelance } from './relance';
-
-export interface ContexteFiche {
-  modele: Modele;
-  etat: Etat;
-  producteurs: CollectionPoints<ProprietesProducteur>;
-  relais: CollectionPoints<ProprietesRelais>;
-  ouvrirCommune: (code: string) => void;
-  ouvrirEcole: (i: number) => void;
-  ouvrirPat: (id: string) => void;
-  voir: (xy: [number, number]) => void;
-}
 
 interface Proche {
   rang: number;
@@ -55,9 +45,12 @@ export function ficheEcole(i: number, fiche: Fiche, ctx: ContexteFiche): HTMLEle
     'article', { classe: 'fiche' },
     h('p', { classe: 'surtitre' }, `École ${TYPES_ECOLE[t.type[i]].toLowerCase()} · ${SECTEURS[t.secteur[i]].toLowerCase()}`),
     h('h2', {}, t.nom[i]),
-    h('p', { classe: 'lieu' },
-      h('button', { type: 'button', classe: 'lien', onclick: () => ctx.ouvrirCommune(commune.code) }, commune.nom),
-      ` (${commune.dep})`, f.adresse && ` · ${f.adresse}`),
+    h('p', { classe: 'lieu' }, boutonCommune(ctx, commune.code), ` (${commune.dep})`, f.adresse && ` · ${f.adresse}`),
+    blocContact(f.contact, ctx, {
+      relais: fiche.commune.contact && [{
+        cible: { type: 'commune', code: commune.code }, nom: `Mairie de ${commune.nom}`, motif: 'mairie', contact: fiche.commune.contact,
+      }],
+    }),
     h('div', { classe: 'heros' },
       anneau(s),
       h('div', {},
@@ -70,26 +63,49 @@ export function ficheEcole(i: number, fiche: Fiche, ctx: ContexteFiche): HTMLEle
     identite(i, f, ctx),
     blocAccueils(f, fiche, ctx),
     blocAssos(f, fiche, ctx),
-    volet('Élus et dispositifs', null, listeElus(fiche.commune, meta, true), listeDispositifs(fiche.commune, ctx, f)),
+    volet(ELUS, null, listeElus(fiche.commune, ctx, true), listeDispositifs(fiche.commune, ctx, f)),
     blocProducteurs(f, ctx),
     blocRelais(f, ctx),
+    h('p', { classe: 'pied' }, h('button', { type: 'button', onclick: () => ctx.ouvrirCarnet([commune.code], commune.nom) }, 'Contacts de la commune')),
     tableSources(meta, f, (f.accueils ?? []).map((a) => fiche.accueils?.[a.id]),
       (f.assos ?? []).map((a) => fiche.assos?.[a.id]), fiche.commune.p, fiche.commune.pg, fiche.commune.dispositifs,
       fiche.commune.elus?.[0]),
   );
 }
 
+const ELUS = 'Élus et dispositifs';
+const IDENTITE = 'Identité';
+const PRODUCTEURS = 'Producteurs bio dans le rayon';
+
 // ------------------------------------------------------------------ jauges
+/** Un critère mène à ce qui l'explique : la fiche d'une instance, ou un bloc de cette fiche-ci. */
+function destination(c: Critere, f: FicheEcole, fiche: Fiche): Cible | string {
+  const commune: Cible = { type: 'commune', code: fiche.commune.code };
+  switch (c.code) {
+    case 'pat': {
+      const d = fiche.commune.dispositifs?.find((x) => x.type === 'pat' && x.nom === c.detail);
+      return d ? { type: 'pat', id: d.id } : ELUS;
+    }
+    case 'bio': case 'web': return commune;
+    case 'cite_educative': return f.cite_id ? { type: 'acteur', nature: 'dispositif', id: f.cite_id } : IDENTITE;
+    case 'soir': case 'mercredi': case 'gestionnaire': return LIBELLE_NATURE.accueil[1];
+    case 'rattachee': case 'federee': case 'active': return LIBELLE_NATURE.asso[1];
+    case 'plus_proche': case 'nombre': return PRODUCTEURS;
+    case 'familles_iris': return f.iris ? { type: 'acteur', nature: 'iris', id: f.iris.code } : IDENTITE;
+    case 'mixite': return f.qpv ? { type: 'acteur', nature: 'dispositif', id: f.qpv.id } : IDENTITE;
+    default: return IDENTITE;
+  }
+}
+
 function jauge(j: NomJauge, i: number, f: FicheEcole, fiche: Fiche, ctx: ContexteFiche): HTMLElement {
   const { modele, etat } = ctx;
   const v = modele.valeur(j, i);
   const total = JAUGES.reduce((x, k) => x + etat.poids[k], 0);
   const part = total ? Math.round((100 * etat.poids[j]) / total) : 0;
-  const pat = (c: Critere): Dispositif | undefined => c.code !== 'pat' ? undefined
-    : fiche.commune.dispositifs?.find((d) => d.type === 'pat' && d.nom === c.detail);
-  const explication = (c: Critere): Enfant => {
-    const d = pat(c);
-    return d ? boutonPat(d, d.nom, ctx) : expliquer(c, ctx);
+  const suivre = (c: Critere, depuis: Element): void => {
+    const d = destination(c, f, fiche);
+    if (typeof d === 'string') montrerBloc(depuis, d);
+    else ctx.ouvrir(d);
   };
   const criteres = j === 'producteurs' ? criteresProducteurs(i, ctx) : f.jauges[j].criteres;
   return h(
@@ -99,10 +115,12 @@ function jauge(j: NomJauge, i: number, f: FicheEcole, fiche: Fiche, ctx: Context
       h('span', { classe: v === null ? 'valeur insuffisant' : 'valeur' }, v === null ? 'données insuffisantes' : nombre(v)),
       metre(v, LIBELLE_JAUGE[j], j)),
     h('ul', { classe: 'criteres' }, criteres.map((c) => h(
-      'li', {},
-      h('span', { classe: 'nom' }, LIBELLE_CRITERE[c.code] ?? c.code),
-      h('span', { classe: 'valeur' }, c.valeur === undefined ? 'inconnu' : nombre(c.valeur)),
-      h('span', { classe: 'sous' }, explication(c)),
+      'li', {}, h(
+        'button', { type: 'button', onclick: (e: MouseEvent) => suivre(c, e.currentTarget as Element) },
+        h('span', { classe: 'nom' }, LIBELLE_CRITERE[c.code] ?? c.code),
+        h('span', { classe: 'valeur' }, c.valeur === undefined ? 'inconnu' : nombre(c.valeur)),
+        h('span', { classe: 'sous' }, expliquer(c, ctx)),
+      ),
     ))),
     h('p', { classe: 'note' }, `Pèse ${part} % du score.`),
   );
@@ -179,17 +197,17 @@ function identite(i: number, f: FicheEcole, ctx: ContexteFiche): HTMLElement {
   const eleves = t.eleves[i];
   const ips = t.ips[i];
   return bloc(
-    'Identité',
+    IDENTITE,
     definition(
       ['UAI', t.uai[i]],
       ['Effectif', eleves === null ? 'inconnu'
         : `${pluriel(eleves, 'élève')}${f.classes ? `, ${pluriel(f.classes, 'classe')}` : ''}${f.rentree ? ` (rentrée ${f.rentree})` : ''}`],
       ['IPS', ips === null ? 'non publié' : `${dixieme(ips)}${f.ips_rentree ? ` (${f.ips_rentree})` : ''}`],
       ['Éducation prioritaire', EDUCATION_PRIORITAIRE[t.rep[i]] || 'non'],
-      ['Cité éducative', f.cite ?? 'non'],
+      ['Cité éducative', f.cite ? boutonActeur(ctx, 'dispositif', f.cite_id, f.cite, false) : 'non'],
       ['Restauration', ouiNonInconnu(f.restauration)],
-      f.qpv ? ['Quartier prioritaire', f.qpv.m === 0 ? `dans ${f.qpv.nom}` : `${f.qpv.nom}, à ${metres(f.qpv.m)}`] : null,
-      f.iris && ['Quartier (IRIS)', h('span', {}, f.iris.nom, h('span', { classe: 'sous' }, [
+      f.qpv ? ['Quartier prioritaire', [boutonActeur(ctx, 'dispositif', f.qpv.id, f.qpv.nom, false), f.qpv.m === 0 ? ' (dedans)' : `, à ${metres(f.qpv.m)}`]] : null,
+      f.iris && ['Quartier (IRIS)', h('span', {}, boutonActeur(ctx, 'iris', f.iris.code, f.iris.nom, false), h('span', { classe: 'sous' }, [
         f.iris.familles !== undefined && pluriel(f.iris.familles, 'famille avec enfants', 'familles avec enfants'),
         f.iris.revenu !== undefined && `revenu médian ${euros(f.iris.revenu)}`,
         f.iris.pauvrete !== undefined && `pauvreté ${pourcent(f.iris.pauvrete)}`,
@@ -200,11 +218,6 @@ function identite(i: number, f: FicheEcole, ctx: ContexteFiche): HTMLElement {
 }
 
 // ------------------------------------------------------------------ acteurs liés
-const MOTIF: Record<string, string> = { adresse: 'même adresse', distance: 'à proximité', nom: 'nom proche' };
-
-const boutonVoir = (xy: [number, number] | undefined, ctx: ContexteFiche): HTMLElement | null =>
-  xy ? h('button', { type: 'button', classe: 'lien', onclick: () => ctx.voir(xy) }, 'voir sur la carte') : null;
-
 function blocAccueils(f: FicheEcole, fiche: Fiche, ctx: ContexteFiche): HTMLElement {
   const { meta } = ctx.modele;
   const lignes = (f.accueils ?? []).flatMap((l) => {
@@ -212,17 +225,17 @@ function blocAccueils(f: FicheEcole, fiche: Fiche, ctx: ContexteFiche): HTMLElem
     if (!a) return [];
     return [h(
       'li', {},
-      h('b', {}, a.nom), ' ', etiquette(`${metres(l.m)} · ${MOTIF[l.motif] ?? l.motif}`),
+      boutonActeur(ctx, 'accueil', l.id, a.nom), ' ', etiquette(`${metres(l.m)} · ${MOTIF_RATTACHEMENT[l.motif] ?? l.motif}`),
       h('span', { classe: 'sous' }, `Soir : ${ouiNonInconnu(a.soir)} · mercredi : ${ouiNonInconnu(a.mercredi)}`,
         a.horaires && ` · ${a.horaires}`),
-      h('span', { classe: 'sous' }, 'Gestionnaire : ', a.gestionnaire ?? 'inconnu',
+      h('span', { classe: 'sous' }, 'Gestionnaire : ', boutonActeur(ctx, 'gestionnaire', a.siren, a.gestionnaire ?? 'inconnu', false),
         a.gestionnaire_type && ` (${LIBELLE_GESTIONNAIRE[a.gestionnaire_type]})`),
-      a.adresse && h('span', { classe: 'sous' }, a.adresse, ' ', boutonVoir(a.xy, ctx)),
+      a.adresse && h('span', { classe: 'sous' }, a.adresse),
       provenance(a.p, meta),
     )];
   });
   return volet(
-    'Accueils périscolaires', lignes.length,
+    LIBELLE_NATURE.accueil[1], lignes.length,
     lignes.length ? listeRepliee(lignes, 4)
       : vide('Aucun accueil trouvé à proximité. Les sources ouvertes ne sont pas exhaustives : l’école peut en avoir un.'),
   );
@@ -235,12 +248,12 @@ function blocAssos(f: FicheEcole, fiche: Fiche, ctx: ContexteFiche): HTMLElement
     if (!a) return [];
     return [h(
       'li', {},
-      h('b', {}, a.nom), ' ', etiquette(`rattachement ${pourcent(100 * l.c)}`),
+      boutonActeur(ctx, 'asso', l.id, a.nom), ' ', etiquette(`rattachement ${pourcent(100 * l.c)}`),
       h('span', { classe: 'sous' }, [
         a.federation ?? 'sans fédération connue', a.creation && `créée le ${date(a.creation)}`,
         a.rna && `RNA ${a.rna}`,
       ].filter(Boolean).join(' · ')),
-      a.siege && h('span', { classe: 'sous' }, `Siège : ${a.siege} `, boutonVoir(a.xy, ctx)),
+      a.siege && h('span', { classe: 'sous' }, `Siège : ${a.siege}`),
       h('span', { classe: 'sous' },
         a.activite ? ['Dernière activité en ligne : ', lien(a.activite_url, date(a.activite)) ?? date(a.activite)]
           : 'Dernière activité en ligne inconnue',
@@ -249,7 +262,7 @@ function blocAssos(f: FicheEcole, fiche: Fiche, ctx: ContexteFiche): HTMLElement
     )];
   });
   return volet(
-    'Associations de parents', lignes.length,
+    LIBELLE_NATURE.asso[1], lignes.length,
     lignes.length ? listeRepliee(lignes, 4)
       : vide('Aucune association rattachée. Beaucoup de conseils locaux ne sont pas déclarés en propre.'),
   );
@@ -267,11 +280,10 @@ function blocProducteurs(f: FicheEcole, ctx: ContexteFiche): HTMLElement {
     const g = ctx.producteurs.features[p.rang];
     if (!g) return [];
     const x = g.properties;
-    const xy = g.geometry.coordinates as [number, number];
     return [h(
       'li', { classe: 'proche' },
       h('span', {},
-        h('button', { type: 'button', classe: 'lien fort', onclick: () => ctx.voir(xy) }, x.nom),
+        boutonActeur(ctx, 'producteur', x.id, x.nom),
         h('span', { classe: 'sous' }, x.activites),
         !x.compte && h('span', { classe: 'sous' }, `Adresse : ${LIBELLE_ADRESSE[x.adresse_type]} — non compté dans la jauge`)),
       trajet(p),
@@ -279,7 +291,7 @@ function blocProducteurs(f: FicheEcole, ctx: ContexteFiche): HTMLElement {
   });
   const comptes = dedans.filter((p) => ctx.producteurs.features[p.rang]?.properties.compte).length;
   return volet(
-    'Producteurs bio dans le rayon', lignes.length,
+    PRODUCTEURS, lignes.length,
     lignes.length
       ? [h('p', { classe: 'note' }, `${pluriel(comptes, 'producteur compté', 'producteurs comptés')}, du plus proche au plus loin. Trajets par la route.`),
         listeRepliee(lignes, 6)]
@@ -294,12 +306,11 @@ function blocRelais(f: FicheEcole, ctx: ContexteFiche): HTMLElement {
     const g = ctx.relais.features[p.rang];
     if (!g || !dansRayon(p.km, p.minutes, rayon)) continue;
     const x = g.properties;
-    const xy = g.geometry.coordinates as [number, number];
     const l = parType.get(x.type) ?? [];
     l.push(h(
       'li', { classe: 'proche' },
       h('span', {},
-        h('button', { type: 'button', classe: 'lien fort', onclick: () => ctx.voir(xy) }, x.nom),
+        boutonActeur(ctx, 'relais', x.id, x.nom),
         x.adresse && h('span', { classe: 'sous' }, x.adresse)),
       trajet(p),
     ));

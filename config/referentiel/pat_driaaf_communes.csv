@@ -1,0 +1,542 @@
+pat_id,code_insee,commune,origine
+PAT11,75110,Paris 10e Arrondissement,driaaf
+PAT11,75111,Paris 11e Arrondissement,driaaf
+PAT11,75112,Paris 12e Arrondissement,driaaf
+PAT11,75113,Paris 13e Arrondissement,driaaf
+PAT11,75114,Paris 14e Arrondissement,driaaf
+PAT11,75115,Paris 15e Arrondissement,driaaf
+PAT11,75116,Paris 16e Arrondissement,driaaf
+PAT11,75117,Paris 17e Arrondissement,driaaf
+PAT11,75118,Paris 18e Arrondissement,driaaf
+PAT11,75119,Paris 19e Arrondissement,driaaf
+PAT11,75101,Paris 1er Arrondissement,driaaf
+PAT11,75120,Paris 20e Arrondissement,driaaf
+PAT11,75102,Paris 2e Arrondissement,driaaf
+PAT11,75103,Paris 3e Arrondissement,driaaf
+PAT11,75104,Paris 4e Arrondissement,driaaf
+PAT11,75105,Paris 5e Arrondissement,driaaf
+PAT11,75106,Paris 6e Arrondissement,driaaf
+PAT11,75107,Paris 7e Arrondissement,driaaf
+PAT11,75108,Paris 8e Arrondissement,driaaf
+PAT11,75109,Paris 9e Arrondissement,driaaf
+PAT08,77005,Annet-sur-Marne,driaaf
+PAT10,77018,Bailly-Romainvilliers,driaaf
+PAT10,77055,Brou-sur-Chantereine,driaaf
+PAT10,77058,Bussy-Saint-Georges,driaaf
+PAT10,77059,Bussy-Saint-Martin,driaaf
+PAT10,77062,Carnetin,driaaf
+PAT10,77075,Chalifert,driaaf
+PAT10,77083,Champs-sur-Marne,driaaf
+PAT10,77085,Chanteloup-en-Brie,driaaf
+PAT08,77094,Charmentray,driaaf
+PAT08,77095,Charny,driaaf
+PAT10,77108,Chelles,driaaf
+PAT10,77111,Chessy,driaaf
+PAT06,77118,Claye-Souilly,driaaf
+PAT10,77121,Collégien,driaaf
+PAT06,77123,Compans,driaaf
+PAT10,77124,Conches-sur-Gondoire,driaaf
+PAT10,77132,Coupvray,driaaf
+PAT10,77139,Courtry,driaaf
+PAT10,77146,Croissy-Beaubourg,driaaf
+PAT08,77150,Cuisy,driaaf
+PAT06,77153,Dammartin-en-Goële,driaaf
+PAT10,77155,Dampmart,driaaf
+PAT10,77171,Esbly,driaaf
+PAT10,77181,Ferrières-en-Brie,driaaf
+PAT08,77196,Fresnes-sur-Marne,driaaf
+PAT10,77209,Gouvernes,driaaf
+PAT06,77214,Gressy,driaaf
+PAT10,77221,Guermantes,driaaf
+PAT08,77233,Iverny,driaaf
+PAT10,77234,Jablines,driaaf
+PAT10,77237,Jossigny,driaaf
+PAT06,77241,Juilly,driaaf
+PAT10,77243,Lagny-sur-Marne,driaaf
+PAT06,77291,Le Mesnil-Amelot,driaaf
+PAT08,77363,Le Pin,driaaf
+PAT08,77364,Le Plessis-aux-Bois,driaaf
+PAT08,77366,Le Plessis-l'Évêque,driaaf
+PAT10,77248,Lesches,driaaf
+PAT10,77258,Lognes,driaaf
+PAT06,77259,Longperrier,driaaf
+PAT10,77268,Magny-le-Hongre,driaaf
+PAT08,77273,Marchémoret,driaaf
+PAT06,77282,Mauregard,driaaf
+PAT08,77292,Messy,driaaf
+PAT06,77294,Mitry-Mory,driaaf
+PAT08,77308,Montgé-en-Goële,driaaf
+PAT10,77315,Montry,driaaf
+PAT10,77307,Montévrain,driaaf
+PAT06,77322,Moussy-le-Neuf,driaaf
+PAT06,77323,Moussy-le-Vieux,driaaf
+PAT08,77332,Nantouillet,driaaf
+PAT10,77337,Noisiel,driaaf
+PAT08,77344,Oissery,driaaf
+PAT06,77349,Othis,driaaf
+PAT10,77372,Pomponne,driaaf
+PAT10,77373,Pontault-Combault,driaaf
+PAT10,77374,Pontcarré,driaaf
+PAT08,77376,Précy-sur-Marne,driaaf
+PAT10,77390,Roissy-en-Brie,driaaf
+PAT06,77392,Rouvres,driaaf
+PAT10,77413,Saint-Germain-sur-Morin,driaaf
+PAT06,77420,Saint-Mard,driaaf
+PAT08,77427,Saint-Mesmes,driaaf
+PAT08,77430,Saint-Pathus,driaaf
+PAT10,77438,Saint-Thibault-des-Vignes,driaaf
+PAT10,77449,Serris,driaaf
+PAT06,77462,Thieux,driaaf
+PAT10,77464,Thorigny-sur-Marne,driaaf
+PAT10,77468,Torcy,driaaf
+PAT10,77479,Vaires-sur-Marne,driaaf
+PAT10,77510,Villeneuve-Saint-Denis,driaaf
+PAT10,77508,Villeneuve-le-Comte,driaaf
+PAT06,77511,Villeneuve-sous-Dammartin,driaaf
+PAT06,77514,Villeparisis,driaaf
+PAT08,77515,Villeroy,driaaf
+PAT08,77517,Villevaudé,driaaf
+PAT08,77525,Vinantes,driaaf
+PAT10,77169,Émerainville,driaaf
+PAT14,78003,Ablis,driaaf
+PAT14,78009,Allainville,driaaf
+PAT14,78030,Auffargis,driaaf
+PAT14,78034,Auteuil,driaaf
+PAT14,78036,Autouillet,driaaf
+PAT03,78043,Bailly,driaaf
+PAT03,78049,Bazemont,ma_cantine
+PAT14,78050,Bazoches-sur-Guyonne,driaaf
+PAT14,78062,Beynes,driaaf
+PAT03,78062,Beynes,ma_cantine
+PAT14,78071,Boinville-le-Gaillard,driaaf
+PAT03,78073,Bois-d'Arcy,driaaf
+PAT14,78084,Boissy-sans-Avoir,driaaf
+PAT14,78087,Bonnelles,driaaf
+PAT03,78092,Bougival,driaaf
+PAT03,78117,Buc,driaaf
+PAT14,78120,Bullion,driaaf
+PAT14,78053,Béhoust,driaaf
+PAT14,78128,Cernay-la-Ville,driaaf
+PAT03,78152,Chavenay,ma_cantine
+PAT14,78160,Chevreuse,driaaf
+PAT14,78162,Choisel,driaaf
+PAT03,78143,Châteaufort,driaaf
+PAT14,78164,Clairefontaine-en-Yvelines,driaaf
+PAT03,78168,Coignières,driaaf
+PAT03,78189,Crespières,ma_cantine
+PAT14,78193,Dampierre-en-Yvelines,driaaf
+PAT03,78196,Davron,ma_cantine
+PAT03,78233,Feucherolles,ma_cantine
+PAT14,78236,Flexanville,driaaf
+PAT03,78242,Fontenay-le-Fleury,driaaf
+PAT14,78262,Galluis,driaaf
+PAT14,78263,Gambais,driaaf
+PAT14,78264,Gambaiseuil,driaaf
+PAT14,78265,Garancières,driaaf
+PAT14,78269,Gazeran,driaaf
+PAT14,78278,Goupillières,driaaf
+PAT03,78281,Goussonville,ma_cantine
+PAT14,78289,Grosrouvre,driaaf
+PAT03,78297,Guyancourt,driaaf
+PAT14,78307,Hermeray,driaaf
+PAT14,78321,Jouars-Pontchartrain,driaaf
+PAT03,78322,Jouy-en-Josas,driaaf
+PAT03,78325,Jumeauville,ma_cantine
+PAT03,78224,L'Étang-la-Ville,ma_cantine
+PAT14,78077,La Boissière-École,driaaf
+PAT03,78126,La Celle-Saint-Cloud,driaaf
+PAT14,78125,La Celle-les-Bordes,driaaf
+PAT14,78513,La Queue-les-Yvelines,driaaf
+PAT03,78644,La Verrière,driaaf
+PAT03,78158,Le Chesnay-Rocquencourt,driaaf
+PAT14,78397,Le Mesnil-Saint-Denis,driaaf
+PAT14,78486,Le Perray-en-Yvelines,driaaf
+PAT14,78623,Le Tremblay-sur-Mauldre,driaaf
+PAT03,78010,Les Alluets-le-Roi,ma_cantine
+PAT14,78108,Les Bréviaires,driaaf
+PAT03,78165,Les Clayes-sous-Bois,driaaf
+PAT14,78220,Les Essarts-le-Roi,driaaf
+PAT03,78343,Les Loges-en-Josas,driaaf
+PAT14,78398,Les Mesnuls,driaaf
+PAT14,78349,Longvilliers,driaaf
+PAT14,78334,Lévis-Saint-Nom,driaaf
+PAT03,78356,Magny-les-Hameaux,driaaf
+PAT14,78364,Marcq,driaaf
+PAT03,78364,Marcq,ma_cantine
+PAT14,78366,Mareil-le-Guyon,driaaf
+PAT03,78368,Mareil-sur-Mauldre,ma_cantine
+PAT03,78380,Maule,ma_cantine
+PAT02,78382,Maurecourt,driaaf
+PAT03,78383,Maurepas,driaaf
+PAT14,78404,Millemont,driaaf
+PAT14,78406,Milon-la-Chapelle,driaaf
+PAT14,78407,Mittainville,driaaf
+PAT03,78415,Montainville,ma_cantine
+PAT14,78420,Montfort-l'Amaury,driaaf
+PAT03,78423,Montigny-le-Bretonneux,driaaf
+PAT14,78389,Méré,driaaf
+PAT14,78442,Neauphle-le-Château,driaaf
+PAT14,78443,Neauphle-le-Vieux,driaaf
+PAT03,78455,Noisy-le-Roi,driaaf
+PAT14,78464,Orcemont,driaaf
+PAT03,78466,Orgeval,ma_cantine
+PAT14,78470,Orphin,driaaf
+PAT14,78472,Orsonville,driaaf
+PAT14,78478,Paray-Douaville,driaaf
+PAT03,78490,Plaisir,driaaf
+PAT14,78497,Poigny-la-Forêt,driaaf
+PAT14,78499,Ponthévrard,driaaf
+PAT14,78506,Prunay-en-Yvelines,driaaf
+PAT14,78516,Raizeux,driaaf
+PAT14,78517,Rambouillet,driaaf
+PAT03,78518,Rennemoulin,driaaf
+PAT14,78522,Rochefort-en-Yvelines,driaaf
+PAT14,78537,Saint-Arnoult-en-Yvelines,driaaf
+PAT03,78545,Saint-Cyr-l'École,driaaf
+PAT14,78548,Saint-Forget,driaaf
+PAT14,78550,Saint-Germain-de-la-Grange,driaaf
+PAT03,78550,Saint-Germain-de-la-Grange,ma_cantine
+PAT14,78557,Saint-Hilarion,driaaf
+PAT14,78561,Saint-Lambert,driaaf
+PAT14,78562,Saint-Léger-en-Yvelines,driaaf
+PAT14,78564,Saint-Martin-de-Bréthencourt,driaaf
+PAT14,78576,Saint-Rémy-l'Honoré,driaaf
+PAT14,78575,Saint-Rémy-lès-Chevreuse,driaaf
+PAT14,78569,Sainte-Mesme,driaaf
+PAT14,78588,Saulx-Marchais,driaaf
+PAT14,78590,Senlisse,driaaf
+PAT14,78601,Sonchamp,driaaf
+PAT14,78615,Thiverval-Grignon,driaaf
+PAT03,78615,Thiverval-Grignon,ma_cantine
+PAT14,78616,Thoiry,driaaf
+PAT03,78616,Thoiry,ma_cantine
+PAT03,78620,Toussus-le-Noble,driaaf
+PAT03,78621,Trappes,driaaf
+PAT03,78646,Versailles,driaaf
+PAT14,78653,Vicq,driaaf
+PAT14,78655,Vieille-Église-en-Yvelines,driaaf
+PAT03,78674,Villepreux,driaaf
+PAT14,78683,Villiers-Saint-Frédéric,driaaf
+PAT14,78681,Villiers-le-Mahieu,driaaf
+PAT03,78686,Viroflay,driaaf
+PAT03,78688,Voisins-le-Bretonneux,driaaf
+PAT03,78640,Vélizy-Villacoublay,driaaf
+PAT03,78208,Élancourt,driaaf
+PAT14,78209,Émancé,driaaf
+PAT04,91001,Abbéville-la-Rivière,driaaf
+PAT04,91016,Angerville,driaaf
+PAT13,91021,Arpajon,driaaf
+PAT04,91022,Arrancourt,driaaf
+PAT12,91027,Athis-Mons,driaaf
+PAT04,91035,Authon-la-Plaine,driaaf
+PAT04,91038,Auvers-Saint-Georges,driaaf
+PAT13,91041,Avrainville,driaaf
+PAT03,91044,Ballainvilliers,driaaf
+PAT03,91064,Bièvres,driaaf
+PAT04,91067,Blandy,driaaf
+PAT04,91075,Bois-Herpin,driaaf
+PAT04,91079,Boissy-la-Rivière,driaaf
+PAT04,91080,Boissy-le-Cutté,driaaf
+PAT04,91081,Boissy-le-Sec,driaaf
+PAT04,91085,Boissy-sous-Saint-Yon,driaaf
+PAT04,91095,Bouray-sur-Juine,driaaf
+PAT04,91098,Boutervilliers,driaaf
+PAT04,91100,Bouville,driaaf
+PAT13,91105,Breuillet,driaaf
+PAT04,91106,Breux-Jouy,driaaf
+PAT04,91109,Brières-les-Scellés,driaaf
+PAT04,91112,Brouy,driaaf
+PAT13,91115,Bruyères-le-Châtel,driaaf
+PAT13,91103,Brétigny-sur-Orge,driaaf
+PAT03,91122,Bures-sur-Yvette,driaaf
+PAT04,91130,Chalo-Saint-Mars,driaaf
+PAT04,91131,Chalou-Moulineux,driaaf
+PAT04,91132,Chamarande,driaaf
+PAT03,91136,Champlan,driaaf
+PAT04,91137,Champmotteux,driaaf
+PAT04,91145,Chatignonville,driaaf
+PAT04,91148,Chauffour-lès-Étréchy,driaaf
+PAT13,91156,Cheptainville,driaaf
+PAT03,91161,Chilly-Mazarin,driaaf
+PAT04,91613,Congerville-Thionville,driaaf
+PAT04,91175,Corbreuse,driaaf
+PAT04,91200,Dourdan,driaaf
+PAT13,91235,Fleury-Mérogis,driaaf
+PAT04,91240,Fontaine-la-Rivière,driaaf
+PAT03,91272,Gif-sur-Yvette,driaaf
+PAT03,91275,Gometz-le-Châtel,driaaf
+PAT13,91292,Guibeville,driaaf
+PAT04,91294,Guillerval,driaaf
+PAT03,91312,Igny,driaaf
+PAT04,91318,Janville-sur-Juine,driaaf
+PAT12,91326,Juvisy-sur-Orge,driaaf
+PAT04,91248,La Forêt-Sainte-Croix,driaaf
+PAT04,91247,La Forêt-le-Roi,driaaf
+PAT13,91457,La Norville,driaaf
+PAT03,91665,La Ville-du-Bois,driaaf
+PAT04,91330,Lardy,driaaf
+PAT04,91390,Le Mérévillois,driaaf
+PAT13,91494,Le Plessis-Pâté,driaaf
+PAT04,91630,Le Val-Saint-Germain,driaaf
+PAT04,91284,Les Granges-le-Roi,driaaf
+PAT03,91692,Les Ulis,driaaf
+PAT13,91333,Leuville-sur-Orge,driaaf
+PAT03,91339,Linas,driaaf
+PAT03,91345,Longjumeau,driaaf
+PAT13,91347,Longpont-sur-Orge,driaaf
+PAT03,91363,Marcoussis,driaaf
+PAT04,91374,Marolles-en-Beauce,driaaf
+PAT13,91376,Marolles-en-Hurepoix,driaaf
+PAT03,91377,Massy,driaaf
+PAT04,91378,Mauchamps,driaaf
+PAT04,91399,Mespuits,driaaf
+PAT04,91414,Monnerville,driaaf
+PAT03,91425,Montlhéry,driaaf
+PAT12,91432,Morangis,driaaf
+PAT04,91433,Morigny-Champigny,driaaf
+PAT13,91434,Morsang-sur-Orge,driaaf
+PAT04,91393,Mérobert,driaaf
+PAT03,91458,Nozay,driaaf
+PAT13,91461,Ollainville,driaaf
+PAT03,91461,Ollainville,ma_cantine
+PAT04,91469,Ormoy-la-Rivière,driaaf
+PAT03,91471,Orsay,driaaf
+PAT03,91477,Palaiseau,driaaf
+PAT12,91479,Paray-Vieille-Poste,driaaf
+PAT04,91495,Plessis-Saint-Benoist,driaaf
+PAT04,91508,Puiselet-le-Marais,driaaf
+PAT04,91511,Pussay,driaaf
+PAT04,91519,Richarville,driaaf
+PAT04,91525,Roinville,driaaf
+PAT04,91526,Roinvilliers,driaaf
+PAT04,91533,Saclas,driaaf
+PAT03,91534,Saclay,driaaf
+PAT03,91538,Saint-Aubin,driaaf
+PAT04,91540,Saint-Chéron,driaaf
+PAT04,91544,Saint-Cyr-la-Rivière,driaaf
+PAT04,91546,Saint-Cyr-sous-Dourdan,driaaf
+PAT04,91547,Saint-Escobille,driaaf
+PAT13,91552,Saint-Germain-lès-Arpajon,driaaf
+PAT04,91556,Saint-Hilaire,driaaf
+PAT13,91570,Saint-Michel-sur-Orge,driaaf
+PAT04,91578,Saint-Sulpice-de-Favières,driaaf
+PAT04,91581,Saint-Yon,driaaf
+PAT13,91549,Sainte-Geneviève-des-Bois,driaaf
+PAT03,91587,Saulx-les-Chartreux,driaaf
+PAT12,91589,Savigny-sur-Orge,driaaf
+PAT04,91593,Sermaise,driaaf
+PAT04,91602,Souzy-la-Briche,driaaf
+PAT04,91619,Torfou,driaaf
+PAT04,91629,Valpuiseaux,driaaf
+PAT03,91635,Vauhallan,driaaf
+PAT03,91645,Verrières-le-Buisson,driaaf
+PAT03,91661,Villebon-sur-Yvette,driaaf
+PAT04,91662,Villeconin,driaaf
+PAT03,91666,Villejust,driaaf
+PAT13,91667,Villemoisson-sur-Orge,driaaf
+PAT04,91671,Villeneuve-sur-Auvers,driaaf
+PAT03,91679,Villiers-le-Bâcle,driaaf
+PAT13,91685,Villiers-sur-Orge,driaaf
+PAT12,91687,Viry-Châtillon,driaaf
+PAT03,91689,Wissous,driaaf
+PAT13,91207,Égly,driaaf
+PAT03,91216,Épinay-sur-Orge,driaaf
+PAT04,91223,Étampes,driaaf
+PAT04,91226,Étréchy,driaaf
+PAT01,92036,Gennevilliers,driaaf
+PAT05,93001,Aubervilliers,driaaf
+PAT07,93001,Aubervilliers,driaaf
+PAT07,93005,Aulnay-sous-Bois,driaaf
+PAT07,93006,Bagnolet,driaaf
+PAT07,93008,Bobigny,driaaf
+PAT07,93010,Bondy,driaaf
+PAT07,93014,Clichy-sous-Bois,driaaf
+PAT07,93015,Coubron,driaaf
+PAT07,93029,Drancy,driaaf
+PAT07,93030,Dugny,driaaf
+PAT07,93032,Gagny,driaaf
+PAT07,93033,Gournay-sur-Marne,driaaf
+PAT05,93039,L'Île-Saint-Denis,driaaf
+PAT07,93039,L'Île-Saint-Denis,driaaf
+PAT05,93027,La Courneuve,driaaf
+PAT07,93027,La Courneuve,driaaf
+PAT07,93007,Le Blanc-Mesnil,driaaf
+PAT07,93013,Le Bourget,driaaf
+PAT07,93061,Le Pré-Saint-Gervais,driaaf
+PAT07,93062,Le Raincy,driaaf
+PAT07,93045,Les Lilas,driaaf
+PAT07,93057,Les Pavillons-sous-Bois,driaaf
+PAT07,93046,Livry-Gargan,driaaf
+PAT07,93047,Montfermeil,driaaf
+PAT07,93048,Montreuil,driaaf
+PAT07,93049,Neuilly-Plaisance,driaaf
+PAT07,93050,Neuilly-sur-Marne,driaaf
+PAT07,93051,Noisy-le-Grand,driaaf
+PAT07,93053,Noisy-le-Sec,driaaf
+PAT07,93055,Pantin,driaaf
+PAT07,93063,Romainville,driaaf
+PAT07,93064,Rosny-sous-Bois,driaaf
+PAT05,93066,Saint-Denis,driaaf
+PAT07,93066,Saint-Denis,driaaf
+PAT05,93070,Saint-Ouen-sur-Seine,driaaf
+PAT07,93070,Saint-Ouen-sur-Seine,driaaf
+PAT07,93071,Sevran,driaaf
+PAT05,93072,Stains,driaaf
+PAT07,93072,Stains,driaaf
+PAT07,93073,Tremblay-en-France,driaaf
+PAT07,93074,Vaujours,driaaf
+PAT07,93077,Villemomble,driaaf
+PAT07,93078,Villepinte,driaaf
+PAT05,93079,Villetaneuse,driaaf
+PAT07,93079,Villetaneuse,driaaf
+PAT05,93031,Épinay-sur-Seine,driaaf
+PAT07,93031,Épinay-sur-Seine,driaaf
+PAT12,94001,Ablon-sur-Seine,driaaf
+PAT12,94003,Arcueil,driaaf
+PAT12,94016,Cachan,driaaf
+PAT12,94021,Chevilly-Larue,driaaf
+PAT12,94022,Choisy-le-Roi,driaaf
+PAT09,94033,Fontenay-sous-Bois,driaaf
+PAT12,94034,Fresnes,driaaf
+PAT12,94037,Gentilly,driaaf
+PAT12,94041,Ivry-sur-Seine,driaaf
+PAT12,94038,L'Haÿ-les-Roses,driaaf
+PAT12,94043,Le Kremlin-Bicêtre,driaaf
+PAT12,94054,Orly,driaaf
+PAT12,94065,Rungis,driaaf
+PAT12,94073,Thiais,driaaf
+PAT12,94074,Valenton,driaaf
+PAT12,94076,Villejuif,driaaf
+PAT12,94078,Villeneuve-Saint-Georges,driaaf
+PAT12,94077,Villeneuve-le-Roi,driaaf
+PAT12,94081,Vitry-sur-Seine,driaaf
+PAT02,95002,Ableiges,driaaf
+PAT02,95008,Aincourt,driaaf
+PAT02,95011,Ambleville,driaaf
+PAT02,95012,Amenucourt,driaaf
+PAT06,95019,Arnouville,driaaf
+PAT02,95024,Arthies,driaaf
+PAT15,95026,Asnières-sur-Oise,driaaf
+PAT02,95039,Auvers-sur-Oise,ma_cantine
+PAT02,95040,Avernes,driaaf
+PAT15,95042,Baillet-en-France,driaaf
+PAT02,95046,Banthelu,driaaf
+PAT15,95052,Beaumont-sur-Oise,ma_cantine
+PAT15,95055,Bellefontaine,driaaf
+PAT15,95056,Belloy-en-France,driaaf
+PAT02,95059,Berville,driaaf
+PAT02,95074,Boisemont,driaaf
+PAT02,95078,Boissy-l'Aillerie,driaaf
+PAT06,95088,Bonneuil-en-France,driaaf
+PAT06,95094,Bouqueval,driaaf
+PAT02,95101,Bray-et-Lû,driaaf
+PAT02,95110,Brignancourt,driaaf
+PAT02,95102,Bréançon,driaaf
+PAT02,95119,Buhy,driaaf
+PAT02,95120,Butry-sur-Oise,ma_cantine
+PAT02,95127,Cergy,driaaf
+PAT02,95141,Charmont,driaaf
+PAT02,95142,Chars,driaaf
+PAT15,95149,Chaumontel,driaaf
+PAT02,95150,Chaussy,driaaf
+PAT15,95151,Chauvry,ma_cantine
+PAT06,95154,Chennevières-lès-Louvres,driaaf
+PAT15,95144,Châtenay-en-France,driaaf
+PAT02,95157,Chérence,driaaf
+PAT02,95166,Cléry-en-Vexin,driaaf
+PAT02,95169,Commeny,driaaf
+PAT02,95170,Condécourt,driaaf
+PAT02,95177,Cormeilles-en-Vexin,driaaf
+PAT02,95181,Courcelles-sur-Viosne,driaaf
+PAT02,95183,Courdimanche,driaaf
+PAT02,95211,Ennery,ma_cantine
+PAT06,95241,Fontenay-en-Parisis,driaaf
+PAT06,95250,Fosses,driaaf
+PAT15,95250,Fosses,ma_cantine
+PAT02,95258,Frouville,ma_cantine
+PAT02,95253,Frémainville,driaaf
+PAT02,95254,Frémécourt,driaaf
+PAT06,95268,Garges-lès-Gonesse,driaaf
+PAT02,95270,Genainville,driaaf
+PAT06,95277,Gonesse,driaaf
+PAT06,95280,Goussainville,driaaf
+PAT02,95287,Grisy-les-Plâtres,driaaf
+PAT02,95295,Guiry-en-Vexin,driaaf
+PAT02,95271,Génicourt,ma_cantine
+PAT02,95298,Haravilliers,driaaf
+PAT02,95301,Haute-Isle,driaaf
+PAT02,95309,Hodent,driaaf
+PAT15,95316,Jagny-sous-Bois,driaaf
+PAT02,95323,Jouy-le-Moutier,driaaf
+PAT02,95139,La Chapelle-en-Vexin,driaaf
+PAT02,95523,La Roche-Guyon,driaaf
+PAT15,95331,Lassy,driaaf
+PAT02,95054,Le Bellay-en-Vexin,driaaf
+PAT02,95303,Le Heaulme,driaaf
+PAT06,95395,Le Mesnil-Aubry,driaaf
+PAT02,95483,Le Perchay,driaaf
+PAT06,95492,Le Plessis-Gassot,driaaf
+PAT15,95493,Le Plessis-Luzarches,driaaf
+PAT06,95612,Le Thillay,driaaf
+PAT02,95348,Longuesse,driaaf
+PAT06,95351,Louvres,driaaf
+PAT15,95352,Luzarches,driaaf
+PAT15,95353,Maffliers,driaaf
+PAT02,95355,Magny-en-Vexin,driaaf
+PAT15,95365,Mareil-en-France,driaaf
+PAT02,95370,Marines,driaaf
+PAT06,95371,Marly-la-Ville,driaaf
+PAT02,95379,Maudétour-en-Vexin,driaaf
+PAT02,95388,Menucourt,driaaf
+PAT02,95422,Montgeroult,driaaf
+PAT02,95429,Montreuil-sur-Epte,driaaf
+PAT15,95430,Montsoult,driaaf
+PAT15,95436,Mours,ma_cantine
+PAT02,95438,Moussy,driaaf
+PAT02,95447,Neuilly-en-Vexin,driaaf
+PAT02,95450,Neuville-sur-Oise,driaaf
+PAT15,95452,Nointel,ma_cantine
+PAT15,95456,Noisy-sur-Oise,ma_cantine
+PAT02,95459,Nucourt,driaaf
+PAT02,95462,Omerville,driaaf
+PAT02,95476,Osny,driaaf
+PAT02,95500,Pontoise,driaaf
+PAT15,95504,Presles,ma_cantine
+PAT02,95510,Puiseux-Pontoise,driaaf
+PAT06,95509,Puiseux-en-France,driaaf
+PAT06,95527,Roissy-en-France,driaaf
+PAT02,95535,Sagy,driaaf
+PAT02,95541,Saint-Clair-sur-Epte,driaaf
+PAT02,95543,Saint-Cyr-en-Arthies,driaaf
+PAT02,95554,Saint-Gervais,driaaf
+PAT15,95566,Saint-Martin-du-Tertre,driaaf
+PAT02,95572,Saint-Ouen-l'Aumône,driaaf
+PAT06,95580,Saint-Witz,driaaf
+PAT02,95584,Santeuil,driaaf
+PAT06,95585,Sarcelles,driaaf
+PAT02,95592,Seraincourt,driaaf
+PAT15,95594,Seugy,driaaf
+PAT06,95604,Survilliers,driaaf
+PAT15,95604,Survilliers,ma_cantine
+PAT02,95611,Theuville,driaaf
+PAT02,95610,Théméricourt,driaaf
+PAT02,95625,Us,driaaf
+PAT02,95627,Vallangoujard,ma_cantine
+PAT06,95633,Vaudherland,driaaf
+PAT02,95637,Vauréal,driaaf
+PAT15,95652,Viarmes,driaaf
+PAT02,95656,Vienne-en-Arthies,driaaf
+PAT02,95658,Vigny,driaaf
+PAT15,95660,Villaines-sous-Bois,driaaf
+PAT06,95675,Villeron,driaaf
+PAT02,95676,Villers-en-Arthies,driaaf
+PAT15,95678,Villiers-Adam,ma_cantine
+PAT06,95680,Villiers-le-Bel,driaaf
+PAT15,95682,Villiers-le-Sec,driaaf
+PAT06,95641,Vémars,driaaf
+PAT02,95651,Vétheuil,driaaf
+PAT02,95690,Wy-dit-Joli-Village,driaaf
+PAT06,95205,Écouen,driaaf
+PAT06,95212,Épiais-lès-Louvres,driaaf
+PAT15,95214,Épinay-Champlâtreux,driaaf
+PAT02,95218,Éragny-sur-Oise,driaaf

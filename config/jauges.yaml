@@ -15,10 +15,12 @@ donnees_insuffisantes:
   part_min_connue_jauge: 0.5
   part_min_connue_score: 0.5
 
-# Rayon par défaut, par la route. mode « ou » : un producteur est dans le rayon s'il est à 30 km OU à 45 min.
+# Rayon par défaut, par la route. mode « ou » : un producteur est dans le rayon s'il est à 10 km OU à 15 min.
+# 10 km : distance annoncée par V.i entre les écoles et les producteurs ; à 30 km, presque toutes les écoles
+# franciliennes ont cinq producteurs et la jauge ne départage plus.
 rayon:
-  km: 30
-  minutes: 45
+  km: 10
+  minutes: 15
   mode: ou            # ou | km | minutes
 
 engagement:
@@ -74,3 +76,39 @@ familles:
     part_ips: 70
     part_qpv: 30
     qpv_distance_max_m: 300
+
+# Score propre de chaque commune : étape 1 de la demande V.i (repérer les communes, puis leurs écoles).
+# Même règle : moyenne pondérée des critères connus ; « données insuffisantes » sous part_min_connue_jauge.
+communes:
+  sous_poids:
+    pat: 20            # intégration à un PAT et priorités
+    soutiens: 10       # département, intercommunalité, lauréat de l'appel à projets MGP
+    cuisine: 15        # cuisine centrale publique ou cuisine sur place en régie
+    cantine_bio: 10    # part de bio déclarée (même barème que la jauge Engagement)
+    producteurs: 15    # moyenne de la jauge Producteurs des écoles de la commune (suit le rayon de la carte)
+    associations: 10   # associations d'alimentation durable (RNA)
+    communications: 10 # signaux alimentaires récents du site de la mairie (mêmes thèmes que engagement.web)
+    ecoles: 10         # élèves des écoles du périmètre : familles touchées
+  pat:
+    part_niveau: 60    # niveau de labellisation (1 ou 2)
+    part_restauration: 20
+    part_education: 20
+    niveau_inconnu: 1  # PAT reconnu sans niveau publié : compté comme niveau 1
+  soutiens:
+    part_departement: 50   # score 0 à 2 du référentiel
+    part_interco: 25       # score 0 à 2 du référentiel (intercommunalité ou EPT)
+    part_aap_mgp: 25       # lauréat de l'appel à projets « Restauration collective bio et locale »
+  # Cuisine centrale principale (celle qui livre le plus de repas), sinon cuisines sur place
+  cuisine:
+    municipale: 100
+    caisse_des_ecoles: 100
+    sur_place_regie: 90
+    intercommunale: 80
+    autre_public: 70
+    sur_place_concedee: 30
+    privee: 20
+  associations:
+    nombre_plein: 5          # 5 associations ou plus : moitié de la note
+    densite_plein_10k: 3     # 3 pour 10 000 habitants ou plus : autre moitié
+  ecoles:
+    eleves_plein: 1500

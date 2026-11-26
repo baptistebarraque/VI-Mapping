@@ -10,7 +10,7 @@ import osmium
 
 from ..db import point, upsert
 from ..outils import motifs
-from ..outils.texte import adresse_sans_personne, normaliser, sans_contact, site_web
+from ..outils.texte import adresse_sans_personne, email_de_contact, normaliser, sans_contact, site_web, telephone
 from .base import Compteurs, Contexte, connecteur
 
 # Objets qui portent le nom du lieu sans être le lieu (arrêt de bus, parking, jardin, limite…)
@@ -64,6 +64,18 @@ def adresse(tags: Any) -> str | None:
     return adresse_sans_personne(f"{debut}, {fin}".strip(" ,"))
 
 
+def contact(tags: Any) -> dict[str, str | None]:
+    """Contact public du lieu, sous l'une ou l'autre forme d'étiquette."""
+    def premier(*cles: str) -> str | None:
+        return next((tags.get(c) for c in cles if c in tags), None)
+
+    return {
+        "telephone": telephone(premier("phone", "contact:phone", "contact:mobile")),
+        "email": email_de_contact(premier("email", "contact:email")),
+        "site_web": site_web((premier("website", "contact:website", "url") or "").split(";")[0]),
+    }
+
+
 @connecteur("osm", depend_de=["ign_admin_express"])
 def collecter(ctx: Contexte) -> Compteurs:
     chemin = ctx.http.telecharger(ctx.config.url, "ile-de-france.osm.pbf")
@@ -94,6 +106,7 @@ def collecter(ctx: Contexte) -> Compteurs:
             "id": f"osm:{ref}",
             "nom": sans_contact(tags.get("name")),
             "adresse": adresse(tags),
+            **contact(tags),
             "geom": point(*position),
             **ctx.provenance(f"https://www.openstreetmap.org/{ref}"),
         }
@@ -107,7 +120,7 @@ def collecter(ctx: Contexte) -> Compteurs:
                 "exploitant": sans_contact(tags.get("operator")),
             })
         else:
-            relais.append({**commun, "type": type_, "site_web": site_web(tags.get("website"))})
+            relais.append({**commun, "type": type_})
             compte[str(type_)] += 1
     upsert(ctx.conn, "accueil_periscolaire", accueils, ["id"])
     upsert(ctx.conn, "relais_local", relais, ["id"])

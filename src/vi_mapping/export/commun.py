@@ -75,3 +75,9 @@ ACCUEILS = """
       WHERE b.doublon_de = a.id AND coalesce(h.nom, b.exploitant) IS NOT NULL
       ORDER BY h.siren IS NULL, b.id LIMIT 1) d ON true
     WHERE a.doublon_de IS NULL"""
+
+# Cité éducative d'une école membre (les deux sources écrivent son nom autrement) : même nom, sinon la plus proche.
+CITE_ECOLE = """(
+    SELECT q.id FROM dispositif q
+    WHERE q.type = 'cite_educative' AND e.cite_educative IS NOT NULL AND ST_DWithin(q.geom, e.geom, 0.02)
+    ORDER BY q.nom <> e.cite_educative, q.geom <-> e.geom LIMIT 1)"""

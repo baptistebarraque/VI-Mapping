@@ -69,11 +69,12 @@ def test_perimetre() -> None:
 def test_reglages_par_defaut_des_jauges() -> None:
     c = config_jauges()
     assert dict(c.poids) == {"engagement": 25, "periscolaire": 25, "parents": 15, "producteurs": 20, "familles": 15}
-    assert (c.rayon.km, c.rayon.minutes) == (30, 45)
+    assert (c.rayon.km, c.rayon.minutes) == (10, 15)  # producteurs à moins de 10 km des écoles (pitch V.i)
     assert sorted(c.producteurs.sous_poids.values()) == [40, 60]
     assert (c.producteurs.minutes_plein, c.producteurs.nombre_plein) == (15, 5)
     assert c.engagement.web.fenetre_mois == 24 and c.parents.fenetre_activite_mois == 12
     assert c.periscolaire.distance_max_m == 300
+    assert sum(c.communes.sous_poids.values()) == 100 and c.communes.sous_poids["pat"] == 20
 
 
 def test_docs_sources_a_jour() -> None:

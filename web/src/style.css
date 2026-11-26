@@ -173,6 +173,27 @@ button.discret {
 button.discret:hover {
   background: var(--voile);
 }
+button.fort:not(.lien),
+a.bouton.fort {
+  border-color: var(--accent);
+  background: var(--voile);
+  font-weight: 600;
+}
+a.bouton {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 3px 14px;
+  border: 1px solid var(--axe);
+  border-radius: 16px;
+  background: var(--surface);
+  color: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+}
+a.bouton:hover {
+  border-color: var(--inconnu);
+}
 button.lien {
   min-height: 0;
   padding: 0;
@@ -188,6 +209,10 @@ button.lien.fort {
   font-weight: 600;
   color: var(--encre);
   text-decoration-color: var(--axe);
+}
+button.lien:hover:enabled {
+  color: var(--accent-fonce);
+  text-decoration-color: currentcolor;
 }
 :focus-visible {
   outline: 2px solid var(--accent-fonce);
@@ -565,11 +590,55 @@ summary {
   font-variant-numeric: tabular-nums;
 }
 
+/* Étape 1 : communes, avec une case pour retenir chacune */
+.classement.communes li:not(.vide) {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  align-items: center;
+}
+.classement.communes li > button {
+  grid-template-columns: 22px minmax(0, 1fr) 60px 36px;
+  width: calc(100% + 10px);
+  margin-inline: 0 -10px;
+}
+.retenir {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  cursor: pointer;
+}
+.retenir input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+.retenues {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  min-height: 32px;
+  margin-top: 8px;
+  color: var(--encre-2);
+}
+.retenues b {
+  font-weight: 600;
+  color: var(--encre);
+}
+.retenues .fort {
+  margin-inline-start: auto;
+}
+.etape {
+  padding: 4px 20px 10px;
+}
+
 /* ------------------------------------------------------------ fiches */
 .collee {
   position: sticky;
   top: 0;
   z-index: 1;
+  flex-wrap: wrap;
+  row-gap: 2px;
   padding: 4px 20px;
   background: var(--page);
 }
@@ -579,7 +648,7 @@ summary {
   gap: 6px;
 }
 .parcours .place {
-  min-width: 84px;
+  min-width: 72px;
   text-align: center;
   color: var(--encre-2);
   font-variant-numeric: tabular-nums;
@@ -604,6 +673,27 @@ summary {
 }
 .lieu {
   color: var(--encre-2);
+}
+.contact {
+  margin: 14px 0 4px;
+}
+.contact .note {
+  margin: 8px 0 0;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0;
+}
+.courriel {
+  overflow-wrap: anywhere;
+}
+.courriel button {
+  margin-inline-start: 6px;
+}
+.pied {
+  margin-top: 20px;
 }
 .heros {
   display: flex;
@@ -643,10 +733,19 @@ summary {
   padding: 7px 0;
   list-style: none;
 }
+button.jauge.simple {
+  width: 100%;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  text-align: start;
+}
 .jauge > summary::-webkit-details-marker {
   display: none;
 }
-.jauge > summary:hover .nom {
+.jauge > summary:hover .nom,
+button.jauge.simple:hover .nom,
+.criteres li > button:hover .nom {
   text-decoration: underline;
   text-decoration-color: var(--axe);
   text-underline-offset: 3px;
@@ -682,11 +781,19 @@ summary {
   padding: 2px 0 2px 12px;
   border-inline-start: 2px solid var(--axe);
 }
-.criteres li {
+.criteres li > * {
   display: grid;
   grid-template-columns: 1fr auto;
   column-gap: 8px;
+  width: 100%;
   padding: 3px 0;
+}
+.criteres li > button {
+  min-height: 0;
+  border: 0;
+  border-radius: 2px;
+  background: none;
+  text-align: start;
 }
 .criteres .sous {
   grid-column: 1 / -1;
@@ -746,7 +853,7 @@ summary {
 }
 .definition {
   display: grid;
-  grid-template-columns: minmax(96px, max-content) 1fr;
+  grid-template-columns: fit-content(42%) minmax(0, 1fr);
   gap: 4px 14px;
 }
 .definition dt {
@@ -914,6 +1021,35 @@ summary {
 }
 .dialogue summary h3 {
   margin: 0;
+}
+
+/* ------------------------------------------------------------ fenêtre Contacts */
+.carnet {
+  width: min(640px, calc(100vw - 32px));
+}
+.natures {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 4px 16px;
+  margin-bottom: 8px;
+}
+.natures legend {
+  grid-column: 1 / -1;
+}
+.natures .case {
+  align-items: start;
+  padding: 2px 0;
+}
+.natures .case input {
+  margin-top: 3px;
+}
+.carnet .actions {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  margin: 8px -28px 4px;
+  padding: 8px 28px;
+  background: var(--surface);
 }
 
 /* ------------------------------------------------------------ petits écrans */

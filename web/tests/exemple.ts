@@ -1,6 +1,6 @@
 /** Petit jeu d'écoles pour les tests : trois communes, dont un arrondissement de Paris. */
 
-import type { Meta, TableEcoles } from '../src/types';
+import type { Meta, TableCommunes, TableEcoles } from '../src/types';
 
 export const meta = {
   genere_le: '2026-11-25T08:00:00',
@@ -11,12 +11,35 @@ export const meta = {
   part_min_score: 0.3,
   producteurs: { sous_poids: { plus_proche: 60, nombre: 40 }, minutes_plein: 15, km_plein: 10, nombre_plein: 5 },
   communes: [
-    { code: '75056', nom: 'Paris', dep: '75' },
-    { code: '75112', nom: 'Paris 12e', dep: '75', mere: '75056' },
-    { code: '93048', nom: 'Montreuil', dep: '93' },
+    { code: '75056', nom: 'Paris', dep: '75', ecoles: 0 },
+    { code: '75112', nom: 'Paris 12e', dep: '75', mere: '75056', ecoles: 1 },
+    { code: '93048', nom: 'Montreuil', dep: '93', ecoles: 3 },
   ],
   sources: {},
+  poids_communes: {
+    pat: 20, soutiens: 10, cuisine: 15, cantine_bio: 10, producteurs: 15, associations: 10, communications: 10,
+    ecoles: 10,
+  },
+  part_min_jauge: 0.5,
 } as unknown as Meta;
+
+/** Communes alignées sur meta.communes : Paris (sans école), Paris 12e (bien documentée), Montreuil. */
+export const tableCommunes: TableCommunes = {
+  score: [null, 80, 60],
+  confiance: [0, 1, 0.65],
+  pat: [80, 80, 100],
+  soutiens: [62.5, 62.5, 62.5],
+  cuisine: [null, 100, null],
+  cantine_bio: [null, 100, null],
+  producteurs: [null, null, null],
+  associations: [null, 100, 50],
+  communications: [null, 100, null],
+  ecoles: [null, 100, 40],
+  pat_nom: ['PAT de Paris', 'PAT de Paris', 'PAT 93'],
+  population: [2_100_000, 140_000, 110_000],
+  eleves: [null, 200, 400],
+  assos: [0, 30, 6],
+};
 
 /** A : complète ; B : sans jauge connue ; C : deux jauges, privée ; D : comme A, à Montreuil, moins documentée. */
 export const table: TableEcoles = {

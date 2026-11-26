@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from typing import Any
 
 from .commun import Connexion, collection, prov, sans_vide
@@ -17,6 +18,16 @@ _COUVERTURE = (
     "ST_AsGeoJSON(ST_Transform(ST_SetSRID(ST_CoverageSimplify(ST_Transform({geom}, 2154), {tolerance}) OVER (), 2154),"
     " 4326), 5)"
 )
+# GEOS antérieur à 3.12 (image PostGIS de docker-compose.yml) : chaque contour est simplifié seul.
+_PAR_CONTOUR = (
+    "ST_AsGeoJSON(ST_Transform(ST_SimplifyPreserveTopology(ST_Transform({geom}, 2154), {tolerance}), 4326), 5)"
+)
+
+
+def _simplifier(conn: Connexion, geom: str, tolerance: int) -> str:
+    r = conn.execute("SELECT string_to_array(split_part(postgis_geos_version(), '-', 1), '.')::int[] AS v").fetchone()
+    couverture = r is not None and r["v"][:2] >= [3, 12]
+    return (_COUVERTURE if couverture else _PAR_CONTOUR).format(geom=geom, tolerance=tolerance)
 
 
 def _feature(geojson: str, proprietes: dict[str, Any]) -> dict[str, Any]:
@@ -25,7 +36,7 @@ def _feature(geojson: str, proprietes: dict[str, Any]) -> dict[str, Any]:
 
 def communes(conn: Connexion) -> dict[str, Any]:
     """Communes et arrondissements de Paris (la commune de Paris entière n'est pas dessinée)."""
-    g = _COUVERTURE.format(geom="geom", tolerance=TOLERANCE_COMMUNES_M)
+    g = _simplifier(conn, "geom", TOLERANCE_COMMUNES_M)
     return collection(
         _feature(r["g"], {"code": r["code_insee"], "nom": r["nom"], "dep": r["departement"]})
         for r in conn.execute(
@@ -35,7 +46,7 @@ def communes(conn: Connexion) -> dict[str, Any]:
 
 
 def iris(conn: Connexion) -> dict[str, Any]:
-    g = _COUVERTURE.format(geom="t.geom", tolerance=TOLERANCE_IRIS_M)
+    g = _simplifier(conn, "t.geom", TOLERANCE_IRIS_M)
     return collection(
         _feature(r["g"], {
             "iris": r["iris"], "nom": r["nom"], "commune": r["commune"], "familles": r["familles_avec_enfants"],
@@ -48,14 +59,17 @@ def iris(conn: Connexion) -> dict[str, Any]:
     )
 
 
-def dispositifs(conn: Connexion, type_: str) -> dict[str, Any]:
-    """PAT (avec ses communes et la mention « lauréat de l'appel à projets du PNA »), QPV ou cités éducatives."""
+def dispositifs(
+    conn: Connexion, type_: str, complements: Callable[[str], dict[str, Any]] | None = None
+) -> dict[str, Any]:
+    """PAT (communes, mention « lauréat de l'appel à projets du PNA », contact du porteur), QPV ou cités éducatives."""
     tolerance = TOLERANCE_QPV_M if type_ == "qpv" else TOLERANCE_DISPOSITIFS_M
     return collection(
         _feature(r["g"], {
             "id": r["id"], "nom": r["nom"], "axe": r["axe_education_alimentaire"], "annee": r["annee"],
             "niveau": r["niveau"], "laureat": r["laureat"] or None,
             "communes": r["communes"] if type_ == "pat" else None, **prov(r),
+            **(complements(r["id"]) if complements else {}),
         })
         for r in conn.execute(
             """SELECT d.*,

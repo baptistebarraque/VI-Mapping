@@ -1,7 +1,7 @@
 """Producteurs bio (API Professionnels Bio de l'Agence Bio).
 
-Téléphones et e-mails ne sont jamais conservés ; `gerant` ne sert qu'à écarter, en mémoire, les noms
-de personnes physiques : un exploitant individuel sans nom commercial est anonymisé.
+Téléphone, e-mail et site sont gardés tels que l'annuaire les publie. `gerant` ne sert qu'à écarter, en mémoire, les
+noms de personnes physiques : un exploitant individuel sans nom commercial est anonymisé.
 """
 
 from __future__ import annotations
@@ -13,7 +13,16 @@ from typing import Any
 from ..config import Producteurs
 from ..db import point, upsert
 from ..outils.ban import Adresse, geocoder
-from ..outils.texte import adresse_sans_personne, normaliser, propre, sans_contact, titre
+from ..outils.texte import (
+    adresse_sans_personne,
+    email_de_contact,
+    normaliser,
+    propre,
+    sans_contact,
+    site_web,
+    telephone,
+    titre,
+)
 from .base import Compteurs, Contexte, connecteur
 
 PAGE = 500
@@ -110,6 +119,18 @@ def vente_directe(operateur: dict[str, Any], c: Producteurs) -> bool | None:
     return (operateur.get("venteAnnuaire") or {}).get("venteParticuliers")
 
 
+def contact(operateur: dict[str, Any]) -> dict[str, str | None]:
+    """Contact publié dans l'annuaire : ligne commerciale d'abord, site hors réseaux sociaux si possible."""
+    numeros = (operateur.get(c) for c in ("telephoneCommerciale", "telephone", "telephoneNational"))
+    sites = [s.get("url") for s in operateur.get("siteWebs") or [] if s.get("active", True)]
+    return {
+        "telephone": next((t for n in numeros if (t := telephone(n))), None),
+        "email": email_de_contact(operateur.get("email")),
+        "site_web": next((u for s in sites if (u := site_web(s))), None)
+        or next((u for s in sites if (u := site_web(s, reseaux_sociaux=True))), None),
+    }
+
+
 def est_agricole(operateur: dict[str, Any], c: Producteurs) -> bool:
     """Faux pour un restaurateur dont la seule « production » est de la transformation."""
     noms = {propre(a["nom"]) for a in operateur.get("annuaireActivites") or []}
@@ -189,12 +210,14 @@ def collecter(ctx: Contexte) -> Compteurs:
             "fruits": fruits,
             "etat_bio": etat if etat != "inconnu" else etat_bio(tous, c),
             "vente_directe": directe,
+            "vente_restauration_collective": (o.get("venteAnnuaire") or {}).get("venteRestauCollective"),
             "membre_amap": None,  # l'API ne le dit pas ; la carte du Réseau AMAP IdF est verrouillée
             "eligible": etat != "inconnu" and (maraichage or fruits) and bool(directe) and est_agricole(o, c),
             # Siège d'un exploitant individuel : souvent son domicile, on s'en tient à la ville.
             "adresse": ville if nom is None and type_adresse == "siege" else propre(f"{rue}, {ville}".strip(" ,")),
             "adresse_type": type_adresse,
             "commune": a["codeCommune"],
+            **contact(o),
             "geom": point(a["long"], a["lat"]) if id_ not in a_geocoder else None,
             **ctx.provenance(FICHE.format(numero=o["numeroBio"]), confiance=c.confiance_adresse[type_adresse]),
         })
@@ -211,4 +234,6 @@ def collecter(ctx: Contexte) -> Compteurs:
         gardees.append(ligne)
     n = upsert(ctx.conn, "producteur", gardees, ["id"])
     return {**compte, "producteurs": n, "eligibles": sum(ligne["eligible"] for ligne in gardees),
+            "avec_email": sum(ligne["email"] is not None for ligne in gardees),
+            "avec_telephone": sum(ligne["telephone"] is not None for ligne in gardees),
             "supprimes": ctx.purger("producteur")}

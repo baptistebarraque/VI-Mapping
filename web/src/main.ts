@@ -1,22 +1,29 @@
-import { Carte, type Lien } from './carte/carte';
+import { contactsDe, perimetre, perimetreEcran, type Perimetre } from './carnet';
+import { Carte, type Emplacement, type Lien } from './carte/carte';
 import { chargerFond } from './carte/fond';
-import { classementCsv, telecharger } from './csv';
+import { classementCommunesCsv, classementCsv, telecharger } from './csv';
 import {
-  chargerCouverture, chargerEcoles, chargerFiche, chargerMeta, chargerPats, chargerProducteurs, chargerRelais,
+  chargerActeurs, chargerCommunes, chargerContacts, chargerCouverture, chargerEcoles, chargerFiche, chargerMeta,
+  chargerPats, chargerProducteurs, chargerRelais,
 } from './donnees';
-import { depuisAdresse, Magasin, versAdresse, type Selection, type Sujet } from './etat';
+import { depuisAdresse, Magasin, versAdresse, type Cible, type Selection, type Sujet } from './etat';
 import { dansRayon } from './jauges';
 import { Modele } from './modele';
+import { ModeleCommunes } from './modele-communes';
 import logo from './images/logo-vi.png';
 import logoComplet from './images/logo-vraiment-irresistibles.png';
-import type { Fiche, ProprietesPat } from './types';
+import type { Acteurs, Fiche, NatureFichier } from './types';
+import { CarnetContacts } from './ui/carnet';
 import { Classement } from './ui/classement';
+import { ClassementCommunes } from './ui/classement-communes';
 import { vide } from './ui/commun';
 import { tableauxCouverture } from './ui/couverture';
 import { dialogueSources, ouvrirDialogue } from './ui/dialogue';
+import type { ContexteFiche } from './ui/contexte';
 import { h, remplacer } from './ui/dom';
+import { ficheAbsente, ficheActeur, ficheElu, NATURES_LIEES, territoire, type Dossier } from './ui/fiche-acteur';
 import { ficheCommune } from './ui/fiche-commune';
-import { ficheEcole, type ContexteFiche } from './ui/fiche-ecole';
+import { ficheEcole } from './ui/fiche-ecole';
 import { fichePat } from './ui/fiche-pat';
 import { majLegende } from './ui/legende';
 import { Parcours } from './ui/parcours';
@@ -31,15 +38,19 @@ type Vue = 'carte' | 'reglages' | 'liste';
 
 async function demarrer(app: HTMLElement): Promise<void> {
   const meta = await chargerMeta();
-  const [table, producteurs, relais, pats, fond] = await Promise.all([
-    chargerEcoles(), chargerProducteurs(), chargerRelais(), chargerPats(), chargerFond(),
+  const [table, tableCommunes, producteurs, relais, pats, fond] = await Promise.all([
+    chargerEcoles(), chargerCommunes(), chargerProducteurs(), chargerRelais(), chargerPats(), chargerFond(),
   ]);
   const modele = new Modele(meta, table);
+  const communes = new ModeleCommunes(meta, tableCommunes, modele);
   const magasin = new Magasin(depuisAdresse(location.hash, meta));
   const { etat } = magasin;
   modele.recalculerProducteurs(etat.rayon);
   modele.recalculerScores(etat.poids);
   modele.filtrer(etat.filtres);
+  communes.recalculerProducteurs();
+  communes.recalculerScores(etat.poidsCommunes);
+  communes.filtrer(etat.filtres);
 
   // ---------------------------------------------------------------- mise en page
   const zoneCarte = h('div', { classe: 'fond-carte' });
@@ -47,11 +58,12 @@ async function demarrer(app: HTMLElement): Promise<void> {
   // Une flèche remplace la fiche sans l'empiler dans l'historique : « précédent » ramène à l'écran d'avant.
   const parcours = new Parcours(modele, (i) => choisir({ type: 'ecole', uai: table.uai[i] }, true, true));
   const corpsFiche = h('div', { classe: 'corps-fiche' });
+  const retour = h('button', { type: 'button', classe: 'discret', title: 'Fiche précédente', onclick: () => history.back() }, '← Retour');
   const panneauFiche = h(
     'div', { classe: 'panneau-fiche', tabindex: -1, hidden: true, role: 'region', 'aria-label': 'Fiche' },
     h('div', { classe: 'barre collee' },
-      h('button', { type: 'button', classe: 'discret', onclick: () => choisir(null) }, '← Classement'),
-      parcours.el),
+      h('button', { type: 'button', classe: 'discret', onclick: () => choisir(null) }, '× Fermer'),
+      retour, parcours.el),
     corpsFiche,
   );
   const classement = new Classement(
@@ -59,8 +71,28 @@ async function demarrer(app: HTMLElement): Promise<void> {
     (i) => choisir({ type: 'ecole', uai: table.uai[i] }, true),
     () => telecharger(classementCsv(modele), `classement-ecoles-${meta.genere_le.slice(0, 10)}.csv`),
     { lire: () => etat.filtres.premiers, changer: (premiers) => magasin.filtrer({ premiers }) },
+    () => etat.filtres.retenues.length,
+    () => contactsEcran(),
   );
-  const droite = h('aside', { classe: 'droite', 'aria-label': 'Classement et fiches' }, classement.el, panneauFiche);
+  const classementCommunes = new ClassementCommunes(
+    communes,
+    (code) => choisir({ type: 'commune', code }, true),
+    { lire: () => etat.filtres.retenues, changer: (retenues) => magasin.filtrer({ retenues }) },
+    () => {
+      magasin.modifier('etape', 'ecoles');
+      carte.allerCommunes(etat.filtres.retenues);
+    },
+    () => telecharger(classementCommunesCsv(communes, etat.filtres.retenues),
+      `classement-communes-${meta.genere_le.slice(0, 10)}.csv`),
+    () => contactsEcran(),
+  );
+  const droite = h('aside', { classe: 'droite', 'aria-label': 'Classement et fiches' },
+    classementCommunes.el, classement.el, panneauFiche);
+  /** Sans fiche ouverte : le classement de l'étape en cours. */
+  const montrerClassement = (): void => {
+    classementCommunes.el.hidden = etat.etape !== 'communes';
+    classement.el.hidden = etat.etape !== 'ecoles';
+  };
   const reglages = panneauReglages(meta, magasin, pats.features.map((f) => f.properties), {
     commune: (code) => {
       carte.allerCommune(code);
@@ -70,6 +102,12 @@ async function demarrer(app: HTMLElement): Promise<void> {
     pat: (id) => choisir({ type: 'pat', id }, true),
   });
   const dialogue = dialogueSources(meta, async () => tableauxCouverture(await chargerCouverture()));
+  const carnet = new CarnetContacts(meta, (c) => choisir(c, true));
+  const positions = new Map(producteurs.features.map((f) => [f.properties.id, f.geometry.coordinates as [number, number]]));
+  const ouvrirCarnet = (p: Perimetre): void => carnet.ouvrir(p, chargerContacts()
+    .then((c) => contactsDe(c, p, modele, positions, etat.rayon.km)));
+  const contactsEcran = (): void => ouvrirCarnet(perimetreEcran(
+    etat.etape, etat.filtres, communes.visibles.map((k) => meta.communes[k].code), modele));
   const onglets = (['carte', 'reglages', 'liste'] as const).map((v) => h(
     'button', { type: 'button', 'data-vue': v, onclick: () => voir(v) },
     { carte: 'Carte', reglages: 'Réglages', liste: 'Classement' }[v],
@@ -84,7 +122,7 @@ async function demarrer(app: HTMLElement): Promise<void> {
     h('main', { classe: 'centre', 'aria-label': 'Carte' }, zoneCarte, legende),
     droite,
     h('nav', { classe: 'onglets', 'aria-label': 'Vues' }, onglets),
-    dialogue,
+    dialogue, carnet.el,
   );
 
   function voir(v: Vue): void {
@@ -93,88 +131,135 @@ async function demarrer(app: HTMLElement): Promise<void> {
   }
   voir('carte');
 
-  const carte = new Carte(zoneCarte, fond, modele, etat, producteurs, relais, {
-    ecole: (i) => choisir({ type: 'ecole', uai: table.uai[i] }),
-    commune: (code) => choisir({ type: 'commune', code }),
-    pat: (id) => choisir({ type: 'pat', id }, true),
-  });
+  // Une zone peut dépasser l'écran : on la cadre. Un point cliqué y est déjà.
+  const carte = new Carte(zoneCarte, fond, modele, etat, producteurs, relais, (c) => choisir(c, c.type === 'pat'));
 
-  if (import.meta.env.DEV) Object.assign(window, { carte, modele, magasin });
+  if (import.meta.env.DEV) Object.assign(window, { carte, modele, communes, magasin });
 
   // ---------------------------------------------------------------- sélection
   const ctx: ContexteFiche = {
-    modele, etat, producteurs, relais,
-    ouvrirCommune: (code) => choisir({ type: 'commune', code }, true),
-    ouvrirEcole: (i) => choisir({ type: 'ecole', uai: table.uai[i] }, true),
-    ouvrirPat: (id) => choisir({ type: 'pat', id }, true),
-    voir: (xy) => {
-      if (app.dataset.vue !== 'carte') voir('carte');
-      carte.allerPoint(xy);
-    },
+    modele, communes, etat, producteurs, relais,
+    ouvrir: (c) => choisir(c, true),
+    ouvrirCarnet: (codes, titre) => ouvrirCarnet(perimetre(titre, codes, modele)),
   };
 
   function choisir(s: Selection, deplacer = false, remplace = false): void {
-    const avant = JSON.stringify(etat.selection);
-    if (avant === JSON.stringify(s)) return;
+    const avant = etat.selection;
+    if (JSON.stringify(avant) === JSON.stringify(s)) return;
     magasin.modifier('selection', s);
-    if (!remplace) history.pushState(null, '', adresse());
-    if (!deplacer || !s) return;
-    montrerSurCarte(s);
+    // L'état dit si l'entrée d'avant est une fiche : « Fiche précédente » y ramène.
+    if (!remplace) history.pushState({ depuisFiche: avant !== null && s !== null }, '', adresse());
+    aDeplacer = deplacer;
+    if (deplacer && s) montrerSurCarte(s);
   }
 
-  function montrerSurCarte(s: NonNullable<Selection>): void {
+  /** Cadre l'instance ; celle d'un acteur n'est connue qu'une fois sa fiche lue (voir montrerSelection). */
+  function montrerSurCarte(s: Cible): void {
     if (s.type === 'commune') carte.allerCommune(s.code);
-    else if (s.type === 'pat') carte.allerPat(s.id).catch(console.error);
-    else if (modele.rang.has(s.uai)) carte.allerEcole(modele.rang.get(s.uai) as number);
+    else if (s.type === 'pat') carte.allerZone('pat', s.id).catch(console.error);
+    else if (s.type === 'ecole' && modele.rang.has(s.uai)) carte.allerEcole(modele.rang.get(s.uai) as number);
   }
+  let aDeplacer = false;
 
   const ecoleChoisie = (): number | null =>
     etat.selection?.type === 'ecole' ? (modele.rang.get(etat.selection.uai) ?? null) : null;
 
+  let dessin: (() => HTMLElement) | null = null;
   let fiche: Fiche | null = null;
-  let pat: ProprietesPat | null = null;
   let derniere: string | null = null;
+
+  /** Lit la fiche d'un acteur et ce qu'il faut pour nommer ses liens. */
+  async function chargerDossier(nature: NatureFichier, id: string): Promise<Dossier | null> {
+    const liees: Partial<Record<NatureFichier, Acteurs>> = {};
+    const [acteurs, contacts] = await Promise.all([
+      chargerActeurs(nature), chargerContacts(),
+      ...NATURES_LIEES[nature].map(async (n) => {
+        liees[n] = await chargerActeurs(n);
+      }),
+    ]);
+    const a = acteurs[id];
+    return a ? { nature, id, a, liees, carnet: contacts } : null;
+  }
+
+  /** Point, zone ou communes d'un acteur ; traits vers les écoles rattachées. */
+  function emplacement({ nature, id, a }: Dossier): Emplacement {
+    const symbole = { accueil: 'accueils', asso: 'assos', producteur: a.compte ? 'producteurs' : 'producteurs_autres', relais: 'relais' } as const;
+    if (a.xy) {
+      const vers = (a.ecoles ?? []).slice(0, 2 * NB_LIENS).flatMap((e): Lien[] => {
+        const i = modele.rang.get(e.uai);
+        return i === undefined ? [] : [{ vers: [table.lon[i], table.lat[i]], famille: 'scolaire' }];
+      });
+      return { xy: a.xy, symbole: nature in symbole ? symbole[nature as keyof typeof symbole] : undefined, liens: vers };
+    }
+    if (nature === 'iris') return { zone: { source: 'iris', id } };
+    if (a.type === 'qpv') return { zone: { source: 'qpv', id } };
+    if (a.type === 'cite_educative') return { zone: { source: 'cites', id } };
+    return { communes: territoire(a, ctx, nature) };
+  }
+
+  /** Prépare la fiche choisie : ce qui la dessine, et où la montrer sur la carte. */
+  async function preparer(s: Cible): Promise<{ dessin: () => HTMLElement; ou?: Emplacement; fiche?: Fiche } | null> {
+    if (s.type === 'pat') {
+      const [pats, contacts] = await Promise.all([chargerPats(), chargerContacts()]);
+      const p = pats.features.find((f) => f.properties.id === s.id)?.properties;
+      return p ? { dessin: () => fichePat(p, contacts, ctx) } : null;
+    }
+    if (s.type === 'acteur' && s.nature !== 'elu') {
+      const d = await chargerDossier(s.nature, s.id);
+      return d && { dessin: () => ficheActeur(d, ctx), ou: emplacement(d) };
+    }
+    if (s.type === 'acteur') {
+      const [code, ...id] = s.id.split(':');
+      const f = await chargerFiche(code);
+      const e = f.commune.elus?.find((x) => x.id === id.join(':'));
+      return e ? { dessin: () => ficheElu(e, f, ctx), ou: { communes: [code] } } : null;
+    }
+    const i = s.type === 'ecole' ? modele.rang.get(s.uai) : undefined;
+    const f = await chargerFiche(i === undefined ? (s as { code: string }).code : meta.communes[table.commune[i]].code);
+    return { fiche: f, dessin: () => (i === undefined ? ficheCommune(f.commune.code, f, ctx) : ficheEcole(i, f, ctx)) };
+  }
 
   async function montrerSelection(): Promise<void> {
     const s = etat.selection;
     const cle = JSON.stringify(s);
     derniere = cle;
-    const i = s?.type === 'ecole' ? modele.rang.get(s.uai) : undefined;
-    const code = s?.type === 'commune' ? s.code : i === undefined ? null : meta.communes[table.commune[i]].code;
-    const idPat = s?.type === 'pat' ? s.id : null;
-    classement.marquer(i ?? null);
-    parcours.maj(i ?? null);
-    void carte.choisirEcole(i ?? null);
-    void carte.choisirCommune(s?.type === 'commune' ? code : null);
-    void carte.choisirPat(idPat);
+    const i = ecoleChoisie();
+    const deplacer = aDeplacer;
+    aDeplacer = false;
+    classement.marquer(i);
+    classementCommunes.marquer(s?.type === 'commune' ? s.code : null);
+    parcours.maj(i);
+    retour.hidden = !(history.state as { depuisFiche?: boolean } | null)?.depuisFiche;
+    void carte.choisir(i !== null ? { xy: [table.lon[i], table.lat[i]] } : s?.type === 'commune' ? { communes: [s.code] }
+      : s?.type === 'pat' ? { zone: { source: 'pat', id: s.id } } : {});
+    dessin = null;
     fiche = null;
-    pat = null;
-    if (code === null && idPat === null) {
+    if (s === null) {
       panneauFiche.hidden = true;
-      classement.el.hidden = false;
+      montrerClassement();
       return;
     }
     panneauFiche.hidden = false;
     classement.el.hidden = true;
+    classementCommunes.el.hidden = true;
     voir('liste');
     remplacer(corpsFiche, vide('Chargement de la fiche…'));
     try {
-      if (idPat !== null) {
-        const p = (await chargerPats()).features.find((f) => f.properties.id === idPat)?.properties ?? null;
-        if (derniere !== cle) return; // une autre fiche a été demandée entre-temps
-        pat = p;
-      } else if (code !== null) {
-        const f = await chargerFiche(code);
-        if (derniere !== cle) return;
-        fiche = f;
+      const p = await preparer(s);
+      if (derniere !== cle) return; // une autre fiche a été demandée entre-temps
+      if (!p) {
+        remplacer(corpsFiche, ficheAbsente());
+        return;
+      }
+      ({ dessin } = p);
+      fiche = p.fiche ?? null;
+      if (p.ou) {
+        void carte.choisir(p.ou);
+        if (deplacer) carte.allerEmplacement(p.ou);
       }
     } catch (e) {
       console.error(e);
       if (derniere === cle) remplacer(corpsFiche, vide('Fiche indisponible : vérifiez la connexion puis réessayez.'));
-      return;
-    }
-    if (idPat !== null && pat === null) {
-      remplacer(corpsFiche, vide('Ce PAT est absent de cet export.'));
       return;
     }
     dessinerFiche();
@@ -185,21 +270,17 @@ async function demarrer(app: HTMLElement): Promise<void> {
 
   /** (Re)dessine la fiche ouverte ; à la mise à jour, garde les volets ouverts et le défilement. */
   function dessinerFiche(): void {
-    const s = etat.selection;
-    if (!s || (!fiche && !pat)) return;
+    if (!dessin) return;
     const cleVolet = (d: HTMLDetailsElement): string => d.querySelector('summary')?.firstChild?.textContent ?? '';
     const ouverts = new Set(
       [...corpsFiche.querySelectorAll('details')].filter((d) => d.open).map(cleVolet),
     );
     const defilement = droite.scrollTop;
-    const i = s.type === 'ecole' ? modele.rang.get(s.uai) : undefined;
-    if (pat) remplacer(corpsFiche, fichePat(pat, ctx));
-    else if (fiche) {
-      remplacer(corpsFiche, i === undefined ? ficheCommune(fiche.commune.code, fiche, ctx) : ficheEcole(i, fiche, ctx));
-    }
+    remplacer(corpsFiche, dessin());
     for (const d of corpsFiche.querySelectorAll('details')) if (ouverts.has(cleVolet(d))) d.open = true;
     droite.scrollTop = defilement;
-    if (i !== undefined && fiche) void carte.choisirEcole(i, liens(i, fiche));
+    const i = ecoleChoisie();
+    if (i !== null && fiche) void carte.choisir({ xy: [table.lon[i], table.lat[i]], liens: liens(i, fiche) });
   }
 
   /** Traits de la carte : accueils et associations rattachés, cinq producteurs comptés les plus proches. */
@@ -227,42 +308,63 @@ async function demarrer(app: HTMLElement): Promise<void> {
   let minuterie = 0;
   magasin.abonner((sujets) => {
     const touche = (...l: Sujet[]): boolean => l.some((s) => sujets.has(s));
-    if (touche('rayon')) modele.recalculerProducteurs(etat.rayon);
+    if (touche('rayon')) {
+      modele.recalculerProducteurs(etat.rayon);
+      communes.recalculerProducteurs();
+    }
     if (touche('rayon', 'poids')) modele.recalculerScores(etat.poids);
+    if (touche('rayon', 'poidsCommunes')) communes.recalculerScores(etat.poidsCommunes);
     if (touche('rayon', 'poids', 'filtres')) {
       modele.filtrer(etat.filtres);
       classement.maj();
       parcours.maj(ecoleChoisie());
       void carte.majEcoles();
     }
+    if (touche('rayon', 'poidsCommunes', 'filtres')) {
+      communes.filtrer(etat.filtres);
+      classementCommunes.maj();
+    }
+    if (touche('rayon', 'poidsCommunes', 'filtres', 'etape')) {
+      void carte.colorerCommunes(communes.scores, etat.filtres.retenues);
+    }
+    if (touche('etape')) {
+      if (!etat.selection) montrerClassement();
+      majLegende(legende, etat);
+    }
     if (touche('coloration', 'iris')) void carte.majColoration();
     if (touche('couches')) void carte.majCouches();
     if (touche('coloration', 'iris', 'couches')) majLegende(legende, etat);
     if (touche('selection')) void montrerSelection();
-    else if (touche('rayon', 'poids', 'filtres')) {
+    else if (touche('rayon', 'poids', 'poidsCommunes', 'filtres')) {
       window.clearTimeout(minuterie);
       minuterie = window.setTimeout(dessinerFiche, DELAI_FICHE_MS);
     }
-    history.replaceState(null, '', adresse());
+    history.replaceState(history.state, '', adresse());
   });
   window.addEventListener('popstate', () => {
     magasin.reprendre(depuisAdresse(location.hash, meta));
+    aDeplacer = true;
+    if (etat.selection) montrerSurCarte(etat.selection);
     reglages.maj();
   });
   window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !dialogue.open && etat.selection) choisir(null);
+    if (e.key === 'Escape' && !dialogue.open && !carnet.el.open && etat.selection) choisir(null);
   });
 
   classement.maj();
+  classementCommunes.maj();
+  montrerClassement();
+  void carte.colorerCommunes(communes.scores, etat.filtres.retenues);
   majLegende(legende, etat);
   if (etat.selection) {
     const s = etat.selection;
     if (s.type === 'ecole' && !modele.rang.has(s.uai)) etat.selection = null;
     else montrerSurCarte(s);
+    aDeplacer = true;
     void montrerSelection();
   } else if (etat.filtres.commune) carte.allerCommune(etat.filtres.commune);
   else if (etat.filtres.departements.length === 1) carte.allerDepartement(etat.filtres.departements[0]);
-  history.replaceState(null, '', adresse());
+  history.replaceState(history.state, '', adresse());
 }
 
 const app = document.getElementById('app') as HTMLElement;

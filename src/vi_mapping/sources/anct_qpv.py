@@ -7,7 +7,7 @@ from typing import Any
 
 from ..db import upsert
 from ..outils.opendatasoft import exporter, url_fiche
-from .base import Compteurs, Contexte, connecteur
+from .base import Compteurs, Contexte, communes_actuelles, connecteur
 
 
 def ligne_qpv(
@@ -21,7 +21,7 @@ def ligne_qpv(
         "id": f"qpv:{code}",
         "type": "qpv",
         "nom": nom,
-        "communes": communes,
+        "communes": communes_actuelles(communes),
         "axe_education_alimentaire": None,
         "annee": 2024,
         "niveau": None,

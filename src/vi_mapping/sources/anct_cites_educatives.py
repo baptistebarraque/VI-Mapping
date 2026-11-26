@@ -8,7 +8,7 @@ from collections import defaultdict
 
 from ..db import upsert
 from ..outils.datagouv import Ressource, derniere
-from .base import Compteurs, Contexte, connecteur
+from .base import Compteurs, Contexte, communes_actuelles, connecteur
 
 JEU = "60d315f1b58635c5d9fc9db4"
 
@@ -41,7 +41,7 @@ def collecter(ctx: Contexte) -> Compteurs:
             "id": f"cite_educative:{cite}",
             "type": "cite_educative",
             "nom": nom,
-            "communes": sorted(perimetre[cite]),
+            "communes": communes_actuelles(perimetre[cite]),
             "axe_education_alimentaire": None,
             "annee": annee,
             "niveau": None,

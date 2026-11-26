@@ -1,43 +1,53 @@
-/** Fiche d'un projet alimentaire territorial : labellisation, périmètre, écoles couvertes. */
+/** Fiche d'un projet alimentaire territorial : contact du porteur, labellisation, périmètre, écoles couvertes. */
 
+import type { Carnet } from '../donnees';
 import type { ProprietesPat } from '../types';
-import { bloc, definition, listeRepliee, provenance, vide, volet } from './commun';
+import { bloc, definition, provenance, tableSources } from './commun';
+import { blocContact } from './contact';
+import { boutonActeur, boutonCommune, type ContexteFiche } from './contexte';
 import { h, lien } from './dom';
+import { collectivite, mairie, voletCommunes } from './fiche-acteur';
 import { blocEcoles, resumeEcoles } from './fiche-commune';
-import type { ContexteFiche } from './fiche-ecole';
-import { ouiNonInconnu, pluriel } from './format';
+import { ouiNonInconnu } from './format';
 
-export function fichePat(p: ProprietesPat, ctx: ContexteFiche): HTMLElement {
+export function fichePat(p: ProprietesPat, carnet: Carnet, ctx: ContexteFiche): HTMLElement {
   const { modele } = ctx;
   const { meta } = modele;
-  const couvertes = new Set(p.communes ?? []);
-  const communes = meta.communes.filter((c) => couvertes.has(c.code)).sort((a, b) => a.nom.localeCompare(b.nom, 'fr'));
+  const codes = p.communes ?? [];
+  const couvertes = new Set(codes);
+  const communes = meta.communes.filter((c) => couvertes.has(c.code));
   const ecoles = [...new Set(communes.flatMap((c) => modele.parCommune.get(c.code) ?? []))];
   const departements = [...new Set(communes.map((c) => c.dep))].sort().map((d) => meta.departements[d]);
+  const porteur = p.organisme ? boutonActeur(ctx, 'organisme', p.organisme, p.porteur ?? 'Voir la collectivité', false)
+    : boutonCommune(ctx, p.commune) ?? p.porteur;
   return h(
     'article', { classe: 'fiche' },
     h('p', { classe: 'surtitre' }, 'Projet alimentaire territorial'),
     h('h2', {}, p.nom),
     h('p', { classe: 'lieu' }, departements.join(', ')),
-    p.communes && resumeEcoles(ecoles, modele, 'Aucune école dans ce périmètre.'),
+    blocContact(p.contact, ctx, {
+      relais: [...collectivite(carnet, p.organisme, 'porteur'), ...mairie(carnet, p.commune, 'porteur')],
+    }),
+    resumeEcoles(ecoles, modele, 'Aucune école dans ce périmètre.'),
     bloc(
       'Projet',
       definition(
+        porteur && ['Porteur', porteur],
+        p.contact?.service && ['Service', p.contact.service],
         ['Reconnaissance', [p.niveau, p.annee].filter(Boolean).join(', ') || 'inconnue'],
         ['Axe éducation alimentaire', ouiNonInconnu(p.axe)],
+        ['Axe restauration collective', ouiNonInconnu(p.restauration)],
         ['Lauréat de l’appel à projets du PNA', p.laureat ? 'oui' : 'non'],
-        lien(p.u, 'x') && ['Fiche du projet', lien(p.u, 'france-pat.fr')],
+        p.priorites && ['Priorités', p.priorites],
+        lien(p.u, 'x') && ['Fiche du projet', lien(p.u, new URL(p.u).hostname.replace('www.', ''))],
       ),
       provenance(p, meta),
     ),
-    volet(
-      'Communes d’Île-de-France couvertes', p.communes === undefined ? null : communes.length,
-      p.communes === undefined ? vide('Liste absente de cet export : relancez « vi exporter ».') : h(
-        'div', {},
-        listeRepliee(communes.map((c) => h('li', { classe: 'proche' },
-          h('button', { type: 'button', classe: 'lien fort', onclick: () => ctx.ouvrirCommune(c.code) }, c.nom),
-          h('span', { classe: 'trajet' }, pluriel(modele.parCommune.get(c.code)?.length ?? 0, 'école')))), 8)),
-    ),
+    voletCommunes(codes, ctx, 'Communes d’Île-de-France couvertes'),
     blocEcoles(ecoles, ctx),
+    codes.length > 0 && h('p', { classe: 'pied' }, h('button', {
+      type: 'button', onclick: () => ctx.ouvrirCarnet(codes, p.nom),
+    }, 'Contacts de ce territoire')),
+    tableSources(meta, p),
   );
 }

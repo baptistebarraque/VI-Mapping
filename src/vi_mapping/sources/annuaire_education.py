@@ -8,15 +8,15 @@ from typing import Any
 from ..db import point, upsert
 from ..outils.ban import Adresse, geocoder
 from ..outils.opendatasoft import exporter, url_fiche
-from ..outils.texte import propre, sans_contact, titre
+from ..outils.texte import premier_email, propre, sans_contact, titre
 from .base import Compteurs, Contexte, connecteur
 
-# Jamais demandés : telephone, fax, mail.
+# Jamais demandé : fax. Téléphone : fixe seulement ; e-mail : tel que publié (voir contacts()).
 CHAMPS = [
     "identifiant_de_l_etablissement", "nom_etablissement", "statut_public_prive", "type_contrat_prive",
     "adresse_1", "code_postal", "code_commune", "nom_commune", "ecole_maternelle", "ecole_elementaire",
     "restauration", "appartenance_education_prioritaire", "latitude", "longitude", "precision_localisation",
-    "etat", "code_nature",
+    "etat", "code_nature", "telephone", "mail",
 ]
 
 PRECISION = {"Numéro de rue": 1.0, "BATIMENT": 1.0, "NUMERO (ADRESSE)": 1.0, "Rue": 0.85, "Ville": 0.5}
@@ -44,6 +44,16 @@ def titre_mixte(texte: str) -> str:
     return re.sub(
         r"[A-ZÀ-Ý][A-ZÀ-Ý'’\-]+(?:\s+[A-ZÀ-Ý][A-ZÀ-Ý'’\-]*)*", lambda m: titre(m.group(0)) or m.group(0), texte
     )
+
+
+def contacts(telephone: Any, mail: Any) -> tuple[str | None, str | None]:
+    """Téléphone fixe et adresse e-mail de l'école, nominative ou non. Un numéro de mobile est écarté."""
+    chiffres = re.sub(r"\D", "", str(telephone or ""))
+    if len(chiffres) == 9:
+        chiffres = "0" + chiffres  # zéro initial perdu dans la source
+    fixe = len(chiffres) == 10 and chiffres[:2] in ("01", "02", "03", "04", "05", "08", "09")
+    tel = " ".join(chiffres[i:i + 2] for i in range(0, 10, 2)) if fixe else None
+    return tel, premier_email(str(mail or ""))
 
 
 def type_ecole(maternelle: Any, elementaire: Any, code_nature: int | None) -> str:
@@ -76,6 +86,7 @@ def collecter(ctx: Contexte) -> Compteurs:
             sans_commune += 1
             continue
         uai = e["identifiant_de_l_etablissement"]
+        telephone, email = contacts(e["telephone"], e["mail"])
         ecoles.append({
             "uai": uai,
             "nom": sans_contact(nom_lisible(e["nom_etablissement"])),
@@ -87,6 +98,8 @@ def collecter(ctx: Contexte) -> Compteurs:
             "code_postal": e["code_postal"],
             "education_prioritaire": e["appartenance_education_prioritaire"],
             "restauration": None if e["restauration"] is None else bool(int(e["restauration"])),
+            "telephone": telephone,
+            "email": email,
             "geom": point(e["longitude"], e["latitude"]) if e["latitude"] is not None else None,
             "_precision": e["precision_localisation"],
             **ctx.provenance(url_fiche(base, "identifiant_de_l_etablissement", uai)),

@@ -185,6 +185,14 @@ def executer(code: str, *, limite: int | None = None, options: dict[str, Any] | 
         return clore("succes", compteurs)
 
 
+# Communes fusionnées dont l'ancien code subsiste dans des fichiers récents.
+COMMUNES_FUSIONNEES = {"93059": "93066"}  # Pierrefitte-sur-Seine, dans Saint-Denis depuis 2025
+
+
+def communes_actuelles(codes: Iterable[str]) -> list[str]:
+    return sorted({COMMUNES_FUSIONNEES.get(c, c) for c in codes})
+
+
 def fusion_provenance(colonne: str = "provenances") -> str:
     """Fragment SQL : ajoute un groupe de provenance sans effacer les autres."""
     return f"{colonne} = {colonne} || jsonb_build_object(%(groupe)s::text, %(prov)s::jsonb)"

@@ -1,4 +1,5 @@
-"""Associations de parents d'élèves et relais locaux (répertoire national des associations).
+"""Associations de parents d'élèves, relais locaux et associations d'alimentation durable (répertoire national des
+associations).
 
 Lecture partielle de l'archive nationale, en mémoire. Colonnes de gestion (adresse du dirigeant, civilité)
 et complément d'adresse (« chez M. X ») jamais lues.
@@ -79,6 +80,7 @@ def collecter(ctx: Contexte) -> Compteurs:
     ressource = derniere(ctx.http, JEU, r"rna_waldec_\d{8}\.zip")
     communes = {r["code_insee"]: r["nom"] for r in ctx.conn.execute("SELECT code_insee, nom FROM commune")}
     retenues: list[tuple[dict[str, str], float | None, tuple[str, float] | None]] = []
+    alimentation: list[tuple[dict[str, str], tuple[str, float]]] = []
     with ouvrir(ctx.http, ressource.url) as archive:
         for dep in ctx.idf.departements:
             membre = next(n for n in archive.namelist() if n.endswith(f"_dpt_{dep}.csv"))
@@ -89,12 +91,14 @@ def collecter(ctx: Contexte) -> Compteurs:
                 parents, lieu = est_asso_parents(r, t, o), None
                 if parents is None:
                     lieu = relais(t, o)
+                    if categorie := motifs.categorie_alimentation(t, o):
+                        alimentation.append((r, categorie))
                 if parents is not None or lieu is not None:
                     retenues.append((r, parents, lieu))
 
     # Une adresse postale sans rue exploitable est géocodée à la commune et marquée comme telle.
     adresses: dict[str, Adresse] = {}
-    for r, *_ in retenues:
+    for r in [x[0] for x in retenues] + [x[0] for x in alimentation]:
         rue = voie(r)
         adresses[r["id"]] = Adresse(rue or r["adrs_libcommune"], r["adrs_codepostal"], "")
     positions = geocoder(ctx.conn, ctx.http, adresses.values())
@@ -148,14 +152,46 @@ def collecter(ctx: Contexte) -> Compteurs:
                 **{**prov, "confiance": round(lieu[1] * (0.7 + 0.3 * pos.confiance if pos else 0.7), 2)},
             })
             compte[lieu[0]] += 1
+    alimentaires = assos_alimentation(ctx, alimentation, positions, adresses, communes)
+    compte["assos_alimentation"] = len(alimentaires)
     # Siren : complété par sirene_unites, à ne pas effacer.
     upsert(ctx.conn, "asso_parents", assos, ["id"], ne_pas_ecraser=["siren"])
     upsert(ctx.conn, "relais_local", lieux, ["id"])
+    upsert(ctx.conn, "asso_alimentation", alimentaires, ["id"])
     compte["assos_parents"] = len(assos)
     compte["assos_sans_position"] = sum(a["geom"] is None for a in assos)
     compte["assos_federees"] = sum(a["federation"] is not None for a in assos)
-    compte["supprimees"] = ctx.purger("asso_parents") + ctx.purger("relais_local")
+    compte["supprimees"] = ctx.purger("asso_parents") + ctx.purger("relais_local") + ctx.purger("asso_alimentation")
     return dict(compte)
+
+
+def assos_alimentation(
+    ctx: Contexte, retenues: list[tuple[dict[str, str], tuple[str, float]]], positions: dict[Adresse, Position],
+    adresses: dict[str, Adresse], communes: dict[str, str],
+) -> list[dict[str, Any]]:
+    """Associations d'alimentation durable : siège social, catégorie lue dans le titre ou l'objet."""
+    lignes = []
+    for r, (categorie, confiance) in retenues:
+        pos = positions.get(adresses[r["id"]])
+        commune = commune_de(r, pos, communes)
+        if commune is None:
+            continue
+        precise = pos is not None and pos.type in ("housenumber", "street", "locality") and pos.score >= 0.5
+        objet = sans_contact(r["objet"])
+        lignes.append({
+            "id": f"rna:{r['id']}",
+            "rna": r["id"],
+            "nom": titre(sans_contact(r["titre"])) or f"Association {r['id']}",
+            "categorie": categorie,
+            "objet": objet[:1200] if objet else None,
+            "commune": commune,
+            "date_creation": jour(r["date_creat"]),
+            "derniere_declaration": jour(r["date_decla"]),
+            "site_web": site_web(r["siteweb"]),
+            "geom": point(pos.lon, pos.lat) if pos and precise else None,
+            **ctx.provenance(FICHE.format(rna=r["id"]), confiance=confiance),
+        })
+    return lignes
 
 
 def commune_de(r: dict[str, str], pos: Position | None, communes: dict[str, str]) -> str | None:

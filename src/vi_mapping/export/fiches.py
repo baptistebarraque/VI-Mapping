@@ -6,10 +6,13 @@ from collections import defaultdict
 from collections.abc import Iterable, Iterator
 from typing import Any
 
-from .commun import ACCUEILS, Connexion, prov, prov_groupes, sans_vide
+from .acteurs import Acteurs, contact
+from .commun import ACCUEILS, CITE_ECOLE, Connexion, prov, prov_groupes, sans_vide
 
 SIGNAUX_MAX = 40
 RELAIS_PAR_TYPE = 10
+ASSOS_ALIMENTATION_MAX = 40
+RANG_ORGANISME = {"epci": 0, "ept": 1, "syndicat_restauration": 2, "departement": 3, "region": 4}
 
 
 def par(lignes: Iterable[dict[str, Any]], cle: str) -> dict[str, list[dict[str, Any]]]:
@@ -22,8 +25,10 @@ def par(lignes: Iterable[dict[str, Any]], cle: str) -> dict[str, list[dict[str, 
 class Fiches:
     """Charge tout en mémoire (région entière), puis compose les fiches commune par commune."""
 
-    def __init__(self, conn: Connexion, rang_producteur: dict[str, int], rang_relais: dict[str, int]) -> None:
-        self.conn = conn
+    def __init__(
+        self, conn: Connexion, rang_producteur: dict[str, int], rang_relais: dict[str, int], acteurs: Acteurs
+    ) -> None:
+        self.conn, self.acteurs = conn, acteurs
         self.rang_producteur, self.rang_relais = rang_producteur, rang_relais
         self.communes = {r["code_insee"]: r for r in conn.execute(
             """SELECT c.*, m.nom AS mere_nom,
@@ -38,14 +43,15 @@ class Fiches:
                       (SELECT count(*) FROM elu x WHERE x.commune = c.code_insee) AS nb_elus
                FROM commune c LEFT JOIN commune m ON m.code_insee = c.commune_mere ORDER BY c.code_insee""")}
         self.ecoles = par(conn.execute(
-            """SELECT e.*, d.nom AS qpv_nom, t.nom AS iris_nom, t.familles_avec_enfants, t.revenu_median,
+            f"""SELECT e.*, d.nom AS qpv_nom, t.nom AS iris_nom, t.familles_avec_enfants, t.revenu_median,
                       t.taux_pauvrete, t.annee_familles, t.annee_revenus, t.provenances AS iris_provenances,
-                      j.details
+                      j.details, {CITE_ECOLE} AS cite_id
                FROM ecole e JOIN jauge_ecole j ON j.ecole_uai = e.uai
                LEFT JOIN territoire_social t ON t.iris = e.iris LEFT JOIN dispositif d ON d.id = e.qpv
                ORDER BY e.uai""").fetchall(), "commune")
         self._acteurs()
         self._collectivites()
+        self._communes_v_i()
 
     def _acteurs(self) -> None:
         c = self.conn
@@ -75,14 +81,36 @@ class Fiches:
             "SELECT objet_id, statut, visite_le, pages_visitees FROM crawl_site WHERE objet_type = 'commune'")}
         # Périmètre déclaré ; pour un arrondissement, PAT de Paris et zones qui le recoupent vraiment.
         self.dispositifs = par(c.execute(
-            """SELECT c.code_insee AS commune, d.id, d.type, d.nom, d.axe_education_alimentaire, d.annee, d.niveau,
+            """SELECT c.code_insee AS commune, d.id, d.type, d.nom, d.annee, d.niveau, d.niveau_num, d.echelon,
+                      coalesce(d.axe_education_verifie, d.axe_education_alimentaire) AS axe_education_alimentaire,
+                      d.axe_restauration_collective, d.priorites, d.score, d.editions,
                       d.source, d.url, d.collecte_le, d.confiance
                FROM commune c JOIN dispositif d ON CASE
                  WHEN c.commune_mere IS NULL THEN c.code_insee = ANY(d.communes)
+                      OR c.code_insee = ANY(d.communes_ajoutees) OR d.id = ANY(c.cantine_pat)
                  WHEN d.type IN ('pat', 'laureat_aap') THEN c.commune_mere = ANY(d.communes)
                  ELSE c.commune_mere = ANY(d.communes) AND ST_Intersects(c.geom, d.geom)
                       AND ST_Area(ST_Intersection(c.geom, d.geom)) > 0.02 * ST_Area(d.geom) END
                ORDER BY c.code_insee, d.type, d.nom""").fetchall(), "commune")
+
+    def _communes_v_i(self) -> None:
+        """Étape « communes » : score propre, cuisine centrale, associations d'alimentation durable."""
+        c = self.conn
+        self.jauges_communes = {r["code_insee"]: r for r in c.execute(
+            "SELECT code_insee, score, details, confiance FROM jauge_commune")}
+        self.cuisines = {r["siret"]: r for r in c.execute(
+            """SELECT k.*, m.nom AS commune_nom FROM cuisine_centrale k
+               LEFT JOIN commune m ON m.code_insee = k.commune""")}
+        self.organismes: dict[str, list[dict[str, Any]]] = defaultdict(list)
+        for o in self.acteurs.organismes.values():
+            for code, x in self.communes.items():
+                du_departement = o["type"] == "departement" and o["departement"] == x["departement"]
+                membre = code in o["communes"] or x["commune_mere"] in o["communes"]
+                if o["type"] == "region" or du_departement or membre:
+                    self.organismes[code].append(o)
+        self.assos_alimentation = par(c.execute(
+            """SELECT *, ST_X(geom) AS lon, ST_Y(geom) AS lat FROM asso_alimentation
+               ORDER BY commune, categorie, derniere_declaration DESC NULLS LAST, nom""").fetchall(), "commune")
 
     def _proximites(self, codes: list[str]) -> tuple[dict[str, list[float]], dict[str, list[float]]]:
         """Par école : producteurs [rang, km, minutes…] et relais [rang, km, minutes…], du plus proche au plus loin."""
@@ -136,22 +164,34 @@ class Fiches:
         return sans_vide({
             "code": code, "nom": c["nom"], "type": c["type"], "dep": c["departement"], "siren": c["siren"],
             "mere": {"code": c["commune_mere"], "nom": c["mere_nom"]} if c["commune_mere"] else None,
-            "epci": c["epci_nom"], "ept": c["ept_nom"], "population": c["population"],
+            "epci": c["epci_nom"], "ept": c["ept_nom"],
+            "organismes": [{"siren": o["siren"], "type": o["type"], "nom": o["nom"]}
+                           for o in sorted(self.organismes[code], key=lambda o: RANG_ORGANISME[o["type"]])],
+            "population": c["population"],
             "population_annee": c["population_annee"], "densite": c["densite"], "site": c["site_web"],
             "cantine": sans_vide({
                 "gestion": c["cantine_gestion"], "nb": c["cantine_nb"], "declarations": c["cantine_nb_declarations"],
                 "bio": c["cantine_pct_bio"], "egalim": c["cantine_pct_egalim"], "annee": c["cantine_annee"],
+                "satellites": c["cantine_nb_satellites"], "sur_place": c["cantine_nb_sur_place"],
+                "regie": c["cantine_part_regie"], "repas": c["cantine_repas_jour"],
+                "centrale": self._cuisine(c["cuisine_centrale_siret"]),
             }) if c["cantine_nb"] else None,
+            "contact": self.acteurs.contact_mairie(code),
+            "score": self._score(code),
+            "alimentation": self._alimentation(code),
             "nb": {k: c[f"nb_{k}"] for k in ("accueils", "assos", "relais", "producteurs", "elus")},
             "gestionnaires": [{"siren": g["siren"], "nom": g["nom"], "type": g["type"], "n": g["n"]}
                               for g in self.gestionnaires[code]],
             "dispositifs": [sans_vide({
-                "id": d["id"], "type": d["type"], "nom": d["nom"], "axe": d["axe_education_alimentaire"],
-                "annee": d["annee"], "niveau": d["niveau"], "p": prov(d),
+                "id": d["id"], "type": d["type"], "nom": self.acteurs.nom_dispositif(d),
+                "axe": d["axe_education_alimentaire"], "restauration": d["axe_restauration_collective"],
+                "annee": d["annee"], "niveau": d["niveau"], "echelon": d["echelon"], "score": d["score"],
+                "editions": d["editions"], "priorites": d["priorites"], "p": prov(d),
             }) for d in self.dispositifs[code]],
             "elus": [sans_vide({
-                "nom": f"{e['prenom']} {e['nom']}", "fonction": e["fonction"], "delegation": e["delegation"],
-                "themes": e["delegation_themes"], "debut": e["debut_mandat"], "p": prov(e),
+                "id": e["id"], "nom": f"{e['prenom']} {e['nom']}", "fonction": e["fonction"],
+                "delegation": e["delegation"], "themes": e["delegation_themes"], "debut": e["debut_mandat"],
+                "p": prov(e),
                 "pd": prov_groupes(e["provenances"]).get("delegation"),
             }) for e in self.elus[code]],
             "signaux": [sans_vide({
@@ -163,24 +203,57 @@ class Fiches:
             "pg": prov_groupes(c["provenances"]),
         })
 
+    def _cuisine(self, siret: str | None) -> dict[str, Any] | None:
+        k = self.cuisines.get(siret or "")
+        if k is None:
+            return None
+        return sans_vide({
+            "siret": k["siret"], "nom": k["nom"], "type": k["type"], "commune": k["commune_nom"],
+            "gestion": k["gestion"],
+            "cantines": k["nb_cantines"], "repas": k["repas_jour"], "bio": k["pct_bio"], "egalim": k["pct_egalim"],
+            "p": prov(k),
+        })
+
+    def _score(self, code: str) -> dict[str, Any] | None:
+        j = self.jauges_communes.get(code)
+        if j is None:
+            return None
+        return {"valeur": j["score"], "part": j["details"]["part_connue"], "criteres": [
+            sans_vide({"code": c["code"], "valeur": c["valeur"], "detail": c["detail"]})
+            for c in j["details"]["criteres"]]}
+
+    def _alimentation(self, code: str) -> dict[str, Any] | None:
+        assos = self.assos_alimentation[code]
+        if not assos:
+            return None
+        categories: dict[str, int] = defaultdict(int)
+        for a in assos:
+            categories[a["categorie"]] += 1
+        return {"n": len(assos), "categories": dict(categories), "assos": [sans_vide({
+            "id": a["id"], "nom": a["nom"], "categorie": a["categorie"], "site": a["site_web"],
+            "declaration": a["derniere_declaration"],
+            "xy": _position(a), "p": prov(a),
+        }) for a in assos[:ASSOS_ALIMENTATION_MAX]]}
+
     def _ecole(self, e: dict[str, Any], producteurs: list[float], relais: list[float]) -> dict[str, Any]:
         return sans_vide({
             "adresse": e["adresse"], "cp": e["code_postal"], "classes": e["nb_classes"],
+            "contact": contact(e),
             "rentree": e["effectifs_rentree"], "ips_rentree": e["ips_rentree"], "restauration": e["restauration"],
-            "cite": e["cite_educative"],
+            "cite": e["cite_educative"], "cite_id": e["cite_id"],
             "iris": sans_vide({
-                "nom": e["iris_nom"], "familles": e["familles_avec_enfants"], "revenu": e["revenu_median"],
-                "pauvrete": e["taux_pauvrete"], "annee": e["annee_familles"], "annee_revenus": e["annee_revenus"],
-                "pg": prov_groupes(e["iris_provenances"] or {}),
+                "code": e["iris"], "nom": e["iris_nom"], "familles": e["familles_avec_enfants"],
+                "revenu": e["revenu_median"], "pauvrete": e["taux_pauvrete"], "annee": e["annee_familles"],
+                "annee_revenus": e["annee_revenus"], "pg": prov_groupes(e["iris_provenances"] or {}),
             }) if e["iris_nom"] else None,
-            "qpv": {"nom": e["qpv_nom"], "m": e["qpv_distance_m"]} if e["qpv_nom"] else None,
+            "qpv": {"id": e["qpv"], "nom": e["qpv_nom"], "m": e["qpv_distance_m"]} if e["qpv_nom"] else None,
             "jauges": {nom: {"part": j["part_connue"], "criteres": [
                 sans_vide({"code": c["code"], "valeur": c["valeur"], "detail": c["detail"]}) for c in j["criteres"]
             ]} for nom, j in e["details"].items()},
             "accueils": [{"id": x["accueil_id"], "m": x["distance_m"], "motif": x["motif"], "c": x["confiance"]}
-                         for x in self.liens_accueils[e["uai"]]],
+                         for x in self.liens_accueils[e["uai"]] if x["accueil_id"] in self.accueils],
             "assos": [{"id": x["asso_id"], "c": x["confiance"], "indices": x["indices"]}
-                      for x in self.liens_assos[e["uai"]]],
+                      for x in self.liens_assos[e["uai"]] if x["asso_id"] in self.assos],
             "prod": producteurs, "relais": relais,
             "p": prov(e), "pg": prov_groupes(e["provenances"]),
         })

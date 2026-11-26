@@ -12,7 +12,9 @@ from ..config import RACINE, config_idf, config_jauges
 from ..couverture import mesurer, rendu
 from . import meta as meta_
 from . import points, zones
+from .acteurs import Acteurs
 from .commun import Connexion, ecrire
+from .communes import communes as table_communes
 from .ecoles import ecoles
 from .fiches import Fiches
 
@@ -34,6 +36,7 @@ def exporter(conn: Connexion, dossier: Path, note: Callable[[str], None] = lambd
     communes = meta_.communes(conn)
     fichier("meta.json", meta_.meta(conn, idf, cfg, communes))
     fichier("ecoles.json", ecoles(conn, cfg, {c["code"]: i for i, c in enumerate(communes)}))
+    fichier("communes.json", table_communes(conn, communes))
     producteurs, rang_producteur = points.producteurs(conn, cfg)
     relais, rang_relais = points.relais(conn)
     fichier("points/producteurs.geojson", producteurs)
@@ -43,13 +46,19 @@ def exporter(conn: Connexion, dossier: Path, note: Callable[[str], None] = lambd
     note("points exportés")
     fichier("zones/communes.geojson", zones.communes(conn))
     fichier("zones/iris.geojson", zones.iris(conn))
+    acteurs = Acteurs(conn, cfg, idf.region.departements)
     for type_, nom in (("pat", "pat"), ("qpv", "qpv"), ("cite_educative", "cites")):
-        fichier(f"zones/{nom}.geojson", zones.dispositifs(conn, type_))
+        fichier(f"zones/{nom}.geojson", zones.dispositifs(conn, type_, acteurs.pat if type_ == "pat" else None))
     note("zones exportées")
+    natures = acteurs.fiches()
+    for nature, liste in natures.items():
+        fichier(f"acteurs/{nature}.json", liste)
+    fichier("contacts.json", acteurs.carnet(natures))
+    note("fiches des acteurs et contacts exportés")
     fichier("couverture.json", rendu.pour_carte(mesurer(conn)))
     note("couverture mesurée")
     tailles["fiches"] = 0
-    for code, fiche in Fiches(conn, rang_producteur, rang_relais).composer():
+    for code, fiche in Fiches(conn, rang_producteur, rang_relais, acteurs).composer():
         tailles["fiches"] += ecrire(provisoire / "fiches" / f"{code}.json", fiche)
 
     ancien = dossier.with_name(dossier.name + ".ancien")

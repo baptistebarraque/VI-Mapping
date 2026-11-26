@@ -10,13 +10,17 @@ import {
 import urlWorker from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 
 import { adresse, chargerPats, chargerZone } from '../donnees';
-import { COUCHES, type Couche, type Etat } from '../etat';
+import { COUCHES, type Cible, type Couche, type Etat } from '../etat';
 import type { Modele } from '../modele';
 import type { CollectionPoints, ProprietesProducteur, ProprietesRelais } from '../types';
-import { infobulle, popupGroupe, popupPoint, type TypePoint } from '../ui/infobulle';
+import { LIBELLE_NATURE, nombre } from '../ui/format';
+import { infobulle, NATURE_POINT, popupChoix, surtitrePoint, type Choix, type TypePoint } from '../ui/infobulle';
 import { imageHachures, imageSymbole, type Symbole } from '../ui/symboles';
 import { ENCRE_2 } from '../couleurs';
-import { couleurEcole, couleurIris, GROUPES, IDENTIFIANT, MARQUES, SOURCES, ZONES, type NomSource } from './couches';
+import {
+  couleurEcole, couleurIris, GROUPES, IDENTIFIANT, MARQUES, peintureCommunes, SOURCES, ZONES, ZONES_FICHE, type NomSource,
+  type ZoneFiche,
+} from './couches';
 import { empriseDepartement, empriseZone, type Emprise } from './emprise';
 import type { Fond } from './fond';
 
@@ -39,11 +43,17 @@ export interface Lien {
   famille: 'scolaire' | 'alimentation';
 }
 
-interface Rappels {
-  ecole: (i: number) => void;
-  commune: (code: string) => void;
-  pat: (id: string) => void;
+/** Où montrer une instance : un point (et ses traits), une zone, ou un ensemble de communes. */
+export interface Emplacement {
+  xy?: [number, number];
+  symbole?: Symbole;
+  liens?: Lien[];
+  zone?: { source: ZoneFiche; id: string };
+  communes?: string[];
 }
+
+/** Zones cliquables, de la plus précise à la plus vaste. */
+const ZONES_CLIC = ['qpv', 'iris', 'cites', 'communes', 'pat'] as const;
 
 export class Carte {
   readonly gl: CarteGL;
@@ -64,7 +74,7 @@ export class Carte {
     private etat: Etat,
     private producteurs: CollectionPoints<ProprietesProducteur>,
     private relais: CollectionPoints<ProprietesRelais>,
-    private rappels: Rappels,
+    private ouvrir: (c: Cible) => void,
   ) {
     const t = modele.t;
     this.features = t.uai.map((_, i) => ({
@@ -162,6 +172,21 @@ export class Carte {
     this.gl.setPaintProperty('iris', 'fill-color', couleurIris(this.etat.iris));
   }
 
+  /** Étape 1 : score de chaque commune (aligné sur meta.communes) ; étape 2 : communes retenues. */
+  async colorerCommunes(scores: (number | null)[], retenues: string[]): Promise<void> {
+    await this.prete;
+    const gardees = new Set(retenues);
+    this.modele.meta.communes.forEach((c, k) => {
+      this.gl.setFeatureState(
+        { source: 'communes', id: c.code },
+        { score: scores[k] ?? -1, retenue: gardees.has(c.code) || (c.mere !== undefined && gardees.has(c.mere)) },
+      );
+    });
+    const { couleur, opacite } = peintureCommunes(this.etat.etape);
+    this.gl.setPaintProperty('communes', 'fill-color', couleur);
+    this.gl.setPaintProperty('communes', 'fill-opacity', opacite);
+  }
+
   async majEcoles(): Promise<void> {
     await this.prete;
     this.dessiner();
@@ -190,31 +215,25 @@ export class Carte {
     });
   }
 
-  async choisirEcole(i: number | null, liens: Lien[] = []): Promise<void> {
+  /** Marque l'instance choisie, même si sa couche est masquée ; un emplacement vide efface la marque. */
+  async choisir({ xy, symbole, liens = [], zone, communes = [] }: Emplacement): Promise<void> {
     await this.prete;
-    const t = this.modele.t;
-    const depart = i === null ? null : ([t.lon[i], t.lat[i]] as [number, number]);
-    void this.source('selection').setData(depart === null ? VIDE : {
-      type: 'Feature', geometry: { type: 'Point', coordinates: depart }, properties: {},
+    void this.source('selection').setData(xy === undefined ? VIDE : {
+      type: 'Feature', geometry: { type: 'Point', coordinates: xy }, properties: symbole ? { symbole } : {},
     });
-    const traits: Feature<LineString>[] = depart === null ? [] : liens.map((l) => ({
-      type: 'Feature', geometry: { type: 'LineString', coordinates: [depart, l.vers] }, properties: { famille: l.famille },
+    const traits: Feature<LineString>[] = xy === undefined ? [] : liens.map((l) => ({
+      type: 'Feature', geometry: { type: 'LineString', coordinates: [xy, l.vers] }, properties: { famille: l.famille },
     }));
     void this.source('liens').setData({ type: 'FeatureCollection', features: traits });
-  }
-
-  async choisirCommune(code: string | null): Promise<void> {
-    await this.prete;
-    const codes = code === null ? [] : [code, ...this.modele.meta.communes.filter((c) => c.mere === code).map((c) => c.code)];
+    if (zone) void this.charger(zone.source);
+    for (const z of Object.keys(ZONES_FICHE) as ZoneFiche[]) {
+      const id = zone?.source === z ? zone.id : '';
+      for (const c of [`${z}-choisi`, `${z}-choisi-trait`]) this.gl.setFilter(c, ['==', ['get', ZONES_FICHE[z]], id]);
+    }
+    const choisies = new Set(communes);
+    const codes = [...communes, ...this.modele.meta.communes.filter((c) => c.mere && choisies.has(c.mere)).map((c) => c.code)];
     if (codes.length) void this.charger('communes');
     this.gl.setFilter('communes-choisie', ['in', ['get', 'code'], ['literal', codes]]);
-  }
-
-  /** Périmètre du PAT choisi, montré même si la couche des PAT est masquée. */
-  async choisirPat(id: string | null): Promise<void> {
-    await this.prete;
-    if (id !== null) void this.charger('pat');
-    for (const c of ['pat-choisi', 'pat-choisi-trait']) this.gl.setFilter(c, ['==', ['get', 'id'], id ?? '']);
   }
 
   /** Hauteur de carte cachée par la fiche (petits écrans, où elle s'ouvre par-dessus). */
@@ -234,13 +253,30 @@ export class Carte {
     if (c) this.cadrer(c.bbox, this.cachee());
   }
 
+  /** Ensemble de communes (retenues à l'étape 1) : cadre qui les contient toutes. */
+  allerCommunes(codes: string[]): void {
+    const choisies = this.modele.meta.communes.filter((c) => codes.includes(c.code));
+    if (!choisies.length) return;
+    const e: Emprise = [
+      Math.min(...choisies.map((c) => c.bbox[0])), Math.min(...choisies.map((c) => c.bbox[1])),
+      Math.max(...choisies.map((c) => c.bbox[2])), Math.max(...choisies.map((c) => c.bbox[3])),
+    ];
+    this.cadrer(e, this.etat.selection === null ? 0 : this.cachee());
+  }
+
+  allerEmplacement({ xy, zone, communes }: Emplacement): void {
+    if (xy) this.allerPoint(xy);
+    else if (zone) this.allerZone(zone.source, zone.id).catch(console.error);
+    else if (communes) this.allerCommunes(communes);
+  }
+
   allerDepartement(dep: string): void {
     const e = empriseDepartement(this.modele.meta, dep);
     if (e) this.cadrer(e, this.etat.selection === null ? 0 : this.cachee());
   }
 
-  async allerPat(id: string): Promise<void> {
-    const zone = (await chargerPats()).features.find((f) => f.properties.id === id);
+  async allerZone(source: ZoneFiche, id: string): Promise<void> {
+    const zone = (await chargerZone(source)).features.find((f) => f.properties?.[ZONES_FICHE[source]] === id);
     const e = zone && empriseZone(zone.geometry);
     if (e) this.cadrer(e, this.cachee());
   }
@@ -253,7 +289,7 @@ export class Carte {
   }
 
   allerPoint(xy: [number, number]): void {
-    this.gl.flyTo({ center: xy, zoom: Math.max(this.gl.getZoom(), 14), duration: 900 });
+    this.gl.flyTo({ center: xy, zoom: Math.max(this.gl.getZoom(), 14), offset: [0, -this.cachee() / 2], duration: 900 });
   }
 
   // ---------------------------------------------------------------- souris
@@ -299,16 +335,62 @@ export class Carte {
     return l.length <= SUPERPOSES_MAX ? l : [points[0]];
   }
 
-  private communeSous(e: MapMouseEvent): MapGeoJSONFeature | null {
-    if (!this.etat.couches.communes || !this.gl.getLayer('communes')) return null;
-    return this.gl.queryRenderedFeatures(e.point, { layers: ['communes'] })[0] ?? null;
+  /** Zones affichées sous le pointeur, une seule fois chacune, de la plus précise à la plus vaste. */
+  private zonesSous(e: MapMouseEvent): MapGeoJSONFeature[] {
+    const layers = ZONES_CLIC.filter((z) => this.etat.couches[z] && this.gl.getLayer(z));
+    if (!layers.length) return [];
+    const vues = new Map<string, MapGeoJSONFeature>();
+    for (const f of this.gl.queryRenderedFeatures(e.point, { layers })) {
+      vues.set(`${f.layer.id} ${String(f.properties.id ?? f.properties.iris ?? f.properties.code)}`, f);
+    }
+    const rang = (f: MapGeoJSONFeature): number => ZONES_CLIC.indexOf(f.layer.id as (typeof ZONES_CLIC)[number]);
+    return [...vues.values()].sort((a, b) => rang(a) - rang(b));
   }
 
-  /** PAT dont le nom, affiché sur la carte, est sous le pointeur. */
-  private patSous(e: MapMouseEvent): string | null {
-    if (!this.etat.couches.pat || !this.gl.getLayer('pat-nom')) return null;
-    const f = this.gl.queryRenderedFeatures(e.point, { layers: ['pat-nom'] })[0];
-    return f ? String(f.properties.id) : null;
+  /** Zone dont le nom, écrit sur la carte, est sous le pointeur : elle s'ouvre sans passer par la liste. */
+  private nomSous(e: MapMouseEvent): MapGeoJSONFeature | null {
+    const layers = (['pat', 'cites', 'qpv'] as const).filter((z) => this.etat.couches[z]).map((z) => `${z}-nom`);
+    return (layers.length && this.gl.queryRenderedFeatures(e.point, { layers })[0]) || null;
+  }
+
+  private cibleZone(f: MapGeoJSONFeature): Cible {
+    const p = f.properties;
+    switch (f.source) {
+      case 'communes': return { type: 'commune', code: String(p.code) };
+      case 'pat': return { type: 'pat', id: String(p.id) };
+      case 'iris': return { type: 'acteur', nature: 'iris', id: String(p.iris) };
+      default: return { type: 'acteur', nature: 'dispositif', id: String(p.id) };
+    }
+  }
+
+  private ciblePoint(f: MapGeoJSONFeature): Cible {
+    return f.layer.id === 'ecoles' ? { type: 'ecole', uai: this.modele.t.uai[f.properties.i as number] }
+      : { type: 'acteur', nature: NATURE_POINT[f.layer.id as TypePoint], id: String(f.properties.id) };
+  }
+
+  private choixPoint(f: MapGeoJSONFeature): Choix {
+    const ouvrir = (): void => this.choisirDans(this.ciblePoint(f));
+    if (f.layer.id !== 'ecoles') {
+      return { surtitre: surtitrePoint(f.layer.id as TypePoint, f.properties), nom: String(f.properties.nom), ouvrir };
+    }
+    const i = f.properties.i as number;
+    const s = this.modele.scores[i];
+    return { surtitre: LIBELLE_NATURE.ecole[0], nom: this.modele.t.nom[i], valeur: s === null ? '–' : nombre(s), ouvrir };
+  }
+
+  private choixZone(f: MapGeoJSONFeature): Choix {
+    const surtitre: Record<string, string> = {
+      communes: 'Commune', pat: LIBELLE_NATURE.pat[0], iris: LIBELLE_NATURE.iris[0], qpv: 'Quartier prioritaire',
+      cites: 'Cité éducative',
+    };
+    return {
+      surtitre: surtitre[f.source], nom: String(f.properties.nom), ouvrir: () => this.choisirDans(this.cibleZone(f)),
+    };
+  }
+
+  private choisirDans(c: Cible): void {
+    this.fenetre.remove();
+    this.ouvrir(c);
   }
 
   private marquer(source: string | null, id?: number | string): void {
@@ -337,13 +419,9 @@ export class Carte {
       return;
     }
     this.bulle.remove();
-    if (this.patSous(e) !== null) {
-      curseur.cursor = 'pointer';
-      this.marquer(null);
-      return;
-    }
-    const commune = this.communeSous(e);
-    curseur.cursor = commune ? 'pointer' : '';
+    const zones = this.zonesSous(e);
+    const commune = zones.find((f) => f.source === 'communes');
+    curseur.cursor = zones.length || this.nomSous(e) ? 'pointer' : '';
     this.marquer(commune ? 'communes' : null, commune?.id);
   }
 
@@ -356,30 +434,21 @@ export class Carte {
     const groupe = this.superposes(this.pointsSous(e));
     this.bulle.remove();
     this.fenetre.remove();
-    if (!groupe.length) {
-      const pat = this.patSous(e);
-      if (pat !== null) {
-        this.rappels.pat(pat);
-        return;
-      }
-      const commune = this.communeSous(e);
-      if (commune) this.rappels.commune(commune.properties.code as string);
+    if (groupe.length > 1) {
+      this.proposer(position(groupe[0]), `${groupe.length} points au même endroit`, groupe.map((f) => this.choixPoint(f)));
       return;
     }
-    const [f] = groupe;
-    if (groupe.length === 1 && f.layer.id === 'ecoles') {
-      this.rappels.ecole(f.properties.i as number);
+    if (groupe.length === 1) {
+      this.ouvrir(this.ciblePoint(groupe[0]));
       return;
     }
-    const contenu = groupe.length === 1
-      ? popupPoint(f.layer.id as TypePoint, f.properties, this.modele.meta)
-      : popupGroupe(
-        groupe.map((x) => ({ type: x.layer.id as TypePoint | 'ecoles', p: x.properties })), this.modele,
-        (i) => {
-          this.fenetre.remove();
-          this.rappels.ecole(i);
-        },
-      );
-    this.fenetre.setLngLat(position(f)).setDOMContent(contenu).addTo(this.gl);
+    const nom = this.nomSous(e);
+    const zones = nom ? [nom] : this.zonesSous(e);
+    if (zones.length === 1) this.ouvrir(this.cibleZone(zones[0]));
+    else if (zones.length) this.proposer(e.lngLat.toArray(), 'À cet endroit', zones.map((f) => this.choixZone(f)));
+  }
+
+  private proposer(xy: [number, number], titre: string, choix: Choix[]): void {
+    this.fenetre.setLngLat(xy).setDOMContent(popupChoix(titre, choix)).addTo(this.gl);
   }
 }

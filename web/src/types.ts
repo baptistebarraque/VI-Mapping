@@ -6,6 +6,13 @@ export const JAUGES = ['engagement', 'periscolaire', 'parents', 'producteurs', '
 export type NomJauge = (typeof JAUGES)[number];
 export type ParJauge<T> = Record<NomJauge, T>;
 
+/** Critères du score propre des communes (étape 1), dans l'ordre de config/jauges.yaml. */
+export const CRITERES_COMMUNES = [
+  'pat', 'soutiens', 'cuisine', 'cantine_bio', 'communications', 'producteurs', 'associations', 'ecoles',
+] as const;
+export type CritereCommune = (typeof CRITERES_COMMUNES)[number];
+export type ParCritere<T> = Record<CritereCommune, T>;
+
 export type Mode = 'ou' | 'km' | 'minutes';
 export interface Rayon {
   km: number;
@@ -71,11 +78,23 @@ export interface Meta {
   };
   communes: Commune[];
   sources: Record<string, Source>;
+  poids_communes: ParCritere<number>;
+  part_min_jauge: number;
 }
 
 export const TYPES_ECOLE = ['Maternelle', 'Élémentaire', 'Primaire'] as const;
 export const SECTEURS = ['Publique', 'Privée sous contrat'] as const;
 export const EDUCATION_PRIORITAIRE = ['', 'REP', 'REP+'] as const;
+
+/** Colonnes parallèles alignées sur meta.communes : la commune k est faite des k-ièmes valeurs. */
+export type TableCommunes = ParCritere<(number | null)[]> & {
+  score: (number | null)[];
+  confiance: (number | null)[];
+  pat_nom: (string | null)[];
+  population: (number | null)[];
+  eleves: (number | null)[];
+  assos: (number | null)[];
+};
 
 /** Colonnes parallèles : l'école i est faite des i-èmes valeurs. */
 export interface TableEcoles {
@@ -138,7 +157,18 @@ export interface FicheAsso {
   pg?: Provenances;
 }
 
+/** Coordonnées publiées par une source, avec leur provenance. */
+export interface Contact {
+  tel?: string;
+  email?: string;
+  site?: string;
+  formulaire?: string;
+  service?: string;
+  p: Provenance;
+}
+
 export interface FicheEcole {
+  contact?: Contact;
   adresse?: string;
   cp?: string;
   classes?: number;
@@ -146,7 +176,9 @@ export interface FicheEcole {
   ips_rentree?: string;
   restauration?: boolean;
   cite?: string;
+  cite_id?: string;
   iris?: {
+    code: string;
     nom: string;
     familles?: number;
     revenu?: number;
@@ -155,7 +187,7 @@ export interface FicheEcole {
     annee_revenus?: number;
     pg?: Provenances;
   };
-  qpv?: { nom: string; m: number };
+  qpv?: { id: string; nom: string; m: number };
   jauges: ParJauge<DetailJauge>;
   accueils?: { id: string; m: number; motif: string; c: number }[];
   assos?: { id: string; c: number; indices: Record<string, unknown> }[];
@@ -166,6 +198,7 @@ export interface FicheEcole {
 }
 
 export interface Elu {
+  id: string;
   nom: string;
   fonction: string;
   delegation?: string;
@@ -177,11 +210,40 @@ export interface Elu {
 
 export interface Dispositif {
   id: string;
-  type: 'pat' | 'cite_educative' | 'qpv' | 'laureat_aap';
+  type: 'pat' | 'cite_educative' | 'qpv' | 'laureat_aap' | 'soutien_territorial' | 'laureat_aap_mgp'
+    | 'syndicat_restauration';
   nom: string;
   axe?: boolean;
+  restauration?: boolean;
   annee?: number;
   niveau?: string;
+  echelon?: 'region' | 'departement' | 'interco';
+  score?: number;
+  editions?: string;
+  priorites?: string;
+  p: Provenance;
+}
+
+export interface CuisineCentrale {
+  siret: string;
+  nom: string;
+  type: 'municipale' | 'caisse_des_ecoles' | 'intercommunale' | 'autre_public' | 'privee' | 'inconnu';
+  commune?: string;
+  gestion?: 'regie' | 'concedee';
+  cantines?: number;
+  repas?: number;
+  bio?: number;
+  egalim?: number;
+  p: Provenance;
+}
+
+export interface AssoAlimentation {
+  id: string;
+  nom: string;
+  categorie: 'amap_circuits_courts' | 'jardins_agriculture_urbaine' | 'education_alimentaire' | 'solidarite_anti_gaspi';
+  site?: string;
+  declaration?: string;
+  xy?: [number, number];
   p: Provenance;
 }
 
@@ -202,6 +264,7 @@ export interface FicheCommune {
   mere?: { code: string; nom: string };
   epci?: string;
   ept?: string;
+  organismes?: { siren: string; type: TypeOrganisme; nom: string }[]; // de l'intercommunalité à la région
   population?: number;
   population_annee?: number;
   densite?: number;
@@ -213,7 +276,15 @@ export interface FicheCommune {
     bio?: number;
     egalim?: number;
     annee?: number;
+    satellites?: number;
+    sur_place?: number;
+    regie?: number;
+    repas?: number;
+    centrale?: CuisineCentrale;
   };
+  contact?: Contact;
+  score?: { valeur: number | null; part: number; criteres: Critere[] };
+  alimentation?: { n: number; categories: Partial<Record<AssoAlimentation['categorie'], number>>; assos: AssoAlimentation[] };
   nb: { accueils: number; assos: number; relais: number; producteurs: number; elus: number };
   gestionnaires?: { siren: string; nom: string; type: string; n: number }[];
   dispositifs?: Dispositif[];
@@ -265,6 +336,100 @@ export interface ProprietesPat extends Provenance {
   niveau?: string;
   laureat?: boolean;
   communes?: string[]; // codes Insee ; Paris : la commune entière. Absent des exports antérieurs
+  restauration?: boolean;
+  priorites?: string;
+  porteur?: string;
+  organisme?: string; // porteur reconnu : Siren…
+  commune?: string; // … ou code Insee
+  contact?: Contact;
+}
+
+// ------------------------------------------------------------------ acteurs : une fiche par instance
+/** Natures d'acteurs qui ont une fiche, en plus des communes, des écoles et des PAT. */
+export const NATURES = [
+  'accueil', 'asso', 'producteur', 'relais', 'alimentation', 'gestionnaire', 'cuisine', 'dispositif', 'organisme',
+  'iris', 'elu',
+] as const;
+export type Nature = (typeof NATURES)[number];
+/** Les élus n'ont pas de fichier à eux : ils sont lus dans la fiche de leur commune. */
+export type NatureFichier = Exclude<Nature, 'elu'>;
+export type TypeOrganisme = 'epci' | 'ept' | 'syndicat_restauration' | 'departement' | 'region';
+
+/** Fiche d'un acteur (acteurs/<nature>.json) : champs communs, puis ceux de sa nature. */
+export interface Acteur {
+  nom: string;
+  type?: string;
+  commune?: string;
+  communes?: string[];
+  adresse?: string;
+  xy?: [number, number];
+  contact?: Contact;
+  p: Provenance;
+  pg?: Provenances;
+  // accueils et associations
+  ecoles?: { uai: string; c: number; m?: number; motif?: string }[];
+  soir?: boolean;
+  mercredi?: boolean;
+  horaires?: string;
+  gestionnaire?: string;
+  gestionnaire_type?: string;
+  siren?: string;
+  siege?: string;
+  federation?: string;
+  objet?: string;
+  rna?: string;
+  creation?: string;
+  declaration?: string;
+  activite?: string;
+  activite_url?: string;
+  // producteurs et relais
+  adresse_type?: ProprietesProducteur['adresse_type'];
+  activites?: string[];
+  productions?: string[];
+  bio?: string | number; // producteur : état de certification ; cuisine : % de bio
+  vente?: boolean;
+  collective?: boolean;
+  amap?: boolean;
+  eligible?: boolean;
+  compte?: boolean;
+  numero_bio?: number;
+  siret?: string;
+  proches?: [uai: string, km: number, minutes: number | null][];
+  // gestionnaires, cuisines centrales, dispositifs, organismes
+  accueils?: string[];
+  organisme?: string;
+  gestion?: 'regie' | 'concedee';
+  cantines?: number;
+  repas?: number;
+  egalim?: number;
+  annee?: number;
+  echelon?: 'region' | 'departement' | 'interco';
+  score?: number;
+  editions?: string;
+  priorites?: string;
+  niveau?: string;
+  dep?: string;
+  dispositifs?: string[];
+  // quartiers IRIS
+  familles?: number;
+  revenu?: number;
+  pauvrete?: number;
+  annee_revenus?: number;
+  qpv?: string[];
+  part_qpv?: number;
+  uais?: string[];
+}
+export type Acteurs = Record<string, Acteur>;
+
+/** Ligne du carnet de contacts (contacts.json). */
+export interface LigneContact extends Contact {
+  n: 'commune' | 'ecole' | 'pat' | NatureFichier;
+  id: string;
+  nom: string;
+  commune?: string;
+  communes?: string[];
+  dep?: string;
+  type?: string;
 }
 
 export type CollectionPoints<P> = FeatureCollection<Point, P>;
