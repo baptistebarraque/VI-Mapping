@@ -134,9 +134,12 @@ export class Carte {
   }
 
   private montrer(couche: Couche, visible: boolean): void {
-    if (visible) void this.charger(couche);
+    // Étape 2 : les limites des communes restent, sans couleur ; la couche Communes ajoute la couleur du score.
+    const limites = couche === 'communes' && this.etat.etape === 'ecoles';
+    if (visible || limites) void this.charger(couche);
     for (const id of GROUPES[couche]) {
-      this.gl.setLayoutProperty(id, 'visibility', visible ? 'visible' : 'none');
+      const montre = visible || (limites && id === 'communes-trait');
+      this.gl.setLayoutProperty(id, 'visibility', montre ? 'visible' : 'none');
     }
   }
 
@@ -190,17 +193,13 @@ export class Carte {
     this.gl.setPaintProperty('iris', 'fill-color', couleurIris(this.etat.iris));
   }
 
-  /** Étape 1 : score de chaque commune (aligné sur meta.communes) ; étape 2 : communes retenues. */
-  async colorerCommunes(scores: (number | null)[], retenues: string[]): Promise<void> {
+  /** Score de chaque commune (aligné sur meta.communes) : la couche Communes en prend sa couleur, aux deux étapes. */
+  async colorerCommunes(scores: (number | null)[]): Promise<void> {
     await this.prete;
-    const gardees = new Set(retenues);
     this.modele.meta.communes.forEach((c, k) => {
-      this.gl.setFeatureState(
-        { source: 'communes', id: c.code },
-        { score: scores[k] ?? -1, retenue: gardees.has(c.code) || (c.mere !== undefined && gardees.has(c.mere)) },
-      );
+      this.gl.setFeatureState({ source: 'communes', id: c.code }, { score: scores[k] ?? -1 });
     });
-    const { couleur, opacite } = peintureCommunes(this.etat.etape);
+    const { couleur, opacite } = peintureCommunes();
     this.gl.setPaintProperty('communes', 'fill-color', couleur);
     this.gl.setPaintProperty('communes', 'fill-opacity', opacite);
   }

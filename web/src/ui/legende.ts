@@ -1,7 +1,7 @@
 /** Légende : échelle des écoles, symboles des couches affichées, échelle des IRIS. */
 
 import {
-  BORNES_IRIS, BORNES_SCORE, bornesDe, COLLECTIVITE, ENCRE_2, INCONNU, OPACITE_COMMUNES, OPACITE_IRIS, RAMPE_COMMUNES,
+  BORNES_IRIS, BORNES_SCORE, bornesDe, ENCRE_2, INCONNU, OPACITE_COMMUNES, OPACITE_IRIS, RAMPE_COMMUNES,
   RAMPE_ECOLES, RAMPE_IRIS, ZONE_CITE, ZONE_PAT,
 } from '../couleurs';
 import { couchesActives, type Etat } from '../etat';
@@ -31,13 +31,11 @@ const bandeau = (couleurs: readonly string[], bornes: readonly number[], opacite
 export function majLegende(el: HTMLDetailsElement, e: Etat): void {
   const c = couchesActives(e);
   const blocs: Enfant[] = [];
-  if (c.communes && e.etape === 'communes') {
+  if (c.communes) {
     blocs.push(
       h('h2', {}, 'Communes — score de la commune'),
       bandeau(RAMPE_COMMUNES, BORNES_SCORE, OPACITE_COMMUNES),
     );
-  } else if (c.communes && e.filtres.retenues.length) {
-    blocs.push(h('ul', {}, ligne(carre(COLLECTIVITE, 0.3), 'Communes retenues à l’étape 1')));
   }
   if (c.ecoles) {
     blocs.push(

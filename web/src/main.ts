@@ -337,8 +337,8 @@ async function demarrer(app: HTMLElement): Promise<void> {
     }
     if (touche('rayon', 'poids', 'poidsCommunes', 'filtres')) parcours.maj(aParcourir());
     if (touche('filtres')) void carte.majDepartements();
-    if (touche('rayon', 'poidsCommunes', 'filtres', 'etape')) {
-      void carte.colorerCommunes(communes.scores, etat.filtres.retenues);
+    if (touche('rayon', 'poidsCommunes', 'filtres')) {
+      void carte.colorerCommunes(communes.scores);
     }
     if (touche('etape')) {
       if (!etat.selection) montrerClassement();
@@ -367,7 +367,7 @@ async function demarrer(app: HTMLElement): Promise<void> {
   classement.maj();
   classementCommunes.maj();
   montrerClassement();
-  void carte.colorerCommunes(communes.scores, etat.filtres.retenues);
+  void carte.colorerCommunes(communes.scores);
   majLegende(legende, etat);
   if (etat.selection) {
     const s = etat.selection;
