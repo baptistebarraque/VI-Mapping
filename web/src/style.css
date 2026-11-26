@@ -489,6 +489,50 @@ summary {
   line-height: 1.6;
 }
 
+/* ------------------------------------------------------------ recherche d'une commune */
+.recherche {
+  position: relative;
+  flex: 1;
+  max-width: 420px;
+  margin-inline-start: auto;
+}
+.recherche input {
+  min-height: 38px;
+  padding-inline: 14px;
+  border-radius: 19px;
+}
+.suggestions {
+  position: absolute;
+  inset: calc(100% + 6px) 0 auto;
+  z-index: 10;
+  max-height: min(420px, 70vh);
+  overflow-y: auto;
+  padding: 6px;
+  list-style: none;
+  border: 1px solid var(--bord);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: var(--ombre);
+}
+.suggestions li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 40px;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.suggestions li:hover,
+.suggestions li[aria-selected='true'] {
+  background: var(--voile);
+}
+.suggestions li.aucune {
+  display: block;
+  color: var(--encre-2);
+  cursor: default;
+}
+
 /* ------------------------------------------------------------ classement */
 .panneau-classement {
   padding: 4px 20px 24px;
@@ -588,6 +632,34 @@ summary {
   font: 400 22px/1 var(--titres);
   text-align: end;
   font-variant-numeric: tabular-nums;
+}
+
+/* Fiche commune : ses écoles classées, à cibler */
+.heros .vers-cibles {
+  display: block;
+  margin-top: 4px;
+  font-weight: 600;
+}
+.bloc.cibles {
+  scroll-margin-top: 64px; /* sous la barre collée de la fiche */
+  margin-top: 18px;
+  padding: 14px 16px 8px;
+  border: 1px solid var(--accent);
+  border-radius: 16px;
+  background: linear-gradient(var(--voile), var(--surface) 80px);
+}
+.bloc.cibles > h3 {
+  font: 400 17px/1.3 var(--titres);
+}
+.bloc.cibles .cle {
+  margin: 6px 0 2px;
+}
+.bloc.cibles .classement li > button {
+  min-height: 48px;
+}
+.bloc.cibles .classement li:first-child .rang {
+  color: var(--accent-fonce);
+  font-weight: 700;
 }
 
 /* Étape 1 : communes, avec une case pour retenir chacune */
@@ -1121,5 +1193,14 @@ button.jauge.simple:hover .nom,
 @media (max-width: 620px) {
   h1 span {
     display: none;
+  }
+  .entete {
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+  .recherche {
+    order: 3;
+    flex-basis: 100%;
+    max-width: none;
   }
 }

@@ -27,6 +27,7 @@ import { ficheEcole } from './ui/fiche-ecole';
 import { fichePat } from './ui/fiche-pat';
 import { majLegende } from './ui/legende';
 import { Parcours } from './ui/parcours';
+import { rechercheCommune } from './ui/recherche';
 import { panneauReglages } from './ui/reglages';
 
 import './style.css'; // après la feuille de MapLibre, pour la surcharger
@@ -123,6 +124,7 @@ async function demarrer(app: HTMLElement): Promise<void> {
     h('header', { classe: 'entete' },
       h('h1', {}, h('img', { src: logo, alt: 'V.i', width: 150, height: 44 }),
         h('span', {}, 'Communautés scolaires d’Île-de-France')),
+      rechercheCommune(communes, (code) => choisir({ type: 'commune', code }, true)),
       h('button', { type: 'button', classe: 'discret', onclick: () => ouvrirDialogue(dialogue) }, 'Méthode et sources')),
     h('aside', { classe: 'gauche', 'aria-label': 'Réglages' }, reglages.el),
     h('main', { classe: 'centre', 'aria-label': 'Carte' }, zoneCarte, legende),

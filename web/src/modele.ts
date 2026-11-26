@@ -91,7 +91,14 @@ export class Modele {
   filtrer(f: Filtres): void {
     const gardees: number[] = [];
     for (let i = 0; i < this.n; i++) if (this.garde(i, f)) gardees.push(i);
-    gardees.sort(
+    this.classer(gardees);
+    this.nbFiltrees = gardees.length;
+    this.visibles = f.premiers === null ? gardees : gardees.slice(0, f.premiers);
+  }
+
+  /** Trie des écoles dans l'ordre du classement (sur place) et les rend. */
+  classer(ecoles: number[]): number[] {
+    return ecoles.sort(
       (a, b) =>
         (this.scores[b] ?? -1) - (this.scores[a] ?? -1) ||
         this.connues[b] - this.connues[a] ||
@@ -99,8 +106,6 @@ export class Modele {
         this.t.nom[a].localeCompare(this.t.nom[b], 'fr') ||
         a - b,
     );
-    this.nbFiltrees = gardees.length;
-    this.visibles = f.premiers === null ? gardees : gardees.slice(0, f.premiers);
   }
 
   /** École juste avant (-1) ou juste après (1) dans le classement ; null au bout, ou si l'école est filtrée. */

@@ -3,17 +3,19 @@
 import { chargerActeurs } from '../donnees';
 import type { Modele } from '../modele';
 import {
-  CRITERES_COMMUNES, JAUGES, type Acteur, type CritereCommune, type Dispositif, type Elu, type Fiche, type FicheCommune,
+  CRITERES_COMMUNES, JAUGES, TYPES_ECOLE, type Acteur, type CritereCommune, type Dispositif, type Elu, type Fiche, type FicheCommune,
   type FicheEcole, type NatureFichier,
 } from '../types';
 import {
-  ACTEUR_CRITERE, anneau, bloc, definition, etiquette, listeRepliee, metre, provenance, tableSources, vide, volet,
+  ACTEUR_CRITERE, anneau, bloc, definition, etiquette, listeRepliee, metre, pastille, provenance, tableSources, vide,
+  volet,
 } from './commun';
+import { barresEcole } from './classement';
 import { blocContact } from './contact';
-import { bouton, boutonActeur, boutonEcole, montrerBloc, type ContexteFiche } from './contexte';
+import { bouton, boutonActeur, montrerBloc, type ContexteFiche } from './contexte';
 import { h, lien, remplacer } from './dom';
 import {
-  date, LIBELLE_CATEGORIE_ALIMENTATION, LIBELLE_CRITERE_COMMUNE, LIBELLE_CUISINE, LIBELLE_DISPOSITIF, LIBELLE_GESTION,
+  COURT_JAUGE, date, jaugeOuInsuffisant, LIBELLE_CATEGORIE_ALIMENTATION, LIBELLE_CRITERE_COMMUNE, LIBELLE_CUISINE, LIBELLE_DISPOSITIF, LIBELLE_GESTION,
   LIBELLE_GESTIONNAIRE, LIBELLE_JAUGE, LIBELLE_NATURE, LIBELLE_ORGANISME, LIBELLE_PAGE, LIBELLE_RELAIS, LIBELLE_THEME,
   LIBELLE_VISITE, nombre, pluriel, pourcent,
 } from './format';
@@ -97,7 +99,8 @@ export function ficheCommune(code: string, fiche: Fiche, ctx: ContexteFiche): HT
     h('p', { classe: 'lieu' }, lieu(c, ctx),
       c.mere && [' · ', bouton(ctx, { type: 'commune', code: c.mere.code }, c.mere.nom)]),
     blocContact(c.contact, ctx),
-    resumeCommune(code, c, ctx),
+    resumeCommune(code, c, ctx, ecoles.length),
+    blocCibles(ecoles, ctx),
     bloc(
       'Collectivité',
       definition(
@@ -124,14 +127,13 @@ export function ficheCommune(code: string, fiche: Fiche, ctx: ContexteFiche): HT
     voletActeurs('asso', c.nb.assos, code, ctx),
     voletActeurs('relais', c.nb.relais, code, ctx),
     voletActeurs('producteur', c.nb.producteurs, code, ctx),
-    ecoles.length ? volet('Jauges des écoles', null, resumeEcoles(ecoles, modele, '')) : vide('Aucune école du périmètre dans cette commune.'),
-    blocEcoles(ecoles, ctx),
     h('p', { classe: 'pied' }, h('button', { type: 'button', onclick: () => ctx.ouvrirCarnet([code], c.nom) }, 'Contacts de la commune')),
     tableSources(meta, c),
   );
 }
 
 const DISPOSITIFS = 'Dispositifs et élus';
+const ECOLES = 'Écoles à cibler';
 const SIGNAUX = 'Signaux du site de la mairie';
 const CANTINE = 'Cantine scolaire';
 const TERRITOIRE = 'Soutiens territoriaux';
@@ -225,7 +227,7 @@ function blocCantine(c: FicheCommune, ctx: ContexteFiche): HTMLElement {
 }
 
 /** Score propre de la commune (étape 1), recalculé selon les poids et le rayon choisis. */
-function resumeCommune(code: string, c: FicheCommune, ctx: ContexteFiche): HTMLElement | null {
+function resumeCommune(code: string, c: FicheCommune, ctx: ContexteFiche, nbEcoles: number): HTMLElement | null {
   const m = ctx.communes;
   const k = m.rang.get(code);
   if (k === undefined) return null;
@@ -251,20 +253,23 @@ function resumeCommune(code: string, c: FicheCommune, ctx: ContexteFiche): HTMLE
   const pats = (c.dispositifs ?? []).filter((d) => d.type === 'pat');
   const blocs: Record<CritereCommune, string> = {
     pat: DISPOSITIFS, soutiens: TERRITOIRE, cuisine: CANTINE, cantine_bio: CANTINE, communications: SIGNAUX,
-    producteurs: LIBELLE_NATURE.producteur[1], associations: LIBELLE_NATURE.alimentation[1], ecoles: LIBELLE_NATURE.ecole[1],
+    producteurs: LIBELLE_NATURE.producteur[1], associations: LIBELLE_NATURE.alimentation[1], ecoles: ECOLES,
   };
   const suivre = (x: CritereCommune, depuis: Element): void => {
     const centrale = c.cantine?.centrale?.siret;
     if (x === 'pat' && pats.length === 1) ctx.ouvrir({ type: 'pat', id: pats[0].id });
     else if (x === 'cuisine' && centrale) ctx.ouvrir({ type: 'acteur', nature: 'cuisine', id: centrale });
-    else montrerBloc(depuis, x === 'producteurs' && !c.nb.producteurs ? LIBELLE_NATURE.ecole[1] : blocs[x]);
+    else montrerBloc(depuis, x === 'producteurs' && !c.nb.producteurs ? ECOLES : blocs[x]);
   };
   return h(
     'div', {},
     h('div', { classe: 'heros' },
       anneau(s),
       h('div', {}, h('b', {}, s === null ? 'Données insuffisantes' : 'Score de la commune sur 100'),
-        h('span', { classe: 'sous' }, `${m.connus[k]}/${CRITERES_COMMUNES.length} critères connus`))),
+        h('span', { classe: 'sous' }, `${m.connus[k]}/${CRITERES_COMMUNES.length} critères connus`),
+        nbEcoles > 0 && h('button', {
+          type: 'button', classe: 'discret vers-cibles', onclick: (e: MouseEvent) => montrerBloc(e.currentTarget as Element, ECOLES),
+        }, `${pluriel(nbEcoles, 'école à cibler', 'écoles à cibler')} ↓`))),
     h('div', { classe: 'jauges' }, CRITERES_COMMUNES.map((x) => {
       const v = m.valeur(x, k);
       return h('button', { type: 'button', classe: 'jauge simple', onclick: (e: MouseEvent) => suivre(x, e.currentTarget as Element) },
@@ -326,16 +331,51 @@ function blocSignaux(c: FicheCommune, ctx: ContexteFiche): HTMLElement {
   );
 }
 
-export function blocEcoles(liste: number[], ctx: ContexteFiche): HTMLElement | null {
+/** Une école dans un classement de fiche : rang, nom, cinq barres, score ; un clic ouvre sa fiche. */
+function ligneEcole(i: number, rang: number, ctx: ContexteFiche): HTMLElement {
   const { modele } = ctx;
-  const ecoles = [...liste].sort(
-    (a, b) => (modele.scores[b] ?? -1) - (modele.scores[a] ?? -1) || modele.t.nom[a].localeCompare(modele.t.nom[b], 'fr'),
+  const { t } = modele;
+  const s = modele.scores[i];
+  const eleves = t.eleves[i];
+  const detail = JAUGES.map((j) => `${COURT_JAUGE[j]} : ${jaugeOuInsuffisant(modele.valeur(j, i))}`).join('\n');
+  return h('li', {}, h(
+    'button', { type: 'button', title: detail, onclick: () => ctx.ouvrir({ type: 'ecole', uai: t.uai[i] }) },
+    h('span', { classe: 'rang' }, rang),
+    h('span', { classe: 'qui' }, h('b', {}, t.nom[i]), h('span', { classe: 'sous' }, [
+      `${TYPES_ECOLE[t.type[i]]} ${t.secteur[i] ? 'privée' : 'publique'}`,
+      eleves !== null && pluriel(eleves, 'élève'),
+      `${modele.connues[i]}/5 jauges`,
+    ].filter(Boolean).join(' · '))),
+    barresEcole(modele, i),
+    h('span', { classe: 'note-ecole' }, s === null ? '–' : nombre(s)),
+  ));
+}
+
+const cleJauges = (): HTMLElement => h('ul', { classe: 'cle', 'aria-label': 'Les cinq barres' },
+  JAUGES.map((j) => h('li', {}, pastille(j), COURT_JAUGE[j])));
+
+/** Écoles d'une commune classées comme à l'étape 2 : les premières sont celles à viser. Bloc ouvert, en tête. */
+function blocCibles(liste: number[], ctx: ContexteFiche): HTMLElement {
+  const { modele } = ctx;
+  const ecoles = modele.classer([...liste]);
+  if (!ecoles.length) return bloc(ECOLES, vide('Aucune école du périmètre dans cette commune.'));
+  return h(
+    'section', { classe: 'bloc cibles' },
+    h('h3', {}, ECOLES),
+    h('p', { classe: 'note' }, `${pluriel(ecoles.length, 'école')}, classée${ecoles.length > 1 ? 's' : ''} par score avec les poids `
+      + 'et le rayon de l’étape 2. Cliquer sur une école ouvre sa fiche.'),
+    cleJauges(),
+    listeRepliee(ecoles.map((i, r) => ligneEcole(i, r + 1, ctx)), 5, 'classement'),
+    h('details', { classe: 'replie' },
+      h('summary', {}, 'Moyenne des jauges des écoles'),
+      resumeEcoles(ecoles, modele, '')),
   );
+}
+
+/** Écoles d'un périmètre (PAT…), classées, dans un bloc replié. */
+export function blocEcoles(liste: number[], ctx: ContexteFiche): HTMLElement | null {
+  const ecoles = ctx.modele.classer([...liste]);
   if (!ecoles.length) return null;
-  return volet(LIBELLE_NATURE.ecole[1], ecoles.length, listeRepliee(ecoles.map((i) => {
-    const s = modele.scores[i];
-    return h('li', { classe: 'proche' },
-      boutonEcole(ctx, modele.t.uai[i]),
-      h('span', { classe: 'trajet' }, s === null ? '–' : nombre(s)));
-  }), 12));
+  return volet(LIBELLE_NATURE.ecole[1], ecoles.length, cleJauges(),
+    listeRepliee(ecoles.map((i, r) => ligneEcole(i, r + 1, ctx)), 12, 'classement'));
 }

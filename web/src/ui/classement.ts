@@ -111,15 +111,20 @@ export class Classement {
         },
         h('span', { classe: 'rang' }, rang),
         h('span', { classe: 'qui' }, h('b', {}, t.nom[i]), h('span', { classe: 'sous' }, `${meta.communes[t.commune[i]].nom} · ${connues[i]}/5 jauges`)),
-        h(
-          'span', { classe: 'barres', 'aria-hidden': 'true' },
-          JAUGES.map((j) => {
-            const v = this.modele.valeur(j, i);
-            return v === null ? h('i', { classe: 'inconnue' }) : h('i', { classe: `j-${j}`, style: `height:${Math.max(v, 6)}%` });
-          }),
-        ),
+        barresEcole(this.modele, i),
         h('span', { classe: 'note-ecole' }, s === null ? '–' : nombre(s)),
       ),
     );
   }
+}
+
+/** Les cinq jauges d'une école en petites barres verticales ; un trait gris pour une jauge inconnue. */
+export function barresEcole(modele: Modele, i: number): HTMLElement {
+  return h(
+    'span', { classe: 'barres', 'aria-hidden': 'true' },
+    JAUGES.map((j) => {
+      const v = modele.valeur(j, i);
+      return v === null ? h('i', { classe: 'inconnue' }) : h('i', { classe: `j-${j}`, style: `height:${Math.max(v, 6)}%` });
+    }),
+  );
 }

@@ -23,6 +23,10 @@ ouvrir <http://localhost:5173/>.
 
 Sur un petit écran, les trois zones deviennent des onglets en bas : Carte, Réglages, Classement.
 
+**Chercher une commune** : le champ en haut de l'écran trouve une commune par son nom (accents et tirets
+facultatifs : « saint ouen ») ou son code Insee. Chaque suggestion donne son département, son rang au classement et
+son score ; Entrée ou un clic ouvre sa fiche et la montre sur la carte.
+
 **Tout est cliquable.** Un point, une zone ou une commune de la carte, un nom dans une fiche, un critère d'une jauge :
 chaque clic ouvre la fiche de l'instance et la montre sur la carte. Si plusieurs instances sont au même endroit, une
 petite liste demande laquelle ouvrir. « ← Retour » ramène à la fiche précédente (comme le bouton du navigateur).
@@ -50,10 +54,14 @@ Choisir **« 1. Communes »** en haut à gauche (c'est l'étape par défaut).
 - **Les filtres** : départements, et « Critères connus, au moins » pour écarter les communes trop peu documentées
   (une commune peu documentée peut sinon se retrouver en tête). La carte cadre les départements choisis, tous à la
   fois ; sans département choisi, toute la région.
-- **Cliquer sur une commune** (dans le classement ou sur la carte) ouvre sa fiche : détail du score, cantine et
-  cuisine centrale, soutiens territoriaux, associations d'alimentation, élus, contact de la mairie, écoles. Les
-  flèches ‹ › en haut de la fiche passent à la commune précédente ou suivante du classement (« hors filtres » : la
-  commune n'est pas dans le classement filtré).
+- **Cliquer sur une commune** (dans le classement, sur la carte ou depuis la recherche) ouvre sa fiche : détail du
+  score, puis **« Écoles à cibler »**, puis cantine et cuisine centrale, soutiens territoriaux, associations
+  d'alimentation, élus, contact de la mairie. Les flèches ‹ › en haut de la fiche passent à la commune précédente ou
+  suivante du classement (« hors filtres » : la commune n'est pas dans le classement filtré).
+- **« Écoles à cibler »** classe les écoles de la commune comme à l'étape 2 (mêmes poids, même rayon) : rang, type et
+  secteur, élèves, les cinq jauges en barres, score. Les cinq premières sont affichées, « Afficher les N autres »
+  donne la suite ; « Moyenne des jauges des écoles » résume la commune. Le lien « N écoles à cibler ↓ », sous le
+  score de la commune, y mène directement.
 
 ### Retenir des communes
 
