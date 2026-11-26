@@ -21,7 +21,7 @@ import {
   couleurEcole, couleurIris, GROUPES, IDENTIFIANT, MARQUES, peintureCommunes, SOURCES, ZONES, ZONES_FICHE, type NomSource,
   type ZoneFiche,
 } from './couches';
-import { empriseDepartement, empriseZone, type Emprise } from './emprise';
+import { empriseDepartements, empriseZone, type Emprise } from './emprise';
 import type { Fond } from './fond';
 
 setWorkerUrl(urlWorker);
@@ -270,8 +270,8 @@ export class Carte {
     else if (communes) this.allerCommunes(communes);
   }
 
-  allerDepartement(dep: string): void {
-    const e = empriseDepartement(this.modele.meta, dep);
+  allerDepartements(deps: readonly string[]): void {
+    const e = empriseDepartements(this.modele.meta, deps);
     if (e) this.cadrer(e, this.etat.selection === null ? 0 : this.cachee());
   }
 

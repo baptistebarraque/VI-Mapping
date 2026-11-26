@@ -48,9 +48,12 @@ Choisir **« 1. Communes »** en haut à gauche (c'est l'étape par défaut).
 - **Les poids** (« Poids du score », à gauche) règlent l'importance de chaque critère ; le classement
   et la carte se mettent à jour aussitôt. « Poids par défaut » revient au réglage d'origine.
 - **Les filtres** : départements, et « Critères connus, au moins » pour écarter les communes trop peu documentées
-  (une commune peu documentée peut sinon se retrouver en tête).
+  (une commune peu documentée peut sinon se retrouver en tête). La carte cadre les départements choisis, tous à la
+  fois ; sans département choisi, toute la région.
 - **Cliquer sur une commune** (dans le classement ou sur la carte) ouvre sa fiche : détail du score, cantine et
-  cuisine centrale, soutiens territoriaux, associations d'alimentation, élus, contact de la mairie, écoles.
+  cuisine centrale, soutiens territoriaux, associations d'alimentation, élus, contact de la mairie, écoles. Les
+  flèches ‹ › en haut de la fiche passent à la commune précédente ou suivante du classement (« hors filtres » : la
+  commune n'est pas dans le classement filtré).
 
 ### Retenir des communes
 
@@ -73,7 +76,7 @@ Choisir **« 2. Écoles »** (ou « Voir leurs écoles → » depuis l'étape 1)
 - **« Seulement les [50] premières »** (au-dessus du classement) ne garde que le haut du classement, sur la carte aussi.
 - **La fiche d'une école** détaille ses jauges, l'accueil périscolaire et l'association de parents rattachés, les
   producteurs bio dans le rayon (avec la durée du trajet), et le contact de l'école. Les flèches en haut de la fiche
-  passent à l'école précédente ou suivante du classement.
+  passent à l'école précédente ou suivante du classement filtré.
 - **« Exporter en CSV »** télécharge le classement des écoles.
 
 ## Contacter
@@ -114,12 +117,12 @@ La carte n'enregistre pas qui a été contacté : noter le suivi dans le CSV exp
 L'adresse de la page garde tout : étape, poids, rayon, filtres, communes retenues, fiche ouverte. Copier l'adresse
 et l'envoyer suffit pour que quelqu'un retrouve exactement la même vue.
 
-## Mettre à jour les données
-
-| Besoin | Commande |
 Pour que quelqu'un consulte la carte sans rien installer : la mettre en ligne derrière une connexion par e-mail,
 voir [PUBLIER.md](PUBLIER.md).
 
+## Mettre à jour les données
+
+| Besoin | Commande |
 |---|---|
 | Tout recollecter puis recalculer | `make collecte` puis `uv run vi exporter` |
 | Après un changement de poids par défaut (`config/jauges.yaml`) | `uv run vi jauges && uv run vi exporter` |

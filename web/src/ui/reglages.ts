@@ -91,7 +91,7 @@ export interface Reglages {
 
 export interface Deplacements {
   commune: (code: string) => void;
-  departement: (code: string) => void;
+  departements: (codes: string[]) => void;
   pat: (id: string) => void;
 }
 
@@ -115,7 +115,7 @@ export function panneauReglages(meta: Meta, m: Magasin, pats: ProprietesPat[], a
       const l = e().filtres.departements;
       const choisis = l.includes(d) ? l.filter((x) => x !== d) : [...l, d].sort();
       m.filtrer({ departements: choisis });
-      if (choisis.length === 1) aller.departement(choisis[0]);
+      aller.departements(choisis); // le cadre suit : les départements choisis, ou toute la région
     },
   ));
 

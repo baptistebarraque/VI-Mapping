@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, test } from 'vitest';
 
 import { etatInitial, filtresVides, type Filtres } from '../src/etat';
 import { Modele } from '../src/modele';
+import { voisine } from '../src/ui/parcours';
 import { meta, table } from './exemple';
 
 let m: Modele;
@@ -45,17 +46,17 @@ describe('parcours du classement', () => {
     uai();
     const [premiere, deuxieme] = m.visibles;
     const derniere = m.visibles.at(-1) as number;
-    expect(m.voisine(premiere, 1)).toBe(deuxieme);
-    expect(m.voisine(deuxieme, -1)).toBe(premiere);
-    expect(m.voisine(premiere, -1)).toBeNull();
-    expect(m.voisine(derniere, 1)).toBeNull();
+    expect(voisine(m.visibles, premiere, 1)).toBe(deuxieme);
+    expect(voisine(m.visibles, deuxieme, -1)).toBe(premiere);
+    expect(voisine(m.visibles, premiere, -1)).toBeNull();
+    expect(voisine(m.visibles, derniere, 1)).toBeNull();
   });
 
   test('suit les filtres ; une école filtrée n’a pas de voisine', () => {
     uai({ commune: '93048', secteur: 'public' });
     expect(m.visibles).toEqual([3, 1]); // l'école C, privée, est sautée
-    expect(m.voisine(3, 1)).toBe(1);
-    expect(m.voisine(0, 1)).toBeNull();
+    expect(voisine(m.visibles, 3, 1)).toBe(1);
+    expect(voisine(m.visibles, 0, 1)).toBeNull();
   });
 });
 

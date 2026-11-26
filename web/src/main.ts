@@ -56,7 +56,13 @@ async function demarrer(app: HTMLElement): Promise<void> {
   const zoneCarte = h('div', { classe: 'fond-carte' });
   const legende = h('details', { classe: 'legende', open: !matchMedia('(max-width: 900px)').matches });
   // Une flèche remplace la fiche sans l'empiler dans l'historique : « précédent » ramène à l'écran d'avant.
-  const parcours = new Parcours(modele, (i) => choisir({ type: 'ecole', uai: table.uai[i] }, true, true));
+  const parcours = new Parcours({
+    ecole: { nom: 'École', visibles: () => modele.visibles, choisir: (i) => choisir({ type: 'ecole', uai: table.uai[i] }, true, true) },
+    commune: {
+      nom: 'Commune', visibles: () => communes.visibles,
+      choisir: (k) => choisir({ type: 'commune', code: meta.communes[k].code }, true, true),
+    },
+  });
   const corpsFiche = h('div', { classe: 'corps-fiche' });
   const retour = h('button', { type: 'button', classe: 'discret', title: 'Fiche précédente', onclick: () => history.back() }, '← Retour');
   const panneauFiche = h(
@@ -98,7 +104,7 @@ async function demarrer(app: HTMLElement): Promise<void> {
       carte.allerCommune(code);
       choisir({ type: 'commune', code });
     },
-    departement: (code) => carte.allerDepartement(code),
+    departements: (codes) => carte.allerDepartements(codes),
     pat: (id) => choisir({ type: 'pat', id }, true),
   });
   const dialogue = dialogueSources(meta, async () => tableauxCouverture(await chargerCouverture()));
@@ -163,6 +169,12 @@ async function demarrer(app: HTMLElement): Promise<void> {
 
   const ecoleChoisie = (): number | null =>
     etat.selection?.type === 'ecole' ? (modele.rang.get(etat.selection.uai) ?? null) : null;
+  /** Fiche ouverte qui a un classement (école ou commune) et son rang dans les colonnes. */
+  const aParcourir = (): { type: 'ecole' | 'commune'; k: number } | null => {
+    const s = etat.selection;
+    const k = s?.type === 'ecole' ? modele.rang.get(s.uai) : s?.type === 'commune' ? communes.rang.get(s.code) : undefined;
+    return s && k !== undefined ? { type: s.type as 'ecole' | 'commune', k } : null;
+  };
 
   let dessin: (() => HTMLElement) | null = null;
   let fiche: Fiche | null = null;
@@ -228,7 +240,7 @@ async function demarrer(app: HTMLElement): Promise<void> {
     aDeplacer = false;
     classement.marquer(i);
     classementCommunes.marquer(s?.type === 'commune' ? s.code : null);
-    parcours.maj(i);
+    parcours.maj(aParcourir());
     retour.hidden = !(history.state as { depuisFiche?: boolean } | null)?.depuisFiche;
     void carte.choisir(i !== null ? { xy: [table.lon[i], table.lat[i]] } : s?.type === 'commune' ? { communes: [s.code] }
       : s?.type === 'pat' ? { zone: { source: 'pat', id: s.id } } : {});
@@ -317,13 +329,13 @@ async function demarrer(app: HTMLElement): Promise<void> {
     if (touche('rayon', 'poids', 'filtres')) {
       modele.filtrer(etat.filtres);
       classement.maj();
-      parcours.maj(ecoleChoisie());
       void carte.majEcoles();
     }
     if (touche('rayon', 'poidsCommunes', 'filtres')) {
       communes.filtrer(etat.filtres);
       classementCommunes.maj();
     }
+    if (touche('rayon', 'poids', 'poidsCommunes', 'filtres')) parcours.maj(aParcourir());
     if (touche('rayon', 'poidsCommunes', 'filtres', 'etape')) {
       void carte.colorerCommunes(communes.scores, etat.filtres.retenues);
     }
@@ -363,7 +375,7 @@ async function demarrer(app: HTMLElement): Promise<void> {
     aDeplacer = true;
     void montrerSelection();
   } else if (etat.filtres.commune) carte.allerCommune(etat.filtres.commune);
-  else if (etat.filtres.departements.length === 1) carte.allerDepartement(etat.filtres.departements[0]);
+  else if (etat.filtres.departements.length) carte.allerDepartements(etat.filtres.departements);
   history.replaceState(history.state, '', adresse());
 }
 

@@ -1,4 +1,4 @@
-/** Emprises [ouest, sud, est, nord] : réunion, département, zone. */
+/** Emprises [ouest, sud, est, nord] : réunion, départements, zone. */
 
 import type { Geometry, Position } from 'geojson';
 
@@ -14,8 +14,9 @@ export function reunir(emprises: Iterable<Emprise>): Emprise | null {
   return r;
 }
 
-export const empriseDepartement = (meta: Meta, dep: string): Emprise | null =>
-  reunir(meta.communes.filter((c) => c.dep === dep).map((c) => c.bbox));
+/** Départements choisis ensemble : le cadre qui les contient tous ; aucun : toute la région. */
+export const empriseDepartements = (meta: Meta, deps: readonly string[]): Emprise | null =>
+  reunir(meta.communes.filter((c) => !deps.length || deps.includes(c.dep)).map((c) => c.bbox));
 
 /** Emprise d'un polygone ou d'un multipolygone ; null pour les autres géométries. */
 export function empriseZone(g: Geometry): Emprise | null {

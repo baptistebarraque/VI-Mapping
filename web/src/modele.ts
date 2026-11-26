@@ -104,11 +104,6 @@ export class Modele {
   }
 
   /** École juste avant (-1) ou juste après (1) dans le classement ; null au bout, ou si l'école est filtrée. */
-  voisine(i: number, pas: 1 | -1): number | null {
-    const rang = this.visibles.indexOf(i);
-    return rang < 0 ? null : (this.visibles[rang + pas] ?? null);
-  }
-
   moyenne(valeurs: Iterable<Nombre>): Nombre {
     let n = 0;
     let s = 0;

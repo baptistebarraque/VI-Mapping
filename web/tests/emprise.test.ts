@@ -2,7 +2,7 @@
 
 import { expect, test } from 'vitest';
 
-import { empriseDepartement, empriseZone, reunir } from '../src/carte/emprise';
+import { empriseDepartements, empriseZone, reunir } from '../src/carte/emprise';
 import type { Meta } from '../src/types';
 
 const meta = {
@@ -14,8 +14,14 @@ const meta = {
 } as unknown as Meta;
 
 test('département : réunion des emprises de ses communes', () => {
-  expect(empriseDepartement(meta, '93')).toEqual([2.3, 48.8, 2.5, 49.0]);
-  expect(empriseDepartement(meta, '77')).toBeNull();
+  expect(empriseDepartements(meta, ['93'])).toEqual([2.3, 48.8, 2.5, 49.0]);
+  expect(empriseDepartements(meta, ['77'])).toBeNull();
+});
+
+test('plusieurs départements : un cadre qui les contient tous ; aucun : toute la région', () => {
+  expect(empriseDepartements(meta, ['75', '93'])).toEqual([2.2, 48.7, 2.5, 49.0]);
+  expect(empriseDepartements(meta, ['75', '77'])).toEqual([2.2, 48.7, 2.4, 48.8]);
+  expect(empriseDepartements(meta, [])).toEqual([2.2, 48.7, 2.5, 49.0]);
 });
 
 test('rien à réunir', () => {
