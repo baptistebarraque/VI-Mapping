@@ -220,6 +220,8 @@ def test_export_des_pat_avec_leurs_communes(conn: Conn) -> None:
             **prov("france_pat")}], ["id"])
     assert [f["properties"]["communes"] for f in zones.dispositifs(conn, "pat")["features"]] == [["93048"]]
     assert "communes" not in zones.dispositifs(conn, "qpv")["features"][0]["properties"]
+    # Départements couverts : la carte filtre chaque zone avec les départements choisis.
+    assert zones.dispositifs(conn, "qpv")["features"][0]["properties"]["deps"] == "93"
 
 
 @pytest.mark.parametrize(("taux", "attendu"), [

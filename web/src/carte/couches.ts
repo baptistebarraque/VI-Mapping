@@ -1,6 +1,6 @@
 /** Sources et couches de la carte, du dessous (zones) au dessus (écoles). */
 
-import type { ExpressionSpecification, LayerSpecification } from '@maplibre/maplibre-gl-style-spec';
+import type { ExpressionSpecification, FilterSpecification, LayerSpecification } from '@maplibre/maplibre-gl-style-spec';
 
 import {
   ALIMENTATION, BORNES_IRIS, BORNES_SCORE, bornesDe, COLLECTIVITE, ENCRE, ENCRE_2, INCONNU, OPACITE_COMMUNES,
@@ -178,6 +178,22 @@ export const MARQUES: LayerSpecification[] = [
     },
   },
 ];
+
+/** Département d'un objet de chaque source : sa propriété `dep`, le début de son code commune, ou sa liste `deps`. */
+const DEPARTEMENT: Partial<Record<NomSource, 'dep' | 'commune' | 'deps'>> = {
+  communes: 'dep', iris: 'commune', accueils: 'commune', assos: 'commune', producteurs: 'commune', relais: 'commune',
+  pat: 'deps', qpv: 'deps', cites: 'deps',
+};
+
+/** Filtre MapLibre qui ne garde que les départements choisis ; null : aucun choisi, tout est montré. */
+export function filtreDepartements(source: NomSource, deps: readonly string[]): FilterSpecification | null {
+  const propriete = DEPARTEMENT[source];
+  if (!deps.length || !propriete) return null;
+  const texte = (p: string): ExpressionSpecification => ['coalesce', ['get', p], ''] as ExpressionSpecification;
+  if (propriete === 'deps') return ['any', ...deps.map((d): ExpressionSpecification => ['in', d, texte('deps')])];
+  const dep: ExpressionSpecification = propriete === 'dep' ? texte('dep') : ['slice', texte('commune'), 0, 2];
+  return ['in', dep, ['literal', [...deps]]];
+}
 
 /** Couches MapLibre de chaque couche activable. */
 export const GROUPES: Record<Couche, string[]> = {

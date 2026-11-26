@@ -10,7 +10,7 @@ import {
 import urlWorker from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 
 import { adresse, chargerPats, chargerZone } from '../donnees';
-import { COUCHES, type Cible, type Couche, type Etat } from '../etat';
+import { COUCHES, couchesActives, type Cible, type Couche, type Etat } from '../etat';
 import type { Modele } from '../modele';
 import type { CollectionPoints, ProprietesProducteur, ProprietesRelais } from '../types';
 import { LIBELLE_NATURE, nombre } from '../ui/format';
@@ -18,8 +18,8 @@ import { infobulle, NATURE_POINT, popupChoix, surtitrePoint, type Choix, type Ty
 import { imageHachures, imageSymbole, type Symbole } from '../ui/symboles';
 import { ENCRE_2 } from '../couleurs';
 import {
-  couleurEcole, couleurIris, GROUPES, IDENTIFIANT, MARQUES, peintureCommunes, SOURCES, ZONES, ZONES_FICHE, type NomSource,
-  type ZoneFiche,
+  couleurEcole, couleurIris, filtreDepartements, GROUPES, IDENTIFIANT, MARQUES, peintureCommunes, SOURCES, ZONES,
+  ZONES_FICHE, type NomSource, type ZoneFiche,
 } from './couches';
 import { empriseDepartements, empriseZone, type Emprise } from './emprise';
 import type { Fond } from './fond';
@@ -66,6 +66,7 @@ export class Carte {
   private survolee: { source: string; id: number | string } | null = null;
   private dessinEnCours = false;
   private aRedessiner = false;
+  private departements: string | null = null; // derniers départements appliqués aux couches
 
   constructor(
     conteneur: HTMLElement,
@@ -122,7 +123,8 @@ export class Carte {
     }
     for (const c of ZONES) this.gl.addLayer(c, avant);
     for (const c of MARQUES) this.gl.addLayer(c);
-    for (const c of COUCHES) this.montrer(c, this.etat.couches[c]);
+    for (const c of COUCHES) this.montrer(c, couchesActives(this.etat)[c]);
+    this.filtrerDepartements();
     this.colorer();
     this.dessiner();
   }
@@ -158,7 +160,23 @@ export class Carte {
   // ---------------------------------------------------------------- mises à jour
   async majCouches(): Promise<void> {
     await this.prete;
-    for (const c of COUCHES) this.montrer(c, this.etat.couches[c]);
+    for (const c of COUCHES) this.montrer(c, couchesActives(this.etat)[c]);
+  }
+
+  /** Départements choisis : chaque couche ne garde que les leurs (les écoles le sont déjà par le classement). */
+  async majDepartements(): Promise<void> {
+    await this.prete;
+    this.filtrerDepartements();
+  }
+
+  private filtrerDepartements(): void {
+    const deps = this.etat.filtres.departements;
+    if (deps.join() === this.departements) return; // les autres filtres ne changent rien aux couches
+    this.departements = deps.join();
+    for (const c of COUCHES) {
+      if (c === 'ecoles') continue;
+      for (const id of GROUPES[c]) this.gl.setFilter(id, filtreDepartements(c, deps));
+    }
   }
 
   async majColoration(): Promise<void> {
@@ -300,7 +318,7 @@ export class Carte {
   }
 
   private couchesPoints(): string[] {
-    return POINTS.filter((c) => this.etat.couches[c] && this.gl.getLayer(c));
+    return POINTS.filter((c) => couchesActives(this.etat)[c] && this.gl.getLayer(c));
   }
 
   /** Points à PORTEE_PX près du pointeur, du plus proche au plus loin ; à distance égale, les écoles d'abord. */
@@ -337,7 +355,7 @@ export class Carte {
 
   /** Zones affichées sous le pointeur, une seule fois chacune, de la plus précise à la plus vaste. */
   private zonesSous(e: MapMouseEvent): MapGeoJSONFeature[] {
-    const layers = ZONES_CLIC.filter((z) => this.etat.couches[z] && this.gl.getLayer(z));
+    const layers = ZONES_CLIC.filter((z) => couchesActives(this.etat)[z] && this.gl.getLayer(z));
     if (!layers.length) return [];
     const vues = new Map<string, MapGeoJSONFeature>();
     for (const f of this.gl.queryRenderedFeatures(e.point, { layers })) {
@@ -349,7 +367,7 @@ export class Carte {
 
   /** Zone dont le nom, écrit sur la carte, est sous le pointeur : elle s'ouvre sans passer par la liste. */
   private nomSous(e: MapMouseEvent): MapGeoJSONFeature | null {
-    const layers = (['pat', 'cites', 'qpv'] as const).filter((z) => this.etat.couches[z]).map((z) => `${z}-nom`);
+    const layers = (['pat', 'cites', 'qpv'] as const).filter((z) => couchesActives(this.etat)[z]).map((z) => `${z}-nom`);
     return (layers.length && this.gl.queryRenderedFeatures(e.point, { layers })[0]) || null;
   }
 

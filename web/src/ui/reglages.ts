@@ -1,7 +1,8 @@
 /** Panneau de gauche : filtres, poids du score, rayon des producteurs, couches. */
 
 import {
-  filtresVides, type Coloration, type Couche, type Etape, type Etat, type Magasin, type Secteur, type VariableIris,
+  avecCouche, couchesActives, filtresVides, type Coloration, type Couche, type Etape, type Etat, type Magasin, type Secteur,
+  type VariableIris,
 } from '../etat';
 import {
   CRITERES_COMMUNES, JAUGES, TYPES_ECOLE, type CritereCommune, type Meta, type Mode, type NomJauge, type ProprietesPat,
@@ -334,7 +335,9 @@ export function panneauReglages(meta: Meta, m: Magasin, pats: ProprietesPat[], a
     }, 'Rayon par défaut'),
   );
 
-  // ------------------------------------------------------------ couches
+  // ------------------------------------------------------------ couches (propres à chaque étape)
+  const majsCouches: (() => void)[] = [];
+  majs.push(() => majsCouches.forEach((f) => f()));
   const signes: Record<Couche, () => Node> = {
     ecoles: () => rond(RAMPE_ECOLES[2]),
     accueils: () => symbole('accueils'),
@@ -350,10 +353,10 @@ export function panneauReglages(meta: Meta, m: Magasin, pats: ProprietesPat[], a
   const bascule = (c: Couche): HTMLElement => {
     const input = h('input', {
       type: 'checkbox',
-      onchange: () => m.modifier('couches', { ...e().couches, [c]: input.checked }),
+      onchange: () => m.modifier('couches', avecCouche(e(), c, input.checked)),
     });
-    majs.push(() => {
-      input.checked = e().couches[c];
+    majsCouches.push(() => {
+      input.checked = couchesActives(e())[c];
     });
     return h('label', { classe: 'case' }, input, signes[c](), h('span', {}, LIBELLE_COUCHE[c]));
   };
@@ -400,8 +403,8 @@ export function panneauReglages(meta: Meta, m: Magasin, pats: ProprietesPat[], a
       () => e().iris,
       (x) => {
         m.modifier('iris', x);
-        if (!e().couches.iris) {
-          m.modifier('couches', { ...e().couches, iris: true });
+        if (!couchesActives(e()).iris) {
+          m.modifier('couches', avecCouche(e(), 'iris', true));
           maj();
         }
       },
@@ -417,7 +420,10 @@ export function panneauReglages(meta: Meta, m: Magasin, pats: ProprietesPat[], a
   };
   majs.push(majEtape);
   m.abonner((sujets) => {
-    if (sujets.has('etape')) majEtape();
+    if (sujets.has('etape')) {
+      majEtape();
+      majsCouches.forEach((f) => f());
+    }
     if (sujets.has('filtres')) majRetenues();
   });
 

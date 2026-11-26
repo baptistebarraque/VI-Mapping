@@ -62,19 +62,24 @@ def iris(conn: Connexion) -> dict[str, Any]:
 def dispositifs(
     conn: Connexion, type_: str, complements: Callable[[str], dict[str, Any]] | None = None
 ) -> dict[str, Any]:
-    """PAT (communes, mention « lauréat de l'appel à projets du PNA », contact du porteur), QPV ou cités éducatives."""
+    """PAT (communes, mention « lauréat de l'appel à projets du PNA », contact du porteur), QPV ou cités éducatives.
+
+    `deps` : départements couverts (« 75,93 »), pour que la carte filtre la zone avec les départements choisis.
+    """
     tolerance = TOLERANCE_QPV_M if type_ == "qpv" else TOLERANCE_DISPOSITIFS_M
     return collection(
         _feature(r["g"], {
             "id": r["id"], "nom": r["nom"], "axe": r["axe_education_alimentaire"], "annee": r["annee"],
             "niveau": r["niveau"], "laureat": r["laureat"] or None,
-            "communes": r["communes"] if type_ == "pat" else None, **prov(r),
+            "communes": r["communes"] if type_ == "pat" else None, "deps": r["deps"], **prov(r),
             **(complements(r["id"]) if complements else {}),
         })
         for r in conn.execute(
             """SELECT d.*,
                       EXISTS (SELECT 1 FROM dispositif l WHERE l.id = replace(d.id, 'pat:', 'laureat_aap:')
                               AND l.type = 'laureat_aap' AND d.type = 'pat') AS laureat,
+                      (SELECT string_agg(DISTINCT c.departement, ',' ORDER BY c.departement) FROM commune c
+                       WHERE c.code_insee = ANY(d.communes)) AS deps,
                       ST_AsGeoJSON(ST_Transform(ST_SimplifyPreserveTopology(ST_Transform(d.geom, 2154), %s), 4326), 5)
                         AS g
                FROM dispositif d WHERE d.type = %s AND d.geom IS NOT NULL ORDER BY d.id""", (tolerance, type_))

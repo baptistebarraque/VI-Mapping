@@ -102,7 +102,9 @@ La carte n'enregistre pas qui a été contacté : noter le suivi dans le CSV exp
   le critère Producteurs des communes.
 - **Couches de la carte** : couleur des écoles (score ou une jauge), points à afficher (accueils périscolaires,
   associations de parents, producteurs bio, relais locaux), zones (communes, PAT, cités éducatives, quartiers
-  prioritaires, IRIS) ; « Voir un PAT » ouvre la fiche d'un projet alimentaire territorial.
+  prioritaires, IRIS) ; « Voir un PAT » ouvre la fiche d'un projet alimentaire territorial. Chaque étape garde ses
+  couches : par défaut, les communes seules à l'étape 1, les écoles seules à l'étape 2. Les départements choisis dans
+  les filtres s'appliquent à toutes les couches affichées.
 - **Méthode et sources** (en haut) : d'où vient chaque donnée, sa date, et le taux de remplissage par département.
 
 ## Lire les notes

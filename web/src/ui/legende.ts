@@ -4,7 +4,7 @@ import {
   BORNES_IRIS, BORNES_SCORE, bornesDe, COLLECTIVITE, ENCRE_2, INCONNU, OPACITE_COMMUNES, OPACITE_IRIS, RAMPE_COMMUNES,
   RAMPE_ECOLES, RAMPE_IRIS, ZONE_CITE, ZONE_PAT,
 } from '../couleurs';
-import type { Etat } from '../etat';
+import { couchesActives, type Etat } from '../etat';
 import { h, remplacer, svg, type Enfant } from './dom';
 import { LIBELLE_COLORATION, LIBELLE_COUCHE, LIBELLE_IRIS, VALEUR_IRIS } from './format';
 import { rond, symbole, zone } from './symboles';
@@ -29,7 +29,7 @@ const bandeau = (couleurs: readonly string[], bornes: readonly number[], opacite
 );
 
 export function majLegende(el: HTMLDetailsElement, e: Etat): void {
-  const c = e.couches;
+  const c = couchesActives(e);
   const blocs: Enfant[] = [];
   if (c.communes && e.etape === 'communes') {
     blocs.push(

@@ -9,6 +9,7 @@ export const COUCHES = [
   'ecoles', 'accueils', 'assos', 'producteurs', 'relais', 'communes', 'pat', 'qpv', 'cites', 'iris',
 ] as const;
 export type Couche = (typeof COUCHES)[number];
+export type CouchesActives = Record<Couche, boolean>;
 export type Secteur = 'tous' | 'public' | 'prive';
 export type VariableIris = 'familles' | 'revenu' | 'pauvrete';
 export type Coloration = 'score' | NomJauge;
@@ -47,7 +48,7 @@ export interface Etat {
   poidsCommunes: ParCritere<number>;
   rayon: Rayon;
   filtres: Filtres;
-  couches: Record<Couche, boolean>;
+  couches: Record<Etape, CouchesActives>; // chaque étape garde ses couches
   coloration: Coloration;
   iris: VariableIris;
   selection: Selection;
@@ -65,6 +66,21 @@ export function filtresVides(): Filtres {
   };
 }
 
+/** Par défaut, chaque étape montre ce qu'elle classe : les communes à l'étape 1, les écoles à l'étape 2. */
+export function couchesDefaut(etape: Etape): CouchesActives {
+  return {
+    ecoles: etape === 'ecoles', accueils: false, assos: false, producteurs: false, relais: false,
+    communes: etape === 'communes', pat: false, qpv: false, cites: false, iris: false,
+  };
+}
+
+/** Couches de l'étape affichée. */
+export const couchesActives = (e: Etat): CouchesActives => e.couches[e.etape];
+
+/** Toutes les couches, une couche de l'étape affichée changée. */
+export const avecCouche = (e: Etat, c: Couche, visible: boolean): Etat['couches'] =>
+  ({ ...e.couches, [e.etape]: { ...e.couches[e.etape], [c]: visible } });
+
 export function etatInitial(meta: Meta): Etat {
   return {
     etape: 'communes',
@@ -72,10 +88,7 @@ export function etatInitial(meta: Meta): Etat {
     poidsCommunes: { ...meta.poids_communes },
     rayon: { ...meta.rayon },
     filtres: filtresVides(),
-    couches: {
-      ecoles: true, accueils: false, assos: false, producteurs: false, relais: false,
-      communes: true, pat: false, qpv: false, cites: false, iris: false,
-    },
+    couches: { communes: couchesDefaut('communes'), ecoles: couchesDefaut('ecoles') },
     coloration: 'score',
     iris: 'familles',
     selection: null,
@@ -116,6 +129,8 @@ export class Magasin {
 }
 
 // ------------------------------------------------------------------ état dans l'adresse (#…)
+const ETAPES: readonly Etape[] = ['communes', 'ecoles'];
+const CLE_COUCHES: Record<Etape, string> = { communes: 'couches', ecoles: 'couches2' };
 const liste = (x: readonly (string | number)[]): string => x.join('-');
 const nombres = (s: string | null): number[] => (s ? s.split('-').map(Number).filter(Number.isFinite) : []);
 
@@ -130,7 +145,7 @@ export function versAdresse(e: Etat, meta: Meta): string {
   const poidsCommunes = (x: Etat): string => liste(CRITERES_COMMUNES.map((c) => x.poidsCommunes[c]));
   const rayon = (x: Etat): string => liste([x.rayon.km, x.rayon.minutes, x.rayon.mode]);
   const seuils = (x: Etat): string => liste(JAUGES.map((j) => x.filtres.seuils[j]));
-  const couches = (x: Etat): string => liste(COUCHES.filter((c) => x.couches[c]));
+  const couches = (x: CouchesActives): string => liste(COUCHES.filter((c) => x[c]));
   poser('etape', e.etape, defaut.etape);
   poser('poids', poids(e), poids(defaut));
   poser('pc', poidsCommunes(e), poidsCommunes(defaut));
@@ -146,7 +161,7 @@ export function versAdresse(e: Etat, meta: Meta): string {
   poser('inconnues', e.filtres.garderInconnues ? '1' : '', '');
   poser('connues', String(e.filtres.connuesMin), '0');
   poser('premiers', String(e.filtres.premiers ?? ''), '');
-  poser('couches', couches(e), couches(defaut));
+  for (const etape of ETAPES) poser(CLE_COUCHES[etape], couches(e.couches[etape]), couches(defaut.couches[etape]));
   poser('couleur', e.coloration, defaut.coloration);
   poser('iris', e.iris, defaut.iris);
   if (e.selection) p.set(...parametreCible(e.selection));
@@ -213,9 +228,10 @@ export function depuisAdresse(hash: string, meta: Meta): Etat {
   f.criteresMin = Number.isInteger(criteres) && dans(criteres, 0, CRITERES_COMMUNES.length) ? criteres : 0;
   const premiers = Number(p.get('premiers'));
   f.premiers = Number.isInteger(premiers) && dans(premiers, 1, PREMIERS_MAX) ? premiers : null;
-  if (p.has('couches')) {
-    const actives = new Set((p.get('couches') ?? '').split('-'));
-    for (const c of COUCHES) e.couches[c] = actives.has(c);
+  for (const etape of ETAPES) {
+    if (!p.has(CLE_COUCHES[etape])) continue;
+    const actives = new Set((p.get(CLE_COUCHES[etape]) ?? '').split('-'));
+    for (const c of COUCHES) e.couches[etape][c] = actives.has(c);
   }
   const couleur = p.get('couleur');
   if (couleur === 'score' || JAUGES.includes(couleur as NomJauge)) e.coloration = couleur as Coloration;

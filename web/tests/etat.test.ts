@@ -3,10 +3,32 @@
 import { describe, expect, test } from 'vitest';
 
 import { cellule, classementCsv } from '../src/csv';
-import { depuisAdresse, etatInitial, filtresVides, versAdresse, type Etat } from '../src/etat';
+import {
+  avecCouche, couchesActives, couchesDefaut, depuisAdresse, etatInitial, filtresVides, versAdresse, type Etat,
+} from '../src/etat';
 import { Modele } from '../src/modele';
 import { pourcent } from '../src/ui/couverture';
 import { meta, table } from './exemple';
+
+describe('couches propres à chaque étape', () => {
+  test('par défaut : les communes à l’étape 1, les écoles à l’étape 2', () => {
+    const e = etatInitial(meta);
+    expect(couchesActives(e)).toMatchObject({ communes: true, ecoles: false });
+    e.etape = 'ecoles';
+    expect(couchesActives(e)).toMatchObject({ communes: false, ecoles: true });
+  });
+
+  test('une couche cochée ne change que l’étape affichée, et chaque étape a sa clé dans l’adresse', () => {
+    const e = etatInitial(meta);
+    e.couches = avecCouche(e, 'pat', true);
+    expect(e.couches.communes.pat).toBe(true);
+    expect(e.couches.ecoles.pat).toBe(false);
+    expect(versAdresse(e, meta)).toBe('couches=communes-pat');
+    e.etape = 'ecoles';
+    e.couches = avecCouche(e, 'communes', true);
+    expect(depuisAdresse(`#${versAdresse(e, meta)}`, meta).couches).toEqual(e.couches);
+  });
+});
 
 describe('adresse', () => {
   test('vide pour les réglages par défaut', () => {
@@ -28,7 +50,10 @@ describe('adresse', () => {
         elevesMin: 50, elevesMax: null, seuils: { ...filtresVides().seuils, parents: 30 }, garderInconnues: true,
         connuesMin: 3, premiers: 50, retenues: ['75112', '93048'], criteresMin: 5,
       },
-      couches: { ...etatInitial(meta).couches, qpv: true, communes: false },
+      couches: {
+        communes: { ...couchesDefaut('communes'), qpv: true, communes: false },
+        ecoles: { ...couchesDefaut('ecoles'), communes: true },
+      },
       coloration: 'familles',
       iris: 'revenu',
       selection: { type: 'ecole', uai: '0930003C' },
