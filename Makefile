@@ -1,7 +1,9 @@
 # Raccourcis. « make » seul affiche l'aide.
 DONNEES = https://github.com/baptistebarraque/VI-Mapping/releases/latest/download
+PROJET ?= vi-mapping
+DOMAINE ?= $(PROJET).pages.dev
 
-.PHONY: aide installer base donnees voir archives collecte maj verifier couverture carte site controles
+.PHONY: aide installer base donnees voir archives collecte maj verifier couverture carte site publier controles
 
 aide:
 	@grep -E '^[a-z]+:.*##' $(MAKEFILE_LIST) | sed -E 's/:.*## /\t/' | expand -t 14
@@ -49,6 +51,10 @@ carte: ## exporte les données et lance la carte en local
 site: ## construit la carte dans web/dist
 	uv run vi exporter
 	cd web && npm run build
+
+publier: ## met la carte en ligne, derrière Cloudflare Access (docs/PUBLIER.md)
+	uv run vi exporter
+	PROJET=$(PROJET) DOMAINE=$(DOMAINE) ./scripts/publier.sh
 
 controles: ## style, types et tests
 	uv run ruff check src tests

@@ -117,6 +117,9 @@ et l'envoyer suffit pour que quelqu'un retrouve exactement la même vue.
 ## Mettre à jour les données
 
 | Besoin | Commande |
+Pour que quelqu'un consulte la carte sans rien installer : la mettre en ligne derrière une connexion par e-mail,
+voir [PUBLIER.md](PUBLIER.md).
+
 |---|---|
 | Tout recollecter puis recalculer | `make collecte` puis `uv run vi exporter` |
 | Après un changement de poids par défaut (`config/jauges.yaml`) | `uv run vi jauges && uv run vi exporter` |

@@ -66,9 +66,8 @@ export function blocRelance(uai: string, score: number | null): HTMLElement {
   const t = trace(uai);
 
   function afficher(): void {
-    bouton.disabled = !import.meta.env.DEV || enCours !== null;
-    if (!import.meta.env.DEV) etat.textContent = 'Possible seulement sur la carte lancée en local (« make carte »).';
-    else if (enCours === uai) etat.textContent = 'Analyse en cours, une minute environ. La carte se rechargera.';
+    bouton.disabled = enCours !== null;
+    if (enCours === uai) etat.textContent = 'Analyse en cours, une minute environ. La carte se rechargera.';
     else if (enCours !== null) etat.textContent = 'L’analyse d’une autre école est en cours.';
     else if (erreur?.uai === uai) etat.textContent = erreur.texte;
     else etat.textContent = t ? compteRendu(t, score) : '';

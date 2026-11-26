@@ -1,0 +1,6 @@
+# En-têtes Cloudflare Pages (copiés tels quels dans dist/).
+# La carte contient des contacts : jamais indexée par les moteurs de recherche.
+/*
+  X-Robots-Tag: noindex, nofollow
+  Referrer-Policy: same-origin
+  X-Content-Type-Options: nosniff

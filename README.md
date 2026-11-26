@@ -48,6 +48,7 @@ make collecte                 # toutes les sources, puis rattachements, distance
 make verifier                 # contrôles : données personnelles, périmètre, cohérence
 make carte                    # exporte les données et ouvre la carte en local
 make site                     # carte prête à déposer sur un serveur web, dans web/dist
+make publier                  # carte en ligne, accès par code e-mail (docs/PUBLIER.md)
 ```
 
 Compter 1 Go de téléchargements, 5 Go de base, un quart d'heure hors scraping (distances par la route comprises), et

@@ -58,7 +58,7 @@ export function ficheEcole(i: number, fiche: Fiche, ctx: ContexteFiche): HTMLEle
         h('span', { classe: 'sous' },
           rang >= 0 && s !== null && `${nombre(rang + 1)}${rang === 0 ? 're' : 'e'} sur ${pluriel(modele.visibles.length, 'école filtrée', 'écoles filtrées')}`),
         h('span', { classe: 'sous' }, `${connues} jauges sur 5 · ${pourcent(100 * t.confiance[i])} des critères renseignés`))),
-    blocRelance(t.uai[i], s),
+    import.meta.env.DEV && blocRelance(t.uai[i], s), // en ligne, pas de serveur pour recalculer
     h('div', { classe: 'jauges' }, JAUGES.map((j) => jauge(j, i, f, fiche, ctx))),
     identite(i, f, ctx),
     blocAccueils(f, fiche, ctx),
